@@ -12,5 +12,4 @@ public class Customer
     
     public LineOfCredit? LineOfCredit { get; set; }
     
-    // TODO: we need another type of customer and use this one as base, use inheritance 
 }
