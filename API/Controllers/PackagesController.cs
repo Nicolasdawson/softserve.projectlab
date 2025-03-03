@@ -33,4 +33,6 @@ public class PackagesController : ControllerBase
     }
     
     //TODO: we need a domain class to process this requests, use dependency injection to use those classes 
+    
+    // TODO 2: after implementing result classes we need to check if the domain class failed and return the correct status code
 }
