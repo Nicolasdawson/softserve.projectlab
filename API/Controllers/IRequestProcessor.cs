@@ -6,8 +6,8 @@ namespace API.Controllers;
 public interface IRequestProcessor
 {
 
-    public Package CreatePackage(Package package);
-    public Package AddItem(string packageId, string itemId);
-    public Package DeleteItem(string packageId, string itemId);
-    public Package AddCustomer(string packageId, Customer customer);
+    public Task<Package> CreatePackage(Package package);
+    public Task<Package> AddItem(string packageId, string itemId);
+    public Task<Package> DeleteItem(string packageId, string itemId);
+    public Task<Package> AddCustomer(string packageId, Customer customer);
 }

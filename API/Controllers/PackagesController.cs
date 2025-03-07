@@ -13,28 +13,28 @@ public class PackagesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Package>> CreatePackage([FromBody] Package package)
     {
-        Package p = _RequestProcessor.CreatePackage(package);
+        Package p = await _RequestProcessor.CreatePackage(package);
         return Ok(p);
     }
 
     [HttpPost("{packageId}/Items/{itemId}")]
     public async Task<ActionResult<Package>> AddItem([FromRoute] string packageId, [FromRoute] string itemId)
     {
-        Package p = _RequestProcessor.AddItem(packageId, itemId);
+        Package p = await _RequestProcessor.AddItem(packageId, itemId);
         return Ok(p);
     }
 
     [HttpDelete("{packageId}/Items")]
     public async Task<ActionResult<Package>> DeleteItem([FromRoute] string packageId, [FromRoute] string itemId)
     {
-        Package p = _RequestProcessor.DeleteItem(packageId, itemId);
+        Package p = await _RequestProcessor.DeleteItem(packageId, itemId);
         return Ok(p);
     }
 
     [HttpPost("{packageId}/Customers")]
     public async Task<ActionResult<Package>> AddCustomer([FromRoute] string packageId, [FromBody] Customer customer)
     {
-        Package p = _RequestProcessor.AddCustomer(packageId, customer);
+        Package p = await _RequestProcessor.AddCustomer(packageId, customer);
         return Ok(p);
     }
 

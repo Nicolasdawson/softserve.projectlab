@@ -6,12 +6,12 @@ public class RequestProcessor : IRequestProcessor
 {
     
     public List<Package> Packages = new List<Package>();
-    public Package CreatePackage(Package package)
+    public async Task<Package> CreatePackage(Package package)
     {
         Packages.Add(package);
         return package;
     }
-    public Package AddItem(string packageId, string itemId)
+    public async Task<Package> AddItem(string packageId, string itemId)
     {
         Package? p = Packages.Find(delegate(Package pak){
             return pak.Id.Equals(packageId);
@@ -30,7 +30,7 @@ public class RequestProcessor : IRequestProcessor
 
         return p;
     }
-    public Package DeleteItem(string packageId, string itemId)
+    public async Task<Package> DeleteItem(string packageId, string itemId)
     {
         Package? p = Packages.Find(delegate (Package pak) {
             return pak.Id.Equals(packageId);
@@ -57,7 +57,7 @@ public class RequestProcessor : IRequestProcessor
 
         return p;
     }
-    public Package AddCustomer(string packageId, Customer customer)
+    public async Task<Package> AddCustomer(string packageId, Customer customer)
     {
         Package? p = Packages.Find(delegate (Package pak) {
             return pak.Id.Equals(packageId);
