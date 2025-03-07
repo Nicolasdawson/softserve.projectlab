@@ -14,6 +14,7 @@ public class PackagesController : ControllerBase
     public async Task<ActionResult<Package>> CreatePackage([FromBody] Package package)
     {
         Package p = _RequestProcessor.CreatePackage(package);
+        Console.WriteLine("XD");
         return Ok(p);
     }
 
