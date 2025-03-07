@@ -1,8 +1,14 @@
+using API.services.interfaces;
+using API.services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Service Layer
+builder.Services.AddScoped<IPackageService, packageService>();
 
 var app = builder.Build();
 
