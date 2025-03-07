@@ -9,7 +9,7 @@ public class LineOfCredit
     // TODO: use encapsulation to manipulate the balance of the line of credit 
 
     // Method to add funds to the line of credit
-    public void deposit(decimal amount)
+    public void Deposit(decimal amount)
     {
         if (amount <= 0)
             throw new ArgumentException("El depósito debe ser mayor que cero.");
@@ -18,7 +18,7 @@ public class LineOfCredit
     }
 
     // Method to use credit (withdraw funds)
-    public bool withDraw(decimal amount)
+    public bool WithDraw(decimal amount)
     {
         if (amount <= 0)
             throw new ArgumentException("El monto a retirar debe ser mayor que cero.");

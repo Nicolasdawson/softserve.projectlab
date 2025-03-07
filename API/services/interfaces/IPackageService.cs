@@ -1,6 +1,6 @@
 ﻿using API.Models;
 
-namespace API.services.interfaces
+namespace API.Services.Interfaces
 {
     public interface IPackageService
     {

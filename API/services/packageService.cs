@@ -1,9 +1,9 @@
 ﻿using API.Models;
-using API.services.interfaces;
+using API.Services.Interfaces;
 
-namespace API.services
+namespace API.Services
 {
-    public class packageService : IPackageService
+    public class PackageService : IPackageService
     {
         public async Task<Package> CreatePackageAsync(Package package)
         {

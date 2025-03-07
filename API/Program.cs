@@ -1,5 +1,5 @@
-using API.services.interfaces;
-using API.services;
+using API.Services.Interfaces;
+using API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +8,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //Service Layer
-builder.Services.AddScoped<IPackageService, packageService>();
+builder.Services.AddScoped<IPackageService, PackageService>();
 
 var app = builder.Build();
 

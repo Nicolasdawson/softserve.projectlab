@@ -1,6 +1,6 @@
 ﻿namespace API.Models
 {
-    public class premiumCustomer : Customer
+    public class PremiumCustomer : Customer
     {
         public DateOnly MembershipExpiration { get; set; }
 

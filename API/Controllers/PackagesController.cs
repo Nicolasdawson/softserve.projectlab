@@ -1,7 +1,7 @@
 using API.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using API.services.interfaces;
+using API.Services.Interfaces;
 
 namespace API.Controllers;
 
