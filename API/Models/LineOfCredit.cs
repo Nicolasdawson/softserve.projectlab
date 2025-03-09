@@ -12,7 +12,7 @@ public class LineOfCredit
         private set {
 
             if(value < 0) {
-                throw new ArgumentException("El saldo no puede ser negativo.");
+                throw new ArgumentException("The balance cannot be negative.");
             }
 
             _Balance = value;
@@ -22,17 +22,17 @@ public class LineOfCredit
     public void AddBalance(decimal amount){
 
         if(amount <= 0){
-            throw new ArgumentException("La cantidad a agregar debe ser positiva.");
+            throw new ArgumentException("The amount to be added must be positive.");
         }
         _Balance += amount;
     }
     public void ReduceBalance(decimal amount){
         if(amount <= 0){
-            throw new ArgumentException("La cantida a reducir debe ser positiva");
+            throw new ArgumentException("The amount to be reduced must be positive.");
         }
 
         if(_Balance - amount < 0){
-            throw new InvalidOperationException("No se puede reducir el saldo por debajo de cero.");
+            throw new InvalidOperationException("The balance cannot be reduced below zero.");
         }
 
         _Balance -= amount;

@@ -1,7 +1,7 @@
 using API.Models;
 
-namespace API.Abstractions
-{
+namespace API.Abstractions;
+
     public interface IPackageDomainService
     {
         Task<Package> CreatePackageAsync(Package package);
@@ -9,4 +9,4 @@ namespace API.Abstractions
         Task<Package> DeleteItemAsync(string packageId, string itemId);
         Task<Package> AddCustomerAsync(string packageId, Customer customer);
     }
-}
+
