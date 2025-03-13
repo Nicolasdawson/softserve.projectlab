@@ -12,7 +12,29 @@
 * New pull request
 * aca como base tienen que seleccionar su rama y compare main
 
-para que esto sea iterativo, van a tener que tomar la rama en la que estan trabajando y hacer merge con la rama de la nueva semana por ej
+para que esto sea iterativo, van a tener que tomar la rama en la que estan trabajando y hacer merge con la rama de la nueva semana por ej# Instrucciones
+
+1. **Clonar repositorio**: `git clone https://github.com/Nicolasdawson/softserve.projectlab.git`
+2. **Crear rama para la semana**: `git checkout -b semana-1 origin/semana-1`
+3. **Crear rama personalizada**: `git switch -c semana-1/juanito`
+4. **Buscar instrucciones y ejemplos**: Abrir el proyecto y buscar la palabra clave "TODO"
+5. **Subir cambios**: `git push -u origin semana-1/juanito`
+6. **Crear Pull Request**: 
+    * Ir al repositorio https://github.com/Nicolasdawson/softserve.projectlab
+    * Clickear en Pull Requests
+    * New pull request
+    * Seleccionar rama como base y comparar con main
+
+**Iterar entre ramas**:
+
+* `git checkout -b semana-1 semana-1/juanito`
+* `git merge semana-2`
+
+**Importante**: Antes de hacer merge, asegurarse de estar en la rama correcta. Se puede utilizar Sourcetree o GitHub Desktop para una interfaz visual.
+
+## Contexto
+
+La idea de este proyecto es crear un sistema de ventas. Se almacenará la venta en un `Package` y se podrán crear clientes, agregar items a la venta y cambiar el estado del paquete una vez completado. Se pueden agregar más características, como un servicio para verificar la línea de crédito de un cliente o un catálogo configurable.
 
 git checkout -b semana-1 semana-1/juanito
 
