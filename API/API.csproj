@@ -13,9 +13,7 @@
 
     <ItemGroup>
       <Folder Include="Abstractions\" />
-      <Folder Include="Controllers\" />
-      <Folder Include="implementations\" />
-      <Folder Include="Utils\" />
+      <Folder Include="implementations\Domain\" />
     </ItemGroup>
 
 </Project>
