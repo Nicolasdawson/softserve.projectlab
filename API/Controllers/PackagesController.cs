@@ -8,30 +8,36 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class PackagesController : ControllerBase
 {
+    private RequestProcessor _RequestProcessor = new RequestProcessor();
+
     [HttpPost]
     public async Task<ActionResult<Package>> CreatePackage([FromBody] Package package)
     {
-        return Ok(package);
+        Package p = await _RequestProcessor.CreatePackage(package);
+        return Ok(p);
     }
-    
+
     [HttpPost("{packageId}/Items/{itemId}")]
     public async Task<ActionResult<Package>> AddItem([FromRoute] string packageId, [FromRoute] string itemId)
     {
-        return Ok(new Package());
+        Package p = await _RequestProcessor.AddItem(packageId, itemId);
+        return Ok(p);
     }
-    
+
     [HttpDelete("{packageId}/Items")]
     public async Task<ActionResult<Package>> DeleteItem([FromRoute] string packageId, [FromRoute] string itemId)
     {
-        return Ok(new Package());
+        Package p = await _RequestProcessor.DeleteItem(packageId, itemId);
+        return Ok(p);
     }
-    
+
     [HttpPost("{packageId}/Customers")]
     public async Task<ActionResult<Package>> AddCustomer([FromRoute] string packageId, [FromBody] Customer customer)
     {
-        return Ok(new Package());
+        Package p = await _RequestProcessor.AddCustomer(packageId, customer);
+        return Ok(p);
     }
-    
+
     //TODO: we need a domain class to process this requests, use dependency injection to use those classes 
     
     // TODO 2: after implementing result classes we need to check if the domain class failed and return the correct status code
