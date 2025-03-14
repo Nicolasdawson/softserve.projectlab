@@ -4,9 +4,9 @@ namespace API.Services
 {
     public interface IPackageService
     {
-        Task<Package> CreatePackageAsync(Package package);
-        Task<Package> AddItemAsync(string packageId, string itemId);
-        Task<Package> DeleteItemAsync(string packageId, string itemId);
-        Task<Package> AddCustomerAsync(string packageId, Customer customer);
+        Task<Result<Package>> CreatePackageAsync(Package package);
+        Task<Result<Package>> AddItemAsync(string packageId, Item item);
+        Task<Result<Package>> DeleteItemAsync(string packageId, string itemId);
+        Task<Result<Package>> AddCustomerAsync(string packageId, Customer customer);
     }
 }
