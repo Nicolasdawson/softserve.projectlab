@@ -45,3 +45,4 @@ antes de hacer merge siempre asegurense de estar en su rama. si quieren usar sou
 ## Contexto
 
 La idea de este projecto es crear un sistema de ventas, vamos a tener un `Package` donde vamos a almacenar la venta (piensen en los datos que se muestran en un checkout), lo principal es poder crear el cliente, poder agregar items a la venta y poder cambiar de estado el package una vez completado. Como es un proyecto para el portafolio mientras mas cosas le pueden agregar mejor, por ej customer tiene LineOfCredit, podemos crear un servicio donde mandamos el RUT o CURP y nos responde si el usuario tiene una linea de credito disponible, podemos hacer que el catalogo sea configurable, etc.
+
