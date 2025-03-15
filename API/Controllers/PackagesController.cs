@@ -28,20 +28,23 @@ public class PackagesController : ControllerBase
     /// <param name="package">The package to create.</param>
     /// <returns>The created package.</returns>
     [HttpPost]
-    public async Task<ActionResult<Package>> CreatePackage([FromBody] Package package)
+    public async Task<ActionResult<API.Models.Package>> CreatePackage([FromBody] API.Models.Package package)
     {
         var result = await _packageService.CreatePackageAsync(package);
+
         if (result.IsSuccess)
         {
             return Ok(result.Data);
         }
         return BadRequest(result.ErrorMessage);
+
     }
 
     /// <summary>
     /// Adds an item to a package.
     /// </summary>
     /// <param name="packageId">The ID of the package.</param>
+
     /// <param name="item">The item to add.</param>
     /// <returns>The updated package.</returns>
     [HttpPost("{packageId}/Items")]
@@ -53,6 +56,7 @@ public class PackagesController : ControllerBase
             return Ok(result.Data);
         }
         return BadRequest(result.ErrorMessage);
+
     }
 
     /// <summary>
@@ -65,11 +69,13 @@ public class PackagesController : ControllerBase
     public async Task<ActionResult<Package>> DeleteItem([FromRoute] string packageId, [FromRoute] string itemId)
     {
         var result = await _packageService.DeleteItemAsync(packageId, itemId);
+
         if (result.IsSuccess)
         {
             return Ok(result.Data);
         }
         return BadRequest(result.ErrorMessage);
+
     }
 
     /// <summary>
@@ -82,6 +88,7 @@ public class PackagesController : ControllerBase
     public async Task<ActionResult<Package>> AddCustomer([FromRoute] string packageId, [FromBody] Customer customer)
     {
         var result = await _packageService.AddCustomerAsync(packageId, customer);
+
         if (result.IsSuccess)
         {
             return Ok(result.Data);
@@ -93,3 +100,4 @@ public class PackagesController : ControllerBase
     //TODO: we need a domain class to process this requests, use dependency injection to use those classes 
     
     // TODO 2: after implementing result classes we need to check if the domain class failed and return the correct status code
+
