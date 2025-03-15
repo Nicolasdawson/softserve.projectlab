@@ -31,20 +31,32 @@ public class PackagesController : ControllerBase
     public async Task<ActionResult<API.Models.Package>> CreatePackage([FromBody] API.Models.Package package)
     {
         var result = await _packageService.CreatePackageAsync(package);
-        return Ok(result);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }
+        return BadRequest(result.ErrorMessage);
+
     }
 
     /// <summary>
     /// Adds an item to a package.
     /// </summary>
     /// <param name="packageId">The ID of the package.</param>
-    /// <param name="itemId">The ID of the item to add.</param>
+
+    /// <param name="item">The item to add.</param>
     /// <returns>The updated package.</returns>
-    [HttpPost("{packageId}/Items/{itemId}")]
-    public async Task<ActionResult<Package>> AddItem([FromRoute] string packageId, [FromRoute] string itemId)
+    [HttpPost("{packageId}/Items")]
+    public async Task<ActionResult<Package>> AddItem([FromRoute] string packageId, [FromBody] Item item)
     {
-        var result = await _packageService.AddItemAsync(packageId, itemId);
-        return Ok(result);
+        var result = await _packageService.AddItemAsync(packageId, item);
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }
+        return BadRequest(result.ErrorMessage);
+
     }
 
     /// <summary>
@@ -57,7 +69,13 @@ public class PackagesController : ControllerBase
     public async Task<ActionResult<Package>> DeleteItem([FromRoute] string packageId, [FromRoute] string itemId)
     {
         var result = await _packageService.DeleteItemAsync(packageId, itemId);
-        return Ok(result);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }
+        return BadRequest(result.ErrorMessage);
+
     }
 
     /// <summary>
@@ -70,6 +88,16 @@ public class PackagesController : ControllerBase
     public async Task<ActionResult<Package>> AddCustomer([FromRoute] string packageId, [FromBody] Customer customer)
     {
         var result = await _packageService.AddCustomerAsync(packageId, customer);
-        return Ok(result);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }
+        return BadRequest(result.ErrorMessage);
     }
 }
+
+    //TODO: we need a domain class to process this requests, use dependency injection to use those classes 
+    
+    // TODO 2: after implementing result classes we need to check if the domain class failed and return the correct status code
+
