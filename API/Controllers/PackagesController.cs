@@ -1,4 +1,5 @@
 using API.Abstractions;
+using API.Implementations.Domain;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,43 +9,55 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class PackagesController : ControllerBase
     {
-        private readonly IPackageDomainService packageDomainService;
+        private readonly PackagesDomain _packagesDomain;
 
-        public PackagesController(IPackageDomainService packageDomainService)
+        public PackagesController(PackagesDomain packagesDomain)
         {
-            this.packageDomainService = packageDomainService;
+            _packagesDomain = packagesDomain;
         }
 
         [HttpPost]
         public async Task<ActionResult<Package>> CreatePackage([FromBody] Package package)
         {
-            var createdPackage = await packageDomainService.CreatePackageAsync(package);
-            return Ok(createdPackage);
-        }
-        
-        [HttpPost("{packageId}/Items/{itemId}")]
-        public async Task<ActionResult<Package>> AddItem([FromRoute] string packageId, [FromRoute] string itemId)
-        {
-            var updatedPackage = await packageDomainService.AddItemAsync(packageId, itemId);
-            return Ok(updatedPackage);
+            var result = await _packagesDomain.CreatePackage(package);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(result.ErrorMessage);
         }
 
-        [HttpDelete("{packageId}/Items")]
-        public async Task<ActionResult<Package>> DeleteItem([FromRoute] string packageId, [FromRoute] string itemId)
+        [HttpPost("{packageId}/Items/{sku}")]
+        public async Task<ActionResult<Package>> AddItem([FromRoute] string packageId, [FromRoute] string sku)
         {
-            var updatedPackage = await packageDomainService.DeleteItemAsync(packageId, itemId);
-            return Ok(updatedPackage);
+            var result = await _packagesDomain.AddItem(packageId, sku);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(result.ErrorMessage);
+        }
+
+        [HttpDelete("{packageId}/Items/{sku}")]
+        public async Task<ActionResult<Package>> DeleteItem([FromRoute] string packageId, [FromRoute] string sku)
+        {
+            var result = await _packagesDomain.DeleteItem(packageId, sku);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(result.ErrorMessage);
         }
 
         [HttpPost("{packageId}/Customers")]
         public async Task<ActionResult<Package>> AddCustomer([FromRoute] string packageId, [FromBody] Customer customer)
         {
-            var updatedPackage = await packageDomainService.AddCustomerAsync(packageId, customer);
-            return Ok(updatedPackage);
+            var result = await _packagesDomain.AddCustomer(packageId, customer);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(result.ErrorMessage);
         }
     }
-    
-    //TODO: we need a domain class to process this requests, use dependency injection to use those classes 
-    
-    // TODO 2: after implementing result classes we need to check if the domain class failed and return the correct status code
 }

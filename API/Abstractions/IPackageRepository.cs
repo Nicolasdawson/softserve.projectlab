@@ -1,8 +1,7 @@
 using API.Models;
-
 namespace API.Abstractions;
 
-    public interface IPackageDomainService
+    public interface IPackageRepository
     {
         Task<Package> CreatePackageAsync(Package package);
         Task<Package> AddItemAsync(string packageId, string itemId);
