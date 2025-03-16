@@ -1,0 +1,21 @@
+﻿using API.Models.IntAdmin;
+
+namespace API.Models.Logistics.Interfaces
+{
+    public interface IOrder
+    {
+        int OrderId { get; set; }
+        int CustomerId { get; set; }
+        DateTime OrderDate { get; set; }
+        List<Item> Items { get; set; }
+        string Status { get; set; }
+
+        Result<IOrder> AddOrder(IOrder order);
+        Result<IOrder> UpdateOrder(IOrder order);
+        Result<IOrder> GetOrderById(int orderId);
+        Result<List<IOrder>> GetAllOrders();
+        Result<bool> RemoveOrder(int orderId);
+        Result<bool> AddItemToOrder(Item item);
+        Result<bool> RemoveItemFromOrder(Item item);
+    }
+}
