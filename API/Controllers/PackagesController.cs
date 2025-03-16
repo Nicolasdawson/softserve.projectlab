@@ -1,4 +1,5 @@
-using API.Models;
+using API.Models.Customers;
+using API.Models.IntAdmin;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 

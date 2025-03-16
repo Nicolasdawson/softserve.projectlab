@@ -1,4 +1,4 @@
-namespace API.Models;
+namespace API.Models.Customers;
 
 /// <summary>
 /// Represents a customer with personal and financial information.
@@ -36,3 +36,5 @@ public class PremiumCustomer : Customer
     public decimal DiscountRate { get; set; }
     public DateTime MembershipStartDate { get; set; }
 }
+
+
