@@ -10,7 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Agregar Swagger
-builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger en tu API
+builder.Services.AddSwaggerGen(c =>
+{
+    // Configura Swagger para incluir comentarios XML si lo tienes (opcional)
+    // c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "API.xml"));
+});
 
 // Agregar el servicio ProductService
 builder.Services.AddSingleton<ProductService>();
@@ -21,7 +25,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())  // Solo habilitar Swagger en desarrollo
 {
     app.UseSwagger();  // Habilita el middleware Swagger
-    app.UseSwaggerUI();  // Habilita la UI de Swagger
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");  // Especifica el endpoint de Swagger
+        c.RoutePrefix = string.Empty;  // Configura el Swagger UI para estar disponible en la raíz (opcional)
+    });
 }
 
 // Configurar los controladores
