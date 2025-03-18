@@ -1,4 +1,5 @@
-using API.Models;
+using API.Models.Customers;
+using API.Models.IntAdmin;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,7 +29,7 @@ public class PackagesController : ControllerBase
     /// <param name="package">The package to create.</param>
     /// <returns>The created package.</returns>
     [HttpPost]
-    public async Task<ActionResult<API.Models.Package>> CreatePackage([FromBody] API.Models.Package package)
+    public async Task<ActionResult<Package>> CreatePackage([FromBody] Package package)
     {
         var result = await _packageService.CreatePackageAsync(package);
 

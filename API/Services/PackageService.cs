@@ -1,4 +1,4 @@
-using API.Models;
+using API.Models.Customers;
 using System.Threading.Tasks;
 
 namespace API.Services

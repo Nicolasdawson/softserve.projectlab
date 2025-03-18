@@ -1,4 +1,4 @@
-namespace API.Models;
+namespace API.Models.Customers;
 
 /// <summary>
 /// Represents a line of credit with a balance that can be manipulated through deposits and withdrawals.

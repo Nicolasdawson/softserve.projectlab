@@ -1,4 +1,4 @@
-namespace API.Models;
+namespace API.Models.IntAdmin;
 
 public class Catalog
 {

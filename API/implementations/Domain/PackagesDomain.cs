@@ -1,5 +1,7 @@
 //using API.Abstractions;
 using API.Models;
+using API.Models.Customers;
+using API.Models.IntAdmin;
 
 namespace API.implementations.Domain
 {
