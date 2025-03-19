@@ -8,10 +8,9 @@ var builder = DistributedApplication.CreateBuilder(args);
 // var salesService = builder.AddProject<Projects.API>("api")
 //     .WithReference(db);
 //
-// builder.AddProject<Projects.Frontend>("frontend")
-//     .WithExternalHttpEndpoints()
-//     .WithReference(salesService)
-//     .WaitFor(salesService);
+
+// this is just to make it simpler to open both projects, its not part of the course but its something
+// new from MS so its definitely something worth to checking out
 
 var salesService = builder.AddProject<Projects.API>("api");
 
