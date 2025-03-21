@@ -4,7 +4,8 @@
     {
         int BranchId { get; set; }
         string Name { get; set; }
-        string Location { get; set; }
+        string City { get; set; }  // Replacing Location with City
+        string Region { get; set; }  // New property for Region
         string ContactNumber { get; set; }
 
         Result<IBranch> AddBranch(IBranch branch);

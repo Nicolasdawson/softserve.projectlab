@@ -1,4 +1,5 @@
-﻿namespace API.Models.Logistics.Interfaces
+﻿using API.Models.IntAdmin;
+namespace API.Models.Logistics.Interfaces
 {
     public interface IWarehouse
     {
