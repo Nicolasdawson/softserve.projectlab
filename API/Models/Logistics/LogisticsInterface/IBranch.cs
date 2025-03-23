@@ -7,6 +7,9 @@
         string City { get; set; }  // Replacing Location with City
         string Region { get; set; }  // New property for Region
         string ContactNumber { get; set; }
+        string ContactEmail { get; set; }  // New property for ContactEmail
+        string Address { get; set; }
+
 
         Result<IBranch> AddBranch(IBranch branch);
         Result<IBranch> UpdateBranch(IBranch branch);

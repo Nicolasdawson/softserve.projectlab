@@ -9,6 +9,8 @@ namespace Logistics.Models
         public int SupplierId { get; set; }
         public string Name { get; set; }
         public string ContactInfo { get; set; }
+        public List<Item> ProductsSupplied { get; set; }
+
 
         public Supplier(int supplierId, string name, string contactInfo)
         {

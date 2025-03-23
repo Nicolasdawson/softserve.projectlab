@@ -10,6 +10,9 @@ namespace API.Models.Logistics
         public DateTime OrderDate { get; set; }
         public List<Item> Items { get; set; }
         public string Status { get; set; }
+        public decimal TotalAmount { get; set; }
+        
+
 
         public Order(int orderId, int customerId, DateTime orderDate, List<Item> items, string status)
         {

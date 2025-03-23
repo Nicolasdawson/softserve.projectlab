@@ -9,6 +9,7 @@ namespace API.Models.Logistics.Interfaces
         DateTime OrderDate { get; set; }
         List<Item> Items { get; set; }
         string Status { get; set; }
+        decimal TotalAmount { get; set; }
 
         Result<IOrder> AddOrder(IOrder order);
         Result<IOrder> UpdateOrder(IOrder order);

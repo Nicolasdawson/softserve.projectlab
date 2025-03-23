@@ -9,6 +9,9 @@ namespace API.Models.Logistics
         public string City { get; set; }  // New attribute for City
         public string Region { get; set; }  // New attribute for Region
         public string ContactNumber { get; set; }
+        public string ContactEmail { get; set; }  // New attribute for ContactEmail
+        public string Address { get; set; }
+
 
         // Constructor with City and Region
         public Branch(int branchId, string name, string city, string region, string contactNumber)
