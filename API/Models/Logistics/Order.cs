@@ -7,8 +7,8 @@ namespace API.Models.Logistics
     public class Order : IOrder
     {
         public int OrderId { get; set; }
-        public string CustomerId { get; set; } // Now storing CustomerId
-        public Customer Customer { get; set; } // Customer data (optional)
+        public string CustomerId { get; set; } 
+        public Customer Customer { get; set; } 
         public DateTime OrderDate { get; set; }
         public List<Item> Items { get; set; }
         public string Status { get; set; }

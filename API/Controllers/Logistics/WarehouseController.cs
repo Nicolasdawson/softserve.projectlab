@@ -18,7 +18,11 @@ namespace API.Controllers.Logistics
             _warehouseService = warehouseService;
         }
 
-        // Example: Add an item to the warehouse
+        /// <summary>
+        /// Adds an item to the warehouse.
+        /// </summary>
+        /// <param name="item">The item to add.</param>
+        /// <returns>A result indicating success or failure.</returns>
         [HttpPost("add-item")]
         public ActionResult<Result<IWarehouse>> AddItem([FromBody] Item item)
         {
@@ -30,7 +34,11 @@ namespace API.Controllers.Logistics
             return BadRequest(result.ErrorMessage);
         }
 
-        // Example: Remove an item from the warehouse
+        /// <summary>
+        /// Removes an item from the warehouse.
+        /// </summary>
+        /// <param name="item">The item to remove.</param>
+        /// <returns>A result indicating success or failure.</returns>
         [HttpDelete("remove-item")]
         public ActionResult<Result<IWarehouse>> RemoveItem([FromBody] Item item)
         {
@@ -42,7 +50,11 @@ namespace API.Controllers.Logistics
             return BadRequest(result.ErrorMessage);
         }
 
-        // Example: Get available stock for a specific SKU
+        /// <summary>
+        /// Gets the available stock for a given SKU.
+        /// </summary>
+        /// <param name="sku">The SKU to check.</param>
+        /// <returns>A result indicating success or failure.</returns>
         [HttpGet("stock/{sku}")]
         public ActionResult<Result<IWarehouse>> GetAvailableStock(string sku)
         {

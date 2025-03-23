@@ -4,10 +4,10 @@
     {
         int BranchId { get; set; }
         string Name { get; set; }
-        string City { get; set; }  // Replacing Location with City
-        string Region { get; set; }  // New property for Region
+        string City { get; set; }  
+        string Region { get; set; }  
         string ContactNumber { get; set; }
-        string ContactEmail { get; set; }  // New property for ContactEmail
+        string ContactEmail { get; set; }  
         string Address { get; set; }
 
 

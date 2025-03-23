@@ -8,7 +8,6 @@ namespace API.Services.Logistics
     {
         private readonly SupplierDomain _supplierDomain;
 
-        // Constructor Injection - DI will inject the SupplierDomain implementation
         public SupplierService(SupplierDomain supplierDomain)
         {
             _supplierDomain = supplierDomain;
