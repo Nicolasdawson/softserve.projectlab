@@ -1,11 +1,42 @@
-﻿using API.Models.IntAdmin;
-using API.Models.Logistics.Interfaces;
+﻿using API.Implementations.Domain;
 using API.Models;
-using API.Services.Logistics;
+using Logistics.Models;
 
 namespace API.Services.Logistics
 {
-    public class SupplierService
+    public class SupplierService : ISupplierService
     {
+        private readonly SupplierDomain _supplierDomain;
+
+        // Constructor Injection - DI will inject the SupplierDomain implementation
+        public SupplierService(SupplierDomain supplierDomain)
+        {
+            _supplierDomain = supplierDomain;
+        }
+
+        public async Task<Result<Supplier>> CreateSupplierAsync(Supplier supplier)
+        {
+            return await _supplierDomain.CreateSupplier(supplier);
+        }
+
+        public async Task<Result<Supplier>> GetSupplierByIdAsync(int supplierId)
+        {
+            return await _supplierDomain.GetSupplierById(supplierId);
+        }
+
+        public async Task<Result<List<Supplier>>> GetAllSuppliersAsync()
+        {
+            return await _supplierDomain.GetAllSuppliers();
+        }
+
+        public async Task<Result<Supplier>> UpdateSupplierAsync(Supplier supplier)
+        {
+            return await _supplierDomain.UpdateSupplier(supplier);
+        }
+
+        public async Task<Result<bool>> DeleteSupplierAsync(int supplierId)
+        {
+            return await _supplierDomain.RemoveSupplier(supplierId);
+        }
     }
 }

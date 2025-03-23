@@ -1,11 +1,13 @@
-﻿using API.Models.IntAdmin;
+﻿using API.Models.Customers;
+using API.Models.IntAdmin;
+using API.Models.Logistics.Interfaces;
 
 namespace API.Models.Logistics.Interfaces
 {
     public interface IOrder
     {
         int OrderId { get; set; }
-        int CustomerId { get; set; }
+        Customer Customer { get; set; }  
         DateTime OrderDate { get; set; }
         List<Item> Items { get; set; }
         string Status { get; set; }
