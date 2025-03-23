@@ -1,4 +1,5 @@
-﻿namespace API.Models.Logistics.Interfaces
+﻿using API.Models.IntAdmin;
+namespace API.Models.Logistics.Interfaces
 {
     public interface IWarehouse
     {
@@ -8,8 +9,8 @@
         int Capapcity { get; set; }
         List<Item> Items { get; set; }
 
-        void AddItem(Item item);
-        void RemoveItem(Item item);
-        void GetAvailableStock(string sku);
+        Result<IWarehouse> AddItem(Item item);
+        Result<IWarehouse> RemoveItem(Item item);
+        Result<IWarehouse> GetAvailableStock(string sku);
     }
 }

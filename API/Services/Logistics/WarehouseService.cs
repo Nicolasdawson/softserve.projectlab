@@ -20,8 +20,8 @@ namespace API.Services.WareHouseService
         {
             try
             {
-                _warehouse.AddItem(item);
-                return Result<IWarehouse>.Success(_warehouse);
+                var result = _warehouse.AddItem(item); // Now it returns a Result<IWarehouse>
+                return result; // Return the result
             }
             catch (Exception ex)
             {
@@ -34,8 +34,8 @@ namespace API.Services.WareHouseService
         {
             try
             {
-                _warehouse.RemoveItem(item);
-                return Result<IWarehouse>.Success(_warehouse);
+                var result = _warehouse.RemoveItem(item); // Now it returns a Result<IWarehouse>
+                return result; // Return the result
             }
             catch (Exception ex)
             {
@@ -43,18 +43,18 @@ namespace API.Services.WareHouseService
             }
         }
 
+        // Business logic for retrieving the available stock for a specific SKU
         public Result<IWarehouse> GetAvailableStock(string sku)
         {
             try
             {
-                _warehouse.GetAvailableStock(sku);
-                return Result<IWarehouse>.Success(_warehouse);
+                var result = _warehouse.GetAvailableStock(sku); // Assuming it now returns a Result<IWarehouse> or similar
+                return result; // Return the result
             }
             catch (Exception ex)
             {
                 return Result<IWarehouse>.Failure($"Failed to get available stock: {ex.Message}");
             }
         }
-
     }
 }
