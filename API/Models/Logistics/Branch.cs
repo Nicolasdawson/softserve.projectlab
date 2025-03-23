@@ -6,51 +6,57 @@ namespace API.Models.Logistics
     {
         public int BranchId { get; set; }
         public string Name { get; set; }
-        public string Location { get; set; }
+        public string City { get; set; }  // New attribute for City
+        public string Region { get; set; }  // New attribute for Region
         public string ContactNumber { get; set; }
+        public string ContactEmail { get; set; }  // New attribute for ContactEmail
+        public string Address { get; set; }
 
-        public Branch(int branchId, string name, string location, string contactNumber)
+
+        // Constructor with City and Region
+        public Branch(int branchId, string name, string city, string region, string contactNumber)
         {
             BranchId = branchId;
             Name = name;
-            Location = location;
+            City = city;
+            Region = region;
             ContactNumber = contactNumber;
         }
 
+        // Logic for adding a new branch (e.g., saving to a database or collection)
         public Result<IBranch> AddBranch(IBranch branch)
         {
-            // Logic for adding a new branch (e.g., saving to a database or collection)
             return Result<IBranch>.Success(branch);
         }
 
+        // Logic for updating an existing branch
         public Result<IBranch> UpdateBranch(IBranch branch)
         {
-            // Logic for updating an existing branch
             return Result<IBranch>.Success(branch);
         }
 
+        // Logic for retrieving a branch by its ID
         public Result<IBranch> GetBranchById(int branchId)
         {
-            // Logic for retrieving a branch by its ID
-            var branch = new Branch(branchId, "Main Branch", "123 Main St", "555-1234");
+            var branch = new Branch(branchId, "Main Branch", "New York", "NY", "555-1234");
             return Result<IBranch>.Success(branch);
         }
 
+        // Logic for retrieving all branches
         public Result<List<IBranch>> GetAllBranches()
         {
-            // Logic for retrieving all branches
             var branches = new List<IBranch>
             {
-                new Branch(1, "Main Branch", "123 Main St", "555-1234"),
-                new Branch(2, "Secondary Branch", "456 Secondary St", "555-5678")
+                new Branch(1, "Main Branch", "New York", "NY", "555-1234"),
+                new Branch(2, "Secondary Branch", "Los Angeles", "CA", "555-5678")
             };
             return Result<List<IBranch>>.Success(branches);
         }
 
+        // Logic for removing a branch
         public Result<bool> RemoveBranch(int branchId)
         {
-            // Logic for removing a branch
-            return Result<bool>.Success(true); // Assume the branch was removed successfully
+            return Result<bool>.Success(true);  // Assume the branch was removed successfully
         }
     }
 }

@@ -12,7 +12,12 @@ builder.Services.AddControllers();
 // Register your services
 builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<IWarehouse, Warehouse>(); 
-builder.Services.AddScoped<IWarehouseService, WarehouseService>(); 
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+
+
 
 var app = builder.Build();
 
