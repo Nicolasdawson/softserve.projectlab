@@ -18,10 +18,12 @@ builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
-
-// Register Catalog services
 builder.Services.AddScoped<CatalogDomain>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
+builder.Services.AddScoped<CategoryDomain>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ItemDomain>();
+builder.Services.AddScoped<IItemService, ItemService>();
 
 var app = builder.Build();
 
