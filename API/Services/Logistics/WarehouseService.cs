@@ -1,60 +1,111 @@
-﻿using API.Models.IntAdmin;
-using API.Models.Logistics.Interfaces;
+﻿using System.Collections.Generic;
+using System.Linq;
 using API.Models;
-using API.Services.Logistics;
+using API.Models.IntAdmin;
+using API.Models.Logistics;
+using API.Models.Logistics.Interfaces;
+using API.Services.Interfaces;
 
-namespace API.Services.WareHouseService
+namespace API.Services
 {
     public class WarehouseService : IWarehouseService
     {
-        private readonly IWarehouse _warehouse;
-
-        // Constructor Injection - DI will inject the appropriate IWarehouse implementation
-        public WarehouseService(IWarehouse warehouse)
+        private readonly List<IWarehouse> _warehouses;
+        
+        public WarehouseService()
         {
-            _warehouse = warehouse;
+            _warehouses = new List<IWarehouse>();
         }
-
-        // Business logic for adding an item to the warehouse
-        public Result<IWarehouse> AddItem(Item item)
+        /// <summary>
+        /// Get a warehouse by its ID
+        /// </summary>
+        /// <param name="warehouseId"></param>
+        /// <returns></returns>
+        private IWarehouse GetWarehouseById(int warehouseId)
         {
-            try
-            {
-                var result = _warehouse.AddItem(item); // Now it returns a Result<IWarehouse>
-                return result; // Return the result
-            }
-            catch (Exception ex)
-            {
-                return Result<IWarehouse>.Failure($"Failed to add item: {ex.Message}");
-            }
+            return _warehouses.FirstOrDefault(w => w.WareHouseId == warehouseId);
         }
-
-        // Business logic for removing an item from the warehouse
-        public Result<IWarehouse> RemoveItem(Item item)
+        /// <summary>
+        /// Add an item to a warehouse  
+        /// </summary>
+        /// <param name="warehouseId"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public Result<IWarehouse> AddItemToWarehouse(int warehouseId, Item item)
         {
-            try
-            {
-                var result = _warehouse.RemoveItem(item); // Now it returns a Result<IWarehouse>
-                return result; // Return the result
-            }
-            catch (Exception ex)
-            {
-                return Result<IWarehouse>.Failure($"Failed to remove item: {ex.Message}");
-            }
+            var warehouse = GetWarehouseById(warehouseId);
+            return warehouse != null ? warehouse.AddItem(item) : Result<IWarehouse>.Failure("Warehouse not found.");
         }
-
-        // Business logic for retrieving the available stock for a specific SKU
-        public Result<IWarehouse> GetAvailableStock(string sku)
+        /// <summary>
+        /// Remove an item from a warehouse
+        /// </summary>
+        /// <param name="warehouseId"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public Result<IWarehouse> RemoveItemFromWarehouse(int warehouseId, Item item)
         {
-            try
-            {
-                var result = _warehouse.GetAvailableStock(sku); // Assuming it now returns a Result<IWarehouse> or similar
-                return result; // Return the result
-            }
-            catch (Exception ex)
-            {
-                return Result<IWarehouse>.Failure($"Failed to get available stock: {ex.Message}");
-            }
+            var warehouse = GetWarehouseById(warehouseId);
+            return warehouse != null ? warehouse.RemoveItem(item) : Result<IWarehouse>.Failure("Warehouse not found.");
+        }
+        /// <summary>
+        /// Check the stock of an item in a warehouse
+        /// </summary>
+        /// <param name="warehouseId"></param>
+        /// <param name="sku"></param>
+        /// <returns></returns>
+        public Result<int> CheckWarehouseStock(int warehouseId, int sku)
+        {
+            var warehouse = GetWarehouseById(warehouseId);
+            return warehouse != null ? warehouse.CheckItemStock(sku) : Result<int>.Failure("Warehouse not found.");
+        }
+        /// <summary>
+        /// Transfer an item from one warehouse to another
+        /// </summary>
+        /// <param name="warehouseId"></param>
+        /// <param name="sku"></param>
+        /// <param name="quantity"></param>
+        /// <param name="targetWarehouseId"></param>
+        /// <returns></returns>
+        public Result<bool> TransferItem(int warehouseId, int sku, int quantity, int targetWarehouseId)
+        {
+            var sourceWarehouse = GetWarehouseById(warehouseId);
+            var targetWarehouse = GetWarehouseById(targetWarehouseId);
+
+            if (sourceWarehouse == null || targetWarehouse == null)
+                return Result<bool>.Failure("One or both warehouses not found.");
+
+            return sourceWarehouse.TransferItem(sku, quantity, targetWarehouse);
+        }
+        /// <summary>
+        /// Get a list of items with stock below a certain threshold
+        /// </summary>
+        /// <param name="warehouseId"></param>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
+        public Result<List<Item>> GetLowStockItems(int warehouseId, int threshold)
+        {
+            var warehouse = GetWarehouseById(warehouseId);
+            return warehouse != null ? warehouse.GetLowStockItems(threshold) : Result<List<Item>>.Failure("Warehouse not found.");
+        }
+        /// <summary>
+        /// Calculate the total value of all items in a warehouse
+        /// </summary>
+        /// <param name="warehouseId"></param>
+        /// <returns></returns>
+        public Result<decimal> CalculateTotalInventoryValue(int warehouseId)
+        {
+            var warehouse = GetWarehouseById(warehouseId);
+            return warehouse != null ? warehouse.GetTotalInventoryValue() : Result<decimal>.Failure("Warehouse not found.");
+        }
+        /// <summary>
+        /// Generate an inventory report for a warehouse
+        /// </summary>
+        /// <param name="warehouseId"></param>
+        /// <returns></returns>
+        public Result<string> GenerateInventoryReport(int warehouseId)
+        {
+            var warehouse = GetWarehouseById(warehouseId);
+            return warehouse != null ? warehouse.GenerateInventoryReport() : Result<string>.Failure("Warehouse not found.");
         }
     }
 }

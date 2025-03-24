@@ -1,18 +1,22 @@
-﻿using API.Models.IntAdmin;
-using API.Models.Logistics.Interfaces;
-using API.Models;
-using API.Services.Logistics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using API.Models.IntAdmin;
+using API.Services.Interfaces;
 
-namespace API.Controllers.Logistics
+namespace API.Controllers
 {
-
-    [Route("api/[controller]")]
+    /// <summary>
+    /// Controller for managing warehouse operations.
+    /// </summary>
     [ApiController]
+    [Route("api/[controller]")]
     public class WarehouseController : ControllerBase
     {
         private readonly IWarehouseService _warehouseService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WarehouseController"/> class.
+        /// </summary>
+        /// <param name="warehouseService">The warehouse service.</param>
         public WarehouseController(IWarehouseService warehouseService)
         {
             _warehouseService = warehouseService;
@@ -21,50 +25,92 @@ namespace API.Controllers.Logistics
         /// <summary>
         /// Adds an item to the warehouse.
         /// </summary>
+        /// <param name="warehouseId">The warehouse identifier.</param>
         /// <param name="item">The item to add.</param>
-        /// <returns>A result indicating success or failure.</returns>
-        [HttpPost("add-item")]
-        public ActionResult<Result<IWarehouse>> AddItem([FromBody] Item item)
+        /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
+        [HttpPost("{warehouseId}/add-item")]
+        public IActionResult AddItem(int warehouseId, [FromBody] Item item)
         {
-            var result = _warehouseService.AddItem(item);
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result.ErrorMessage);
+            var result = _warehouseService.AddItemToWarehouse(warehouseId, item);
+            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
         /// <summary>
         /// Removes an item from the warehouse.
         /// </summary>
+        /// <param name="warehouseId">The warehouse identifier.</param>
         /// <param name="item">The item to remove.</param>
-        /// <returns>A result indicating success or failure.</returns>
-        [HttpDelete("remove-item")]
-        public ActionResult<Result<IWarehouse>> RemoveItem([FromBody] Item item)
+        /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
+        [HttpDelete("{warehouseId}/remove-item")]
+        public IActionResult RemoveItem(int warehouseId, [FromBody] Item item)
         {
-            var result = _warehouseService.RemoveItem(item);
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result.ErrorMessage);
+            var result = _warehouseService.RemoveItemFromWarehouse(warehouseId, item);
+            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
         /// <summary>
-        /// Gets the available stock for a given SKU.
+        /// Checks the stock of an item in the warehouse.
         /// </summary>
-        /// <param name="sku">The SKU to check.</param>
-        /// <returns>A result indicating success or failure.</returns>
-        [HttpGet("stock/{sku}")]
-        public ActionResult<Result<IWarehouse>> GetAvailableStock(string sku)
+        /// <param name="warehouseId">The warehouse identifier.</param>
+        /// <param name="sku">The SKU of the item.</param>
+        /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
+        [HttpGet("{warehouseId}/check-stock/{sku}")]
+        public IActionResult CheckStock(int warehouseId, int sku)
         {
-            var result = _warehouseService.GetAvailableStock(sku);
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            return NotFound(result.ErrorMessage);
+            var result = _warehouseService.CheckWarehouseStock(warehouseId, sku);
+            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Transfers an item from one warehouse to another.
+        /// </summary>
+        /// <param name="warehouseId">The source warehouse identifier.</param>
+        /// <param name="sku">The SKU of the item.</param>
+        /// <param name="quantity">The quantity to transfer.</param>
+        /// <param name="targetWarehouseId">The target warehouse identifier.</param>
+        /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
+        [HttpPost("{warehouseId}/transfer/{sku}/{quantity}/{targetWarehouseId}")]
+        public IActionResult TransferItem(int warehouseId, int sku, int quantity, int targetWarehouseId)
+        {
+            var result = _warehouseService.TransferItem(warehouseId, sku, quantity, targetWarehouseId);
+            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Gets the items with low stock in the warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The warehouse identifier.</param>
+        /// <param name="threshold">The stock threshold.</param>
+        /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
+        [HttpGet("{warehouseId}/low-stock/{threshold}")]
+        public IActionResult GetLowStockItems(int warehouseId, int threshold)
+        {
+            var result = _warehouseService.GetLowStockItems(warehouseId, threshold);
+            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Gets the total inventory value of the warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The warehouse identifier.</param>
+        /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
+        [HttpGet("{warehouseId}/total-value")]
+        public IActionResult GetTotalInventoryValue(int warehouseId)
+        {
+            var result = _warehouseService.CalculateTotalInventoryValue(warehouseId);
+            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Generates an inventory report for the warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The warehouse identifier.</param>
+        /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
+        [HttpGet("{warehouseId}/inventory-report")]
+        public IActionResult GetInventoryReport(int warehouseId)
+        {
+            var result = _warehouseService.GenerateInventoryReport(warehouseId);
+            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
     }
-
 }

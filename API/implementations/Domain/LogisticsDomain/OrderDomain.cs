@@ -52,7 +52,7 @@ namespace API.Implementations.Domain
                 var existingOrder = _orders.FirstOrDefault(o => o.OrderId == order.OrderId);
                 if (existingOrder != null)
                 {
-                    existingOrder.CustomerName = order.CustomerName;
+                    existingOrder.Customer = order.Customer; // Fixing the type mismatch
                     existingOrder.TotalAmount = order.TotalAmount;
                     // Update other properties as necessary
                     return Result<Order>.Success(existingOrder);

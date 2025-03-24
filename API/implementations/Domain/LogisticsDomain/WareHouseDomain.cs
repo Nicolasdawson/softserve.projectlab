@@ -42,7 +42,7 @@ namespace API.implementations.Domain
         }
 
         // Logic for getting available stock for a specific SKU
-        public Result<IWarehouse> GetAvailableStock(string sku)
+        public Result<IWarehouse> GetAvailableStock(int sku)
         {
             try
             {

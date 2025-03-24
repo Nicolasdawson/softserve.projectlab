@@ -123,7 +123,7 @@ public class Package
     /// <returns>The sum of all item prices multiplied by their quantities.</returns>
     public decimal CalculateTotalPrice()
     {
-        return Items.Sum(item => item.Item.Price * item.Quantity);
+        return Items.Sum(item => item.Item.UnitCost * item.Quantity);
     }
 
     /// <summary>
@@ -157,7 +157,7 @@ public class Package
             throw new ArgumentException("Quantity must be positive", nameof(quantity));
         }
 
-        var existingItem = Items.FirstOrDefault(i => i.Item.Id == item.Id);
+        var existingItem = Items.FirstOrDefault(i => i.Item == item);
         
         if (existingItem != null)
         {

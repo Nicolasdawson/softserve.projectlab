@@ -35,7 +35,7 @@ namespace API.Models.Customers
         /// <returns>The sum of all item prices multiplied by their quantities.</returns>
         public decimal GetTotalPrice()
         {
-            return Items.Sum(item => item.Item.Price * item.Quantity);
+            return Items.Sum(item => item.Item.UnitCost * item.Quantity);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace API.Models.Customers
                 throw new ArgumentException("Quantity must be positive", nameof(quantity));
             }
 
-            var existingItem = Items.FirstOrDefault(i => i.Item.Id == item.Id);
+            var existingItem = Items.FirstOrDefault(i => i.Item == item);
             
             if (existingItem != null)
             {
@@ -79,7 +79,7 @@ namespace API.Models.Customers
                 throw new ArgumentException("Quantity must be positive", nameof(quantity));
             }
 
-            var existingItem = Items.FirstOrDefault(i => i.Item.Id == itemId);
+            var existingItem = Items.FirstOrDefault(i => i.Item.Sku.ToString() == itemId);
             
             if (existingItem == null)
             {
