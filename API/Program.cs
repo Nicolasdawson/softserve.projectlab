@@ -26,6 +26,8 @@ builder.Services.AddScoped<ItemDomain>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<PermissionDomain>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<RoleDomain>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 var app = builder.Build();
 
