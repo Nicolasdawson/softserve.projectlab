@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using API.Models.IntAdmin.Interfaces;
 
 namespace API.Models.IntAdmin
@@ -5,54 +6,85 @@ namespace API.Models.IntAdmin
     public class Category : ICategory
     {
         public int CategoryId { get; set; }
-        public string Name { get; set; }
-        public string Status { get; set; }
+        public string CategoryName { get; set; }
+        public bool CategoryStatus { get; set; }
         public List<Item> Items { get; set; } = new List<Item>();
-
-        public Category(int categoryId, string name, string status, List<Item> items)
+        public Category(int categoryId, string categoryName, bool categoryStatus, List<Item> items)
         {
             CategoryId = categoryId;
-            Name = name;
-            Status = status;
+            CategoryName = categoryName;
+            CategoryStatus = categoryStatus;
             Items = items;
         }
 
-        // Constructor por defecto para escenarios de serialización u otras necesidades.
+        // Default constructor (no extra comments)
         public Category() { }
 
+        // CRUD methods (with brief comments)
+
+        /// <summary>
+        /// Adds a new category.
+        /// </summary>
         public Result<ICategory> AddCategory(ICategory category)
         {
-            // Lógica para agregar una nueva categoría (ej. guardar en base de datos o colección)
             return Result<ICategory>.Success(category);
         }
 
+        /// <summary>
+        /// Updates an existing category.
+        /// </summary>
         public Result<ICategory> UpdateCategory(ICategory category)
         {
-            // Lógica para actualizar una categoría existente
             return Result<ICategory>.Success(category);
         }
 
+        /// <summary>
+        /// Retrieves a category by its ID.
+        /// </summary>
         public Result<ICategory> GetCategoryById(int categoryId)
         {
-            // Lógica para obtener una categoría por su ID
-            var category = new Category(categoryId, "Categoría de Ejemplo", "Activo", new List<Item>());
+            var category = new Category(categoryId, "Example Category", true, new List<Item>());
             return Result<ICategory>.Success(category);
         }
 
+        /// <summary>
+        /// Retrieves all categories.
+        /// </summary>
         public Result<List<ICategory>> GetAllCategories()
         {
-            // Lógica para obtener todas las categorías
             var categories = new List<ICategory>
             {
-                new Category(1, "Categoría 1", "Activo", new List<Item>()),
-                new Category(2, "Categoría 2", "Inactivo", new List<Item>())
+                new Category(1, "Category 1", true, new List<Item>()),
+                new Category(2, "Category 2", false, new List<Item>())
             };
             return Result<List<ICategory>>.Success(categories);
         }
 
+        /// <summary>
+        /// Removes a category by its ID.
+        /// </summary>
         public Result<bool> RemoveCategory(int categoryId)
         {
-            // Lógica para eliminar una categoría por su ID
+            return Result<bool>.Success(true);
+        }
+
+        // Methods from the diagram (minimal comments)
+
+        /// <summary>
+        /// Adds an item to the category's Items list.
+        /// </summary>
+        public Result<bool> AddItemToCategory()
+        {
+            // Example logic (adjust if you need a parameter for the item)
+            return Result<bool>.Success(true);
+        }
+
+        /// <summary>
+        /// Removes an item from the category's Items list.
+        /// </summary>
+        public Result<bool> RemoveItemFromCategory()
+        {
+            // Example logic (adjust if you need a parameter for the item or SKU)
             return Result<bool>.Success(true);
         }
     }

@@ -1,75 +1,115 @@
+using System.Collections.Generic;
 using API.Models.IntAdmin.Interfaces;
 
 namespace API.Models.IntAdmin
 {
+    /// <summary>
+    /// Implements the IItem interface for managing item data.
+    /// </summary>
     public class Item : IItem
     {
-        public string Sku { get; set; }
-        public string ProductName { get; set; }
-        public string ProductDescription { get; set; }
-        public int TotalQuantity { get; set; }
+        // Properties matching the diagram
+        public int Sku { get; set; }
+        public string ItemName { get; set; }
+        public string ItemDescription { get; set; }
+        public int OriginalStock { get; set; }
+        public int CurrentStock { get; set; }
+        public string ItemCurrency { get; set; }
         public decimal UnitCost { get; set; }
-        public string ProductCurrency { get; set; }
         public decimal MarginGain { get; set; }
+        public decimal ItemDiscount { get; set; }
         public decimal AdditionalTax { get; set; }
-        public decimal SalePrice { get; set; }
-        public decimal Discount { get; set; }
-        public string StatusProduct { get; set; }
+        public decimal ItemPrice { get; set; }
+        public bool ItemStatus { get; set; }
+        public int CategoryId { get; set; }
+        public string ItemImage { get; set; }
 
-        public Item(string sku, string productName, string productDescription, int totalQuantity,
-                    decimal unitCost, string productCurrency, decimal marginGain, decimal additionalTax,
-                    decimal salePrice, decimal discount, string statusProduct)
+        // Minimal constructor, no extra comments to avoid redundancy
+        public Item(int sku, string itemName, string itemDescription, int originalStock, int currentStock,
+                    string itemCurrency, decimal unitCost, decimal marginGain, decimal itemDiscount,
+                    decimal additionalTax, decimal itemPrice, bool itemStatus, int categoryId, string itemImage)
         {
             Sku = sku;
-            ProductName = productName;
-            ProductDescription = productDescription;
-            TotalQuantity = totalQuantity;
+            ItemName = itemName;
+            ItemDescription = itemDescription;
+            OriginalStock = originalStock;
+            CurrentStock = currentStock;
+            ItemCurrency = itemCurrency;
             UnitCost = unitCost;
-            ProductCurrency = productCurrency;
             MarginGain = marginGain;
+            ItemDiscount = itemDiscount;
             AdditionalTax = additionalTax;
-            SalePrice = salePrice;
-            Discount = discount;
-            StatusProduct = statusProduct;
+            ItemPrice = itemPrice;
+            ItemStatus = itemStatus;
+            CategoryId = categoryId;
+            ItemImage = itemImage;
         }
 
-        // Constructor por defecto para casos de serialización u otras necesidades.
+        // Default constructor
         public Item() { }
+
+        // CRUD methods (minimal comments)
 
         public Result<IItem> AddItem(IItem item)
         {
-            // Lógica para agregar un nuevo item (ej. guardar en base de datos o colección)
             return Result<IItem>.Success(item);
         }
 
         public Result<IItem> UpdateItem(IItem item)
         {
-            // Lógica para actualizar un item existente
             return Result<IItem>.Success(item);
         }
 
-        public Result<IItem> GetItemBySku(string sku)
+        public Result<IItem> GetItemBySku(int sku)
         {
-            // Lógica para obtener un item por su SKU
-            var item = new Item(sku, "Producto de Ejemplo", "Descripción del producto de ejemplo",
-                                100, 10.00m, "USD", 0.20m, 0.05m, 15.00m, 0.00m, "Disponible");
-            return Result<IItem>.Success(item);
+            // Example item
+            var exampleItem = new Item(
+                sku,
+                "Example Item",
+                "Description of example item",
+                50,
+                50,
+                "USD",
+                10.00m,
+                0.20m,
+                0.05m,
+                0.10m,
+                12.00m,
+                true,
+                1,
+                "item.png"
+            );
+            return Result<IItem>.Success(exampleItem);
         }
 
         public Result<List<IItem>> GetAllItems()
         {
-            // Lógica para obtener todos los items
             var items = new List<IItem>
             {
-                new Item("SKU001", "Producto 1", "Descripción 1", 100, 10.00m, "USD", 0.20m, 0.05m, 15.00m, 0.00m, "Disponible"),
-                new Item("SKU002", "Producto 2", "Descripción 2", 200, 20.00m, "USD", 0.25m, 0.10m, 30.00m, 0.05m, "Disponible")
+                new Item(1001, "Item 1", "Description 1", 100, 100, "USD", 10.00m, 0.20m, 0.05m, 0.10m, 12.00m, true, 1, "item1.png"),
+                new Item(1002, "Item 2", "Description 2", 200, 200, "USD", 20.00m, 0.25m, 0.10m, 0.15m, 25.00m, true, 2, "item2.png")
             };
             return Result<List<IItem>>.Success(items);
         }
 
-        public Result<bool> RemoveItem(string sku)
+        public Result<bool> RemoveItem(int sku)
         {
-            // Lógica para eliminar un item por su SKU
+            return Result<bool>.Success(true);
+        }
+
+        // Methods from the diagram
+
+        public Result<bool> UpdatePrice()
+        {
+            // TODO: Logic to update the price
+            // Example: this.ItemPrice = newPrice;
+            return Result<bool>.Success(true);
+        }
+
+        public Result<bool> UpdateDiscount()
+        {
+            // TODO: Logic to update the discount
+            // Example: this.ItemDiscount = newDiscount;
             return Result<bool>.Success(true);
         }
     }
