@@ -11,8 +11,8 @@ namespace Logistics.Models
         public string ContactInfo { get; set; }
         public string Address { get; set; }
         public List<Item> ProductsSupplied { get; set; }
-        public bool IsActive { get; set; } // New field to track supplier availability
-        public List<SupplierOrder> Orders { get; set; } // List of supplier orders
+        public bool IsActive { get; set; } 
+        public List<SupplierOrder> Orders { get; set; } 
 
         public Supplier(int supplierId, string name, string contactInfo)
         {
@@ -23,25 +23,40 @@ namespace Logistics.Models
             Orders = new List<SupplierOrder>();
             IsActive = true;
         }
-
+        /// <summary>
+        /// Add a new supplier
+        /// </summary>
+        /// <param name="supplier"></param>
+        /// <returns></returns>
         public Result<ISupplier> AddSupplier(ISupplier supplier)
         {
             // Logic for adding a supplier
             return Result<ISupplier>.Success(supplier);
         }
-
+        /// <summary>
+        /// Update an existing supplier
+        /// </summary>
+        /// <param name="supplier"></param>
+        /// <returns></returns>
         public Result<ISupplier> UpdateSupplier(ISupplier supplier)
         {
             // Logic to update an existing supplier
             return Result<ISupplier>.Success(supplier);
         }
-
+        /// <summary>
+        /// Get a supplier by ID
+        /// </summary>
+        /// <param name="supplierId"></param>
+        /// <returns></returns>
         public Result<ISupplier> GetSupplierById(int supplierId)
         {
             var supplier = new Supplier(supplierId, "Sample Supplier", "contact@sample.com");
             return Result<ISupplier>.Success(supplier);
         }
-
+        /// <summary>
+        /// Get all suppliers
+        /// </summary>
+        /// <returns></returns>
         public Result<List<ISupplier>> GetAllSuppliers()
         {
             var suppliers = new List<ISupplier>
@@ -51,13 +66,21 @@ namespace Logistics.Models
             };
             return Result<List<ISupplier>>.Success(suppliers);
         }
-
+        /// <summary>
+        /// Delete a supplier
+        /// </summary>
+        /// <param name="supplierId"></param>
+        /// <returns></returns>
         public Result<bool> DeleteSupplier(int supplierId)
         {
             return Result<bool>.Success(true);
         }
 
-        // NEW: Add a product to the supplier's inventory
+        /// <summary>
+        /// Add a product to the supplier's inventory
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         public Result<bool> AddProductToSupplier(Item item)
         {
             if (ProductsSupplied.Any(p => p.Sku == item.Sku))
@@ -67,7 +90,11 @@ namespace Logistics.Models
             return Result<bool>.Success(true);
         }
 
-        // NEW: Remove a product from supplier's inventory
+        /// <summary>
+        /// Remove a product from supplier's inventory
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         public Result<bool> RemoveProductFromSupplier(Item item)
         {
             var existingItem = ProductsSupplied.FirstOrDefault(p => p.Sku == item.Sku);
@@ -78,13 +105,21 @@ namespace Logistics.Models
             return Result<bool>.Success(true);
         }
 
-        // NEW: Get all products a supplier provides
+        /// <summary>
+        /// Get all products a supplier provides
+        /// </summary>
+        /// <returns></returns>
         public Result<List<Item>> GetSupplierProducts()
         {
             return Result<List<Item>>.Success(ProductsSupplied);
         }
 
-        // NEW: Place an order with the supplier
+        /// <summary>
+        /// Place an order with the supplier
+        /// </summary>
+        /// <param name="supplierId"></param>
+        /// <param name="items"></param>
+        /// <returns></returns>
         public Result<SupplierOrder> PlaceOrder(int supplierId, List<Item> items)
         {
             var order = new SupplierOrder(supplierId, items);
@@ -92,13 +127,20 @@ namespace Logistics.Models
             return Result<SupplierOrder>.Success(order);
         }
 
-        // NEW: Get all orders placed with this supplier
+        /// <summary>
+        /// Get all orders placed with this supplier
+        /// </summary>
+        /// <returns></returns>
         public Result<List<SupplierOrder>> GetSupplierOrders()
         {
             return Result<List<SupplierOrder>>.Success(Orders);
         }
 
-        // NEW: Cancel a supplier order
+        /// <summary>
+        /// Cancel a supplier order
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
         public Result<bool> CancelOrder(int orderId)
         {
             var order = Orders.FirstOrDefault(o => o.OrderId == orderId);
@@ -109,27 +151,42 @@ namespace Logistics.Models
             return Result<bool>.Success(true);
         }
 
-        // NEW: Check if the supplier is active
+        /// <summary>
+        /// Check if the supplier is active
+        /// </summary>
+        /// <returns></returns>
         public Result<bool> CheckSupplierAvailability()
         {
             return Result<bool>.Success(IsActive);
         }
 
-        // NEW: Update supplier active/inactive status
+        /// <summary>
+        /// Update supplier active/inactive status
+        /// </summary>
+        /// <param name="isActive"></param>
+        /// <returns></returns>
         public Result<bool> UpdateSupplierStatus(bool isActive)
         {
             IsActive = isActive;
             return Result<bool>.Success(true);
         }
 
-        // NEW: Rate a supplier and provide feedback
+        /// <summary>
+        /// Rate a supplier and provide feedback
+        /// </summary>
+        /// <param name="rating"></param>
+        /// <param name="feedback"></param>
+        /// <returns></returns>
         public Result<bool> RateSupplier(int rating, string feedback)
         {
             // Save rating and feedback logic (could be stored in DB)
             return Result<bool>.Success(true);
         }
 
-        // NEW: Get supplier rating
+        /// <summary>
+        /// Get supplier rating
+        /// </summary>
+        /// <returns></returns>
         public Result<int> GetSupplierRating()
         {
             // Return mock rating for now

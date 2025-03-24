@@ -7,6 +7,11 @@ namespace API.Implementations.Domain
     {
         private readonly List<Supplier> _suppliers = new List<Supplier>(); // Example in-memory storage for suppliers
 
+        /// <summary>
+        /// Creates a new supplier.
+        /// </summary>
+        /// <param name="supplier">The supplier to create.</param>
+        /// <returns>A result containing the created supplier or an error message.</returns>
         public async Task<Result<Supplier>> CreateSupplier(Supplier supplier)
         {
             try
@@ -20,6 +25,11 @@ namespace API.Implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Retrieves a supplier by their ID.
+        /// </summary>
+        /// <param name="supplierId">The ID of the supplier to retrieve.</param>
+        /// <returns>A result containing the supplier or an error message.</returns>
         public async Task<Result<Supplier>> GetSupplierById(int supplierId)
         {
             try
@@ -33,6 +43,10 @@ namespace API.Implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Retrieves all suppliers.
+        /// </summary>
+        /// <returns>A result containing the list of suppliers or an error message.</returns>
         public async Task<Result<List<Supplier>>> GetAllSuppliers()
         {
             try
@@ -45,6 +59,11 @@ namespace API.Implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Updates an existing supplier.
+        /// </summary>
+        /// <param name="supplier">The supplier with updated information.</param>
+        /// <returns>A result containing the updated supplier or an error message.</returns>
         public async Task<Result<Supplier>> UpdateSupplier(Supplier supplier)
         {
             try
@@ -69,6 +88,11 @@ namespace API.Implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Removes a supplier by their ID.
+        /// </summary>
+        /// <param name="supplierId">The ID of the supplier to remove.</param>
+        /// <returns>A result indicating success or failure.</returns>
         public async Task<Result<bool>> RemoveSupplier(int supplierId)
         {
             try

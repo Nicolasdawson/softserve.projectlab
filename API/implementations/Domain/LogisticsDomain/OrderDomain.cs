@@ -7,6 +7,11 @@ namespace API.Implementations.Domain
     {
         private readonly List<Order> _orders = new List<Order>(); // Example in-memory storage
 
+        /// <summary>
+        /// Creates a new order.
+        /// </summary>
+        /// <param name="order">The order to create.</param>
+        /// <returns>A result containing the created order.</returns>
         public async Task<Result<Order>> CreateOrder(Order order)
         {
             try
@@ -20,6 +25,11 @@ namespace API.Implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Retrieves an order by its ID.
+        /// </summary>
+        /// <param name="orderId">The ID of the order to retrieve.</param>
+        /// <returns>A result containing the order with the specified ID.</returns>
         public async Task<Result<Order>> GetOrderById(int orderId)
         {
             try
@@ -33,6 +43,10 @@ namespace API.Implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Retrieves all orders.
+        /// </summary>
+        /// <returns>A result containing a list of all orders.</returns>
         public async Task<Result<List<Order>>> GetAllOrders()
         {
             try
@@ -45,6 +59,11 @@ namespace API.Implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Updates an existing order.
+        /// </summary>
+        /// <param name="order">The order to update.</param>
+        /// <returns>A result containing the updated order.</returns>
         public async Task<Result<Order>> UpdateOrder(Order order)
         {
             try
@@ -52,7 +71,7 @@ namespace API.Implementations.Domain
                 var existingOrder = _orders.FirstOrDefault(o => o.OrderId == order.OrderId);
                 if (existingOrder != null)
                 {
-                    existingOrder.Customer = order.Customer; // Fixing the type mismatch
+                    existingOrder.Customer = order.Customer;
                     existingOrder.TotalAmount = order.TotalAmount;
                     // Update other properties as necessary
                     return Result<Order>.Success(existingOrder);
@@ -68,6 +87,11 @@ namespace API.Implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Deletes an order by its ID.
+        /// </summary>
+        /// <param name="orderId">The ID of the order to delete.</param>
+        /// <returns>A result indicating whether the deletion was successful.</returns>
         public async Task<Result<bool>> DeleteOrder(int orderId)
         {
             try

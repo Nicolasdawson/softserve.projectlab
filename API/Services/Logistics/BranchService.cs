@@ -13,31 +13,50 @@ namespace API.Services.Logistics
             _branchDomain = branchDomain;
         }
 
-        // Asynchronous method to add a branch
+        /// <summary>
+        /// Asynchronously adds a new branch.
+        /// </summary>
+        /// <param name="branch">The branch to add.</param>
+        /// <returns>A result containing the added branch.</returns>
         public async Task<Result<Branch>> AddBranchAsync(Branch branch)
         {
             return await _branchDomain.CreateBranch(branch);
         }
 
-        // Asynchronous method to update a branch
+        /// <summary>
+        /// Asynchronously updates an existing branch.
+        /// </summary>
+        /// <param name="branch">The branch to update.</param>
+        /// <returns>A result containing the updated branch.</returns>
         public async Task<Result<Branch>> UpdateBranchAsync(Branch branch)
         {
             return await _branchDomain.UpdateBranch(branch);
         }
 
-        // Asynchronous method to get a branch by ID
+        /// <summary>
+        /// Asynchronously retrieves a branch by its ID.
+        /// </summary>
+        /// <param name="branchId">The ID of the branch to retrieve.</param>
+        /// <returns>A result containing the retrieved branch.</returns>
         public async Task<Result<Branch>> GetBranchByIdAsync(int branchId)
         {
             return await _branchDomain.GetBranchById(branchId);
         }
 
-        // Asynchronous method to get all branches
+        /// <summary>
+        /// Asynchronously retrieves all branches.
+        /// </summary>
+        /// <returns>A result containing a list of all branches.</returns>
         public async Task<Result<List<Branch>>> GetAllBranchesAsync()
         {
             return await _branchDomain.GetAllBranches();
         }
 
-        // Asynchronous method to remove a branch
+        /// <summary>
+        /// Asynchronously removes a branch by its ID.
+        /// </summary>
+        /// <param name="branchId">The ID of the branch to remove.</param>
+        /// <returns>A result indicating whether the removal was successful.</returns>
         public async Task<Result<bool>> RemoveBranchAsync(int branchId)
         {
             return await _branchDomain.RemoveBranch(branchId);

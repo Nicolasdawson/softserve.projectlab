@@ -7,6 +7,11 @@ namespace API.implementations.Domain
 {
     public class PackagesDomain
     {
+        /// <summary>
+        /// Creates a new package.
+        /// </summary>
+        /// <param name="package">The package to create.</param>
+        /// <returns>A result containing the created package or an error message.</returns>
         public async Task<Result<Package>> CreatePackage(Package package)
         {
             try
@@ -20,6 +25,12 @@ namespace API.implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Adds an item to an existing package.
+        /// </summary>
+        /// <param name="packageId">The ID of the package.</param>
+        /// <param name="item">The item to add.</param>
+        /// <returns>A result containing the updated package or an error message.</returns>
         public async Task<Result<Package>> AddItem(string packageId, Item item)
         {
             try
@@ -33,6 +44,12 @@ namespace API.implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Deletes an item from an existing package.
+        /// </summary>
+        /// <param name="packageId">The ID of the package.</param>
+        /// <param name="itemId">The ID of the item to delete.</param>
+        /// <returns>A result containing the updated package or an error message.</returns>
         public async Task<Result<Package>> DeleteItem(string packageId, string itemId)
         {
             try
@@ -46,6 +63,12 @@ namespace API.implementations.Domain
             }
         }
 
+        /// <summary>
+        /// Adds a customer to an existing package.
+        /// </summary>
+        /// <param name="packageId">The ID of the package.</param>
+        /// <param name="customer">The customer to add.</param>
+        /// <returns>A result containing the updated package or an error message.</returns>
         public async Task<Result<Package>> AddCustomer(string packageId, Customer customer)
         {
             try

@@ -11,11 +11,11 @@ namespace Logistics.Models
         public List<Item> OrderedItems { get; set; }
         public DateTime OrderDate { get; set; }
         public DateTime? ExpectedDeliveryDate { get; set; }
-        public string Status { get; set; } // Example: "Pending", "Shipped", "Delivered"
+        public string Status { get; set; } // Pending", "Shipped", "Delivered"
 
         public SupplierOrder(int supplierId, List<Item> orderedItems)
         {
-            OrderId = new Random().Next(1000, 9999); // Temporary ID generation
+            OrderId = new Random().Next(1000, 9999); 
             SupplierId = supplierId;
             OrderedItems = orderedItems;
             OrderDate = DateTime.UtcNow;

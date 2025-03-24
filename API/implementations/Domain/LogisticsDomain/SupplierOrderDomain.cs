@@ -8,12 +8,20 @@ namespace API.Domain.Logistics
     {
         private readonly ISupplierOrder _supplierOrderService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SupplierOrderDomain"/> class.
+        /// </summary>
+        /// <param name="supplierOrderService">The supplier order service.</param>
         public SupplierOrderDomain(ISupplierOrder supplierOrderService)
         {
             _supplierOrderService = supplierOrderService;
         }
 
-        // Domain logic for creating, updating, and deleting supplier orders
+        /// <summary>
+        /// Creates a new supplier order.
+        /// </summary>
+        /// <param name="order">The supplier order to create.</param>
+        /// <returns>A result containing the created supplier order.</returns>
         public Result<ISupplierOrder> CreateOrder(SupplierOrder order)
         {
             // Additional business logic

@@ -8,12 +8,20 @@ namespace API.implementations.Domain
     {
         private readonly IWarehouse _warehouse;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WarehouseDomain"/> class.
+        /// </summary>
+        /// <param name="warehouse">The warehouse interface.</param>
         public WarehouseDomain(IWarehouse warehouse)
         {
             _warehouse = warehouse;
         }
 
-        // Logic for adding an item to the warehouse
+        /// <summary>
+        /// Adds an item to the warehouse.
+        /// </summary>
+        /// <param name="item">The item to add.</param>
+        /// <returns>A result indicating success or failure.</returns>
         public Result<IWarehouse> AddItem(Item item)
         {
             try
@@ -27,7 +35,11 @@ namespace API.implementations.Domain
             }
         }
 
-        // Logic for removing an item from the warehouse
+        /// <summary>
+        /// Removes an item from the warehouse.
+        /// </summary>
+        /// <param name="item">The item to remove.</param>
+        /// <returns>A result indicating success or failure.</returns>
         public Result<IWarehouse> RemoveItem(Item item)
         {
             try
@@ -41,7 +53,11 @@ namespace API.implementations.Domain
             }
         }
 
-        // Logic for getting available stock for a specific SKU
+        /// <summary>
+        /// Gets the available stock for a specific SKU.
+        /// </summary>
+        /// <param name="sku">The SKU to check.</param>
+        /// <returns>A result indicating success or failure.</returns>
         public Result<IWarehouse> GetAvailableStock(int sku)
         {
             try
