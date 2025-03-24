@@ -1,6 +1,5 @@
 ﻿using API.Models.IntAdmin.Interfaces;
-using System.Security;
-
+using System.Collections.Generic;
 namespace API.Models.IntAdmin
 {
     public class Role : IRole
@@ -9,6 +8,8 @@ namespace API.Models.IntAdmin
         public string RoleName { get; set; }
         public string RoleDescription { get; set; }
         public string RoleStatus { get; set; }
+
+        public List<IPermission> Permissions { get; set; } = new List<IPermission>();
 
         public Role(int roleId, string roleName, string roleDescription, string roleStatus)
         {
