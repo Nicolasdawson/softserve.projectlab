@@ -1,168 +1,133 @@
+// Services/ProductService.cs
+using API.implementations.Infrastructure.Data;
 using API.Models;
 
-namespace API.Services;
-
-public class ProductService
+namespace API.Services
 {
-    private readonly List<Product> _products = new List<Product>();
-
-    public Result<Product> CreateProduct(Product product)
+    public class ProductService
     {
-        try
+        private readonly AppDbContext _context; 
+        private readonly List<Product> _products;
+
+        public ProductService(AppDbContext context) 
+        {
+            _context = context;
+            /*
+            _products = new List<Product>
+            {
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "C�mara de Seguridad IP 1080p",
+                    Category = "C�maras de Seguridad",
+                    Description = "C�mara de seguridad de alta definici�n con visi�n nocturna y grabaci�n en 1080p. Conectividad Wi-Fi y detecci�n de movimiento.",
+                    ImageUrl = "https://example.com/images/camara-ip-1080p.jpg",
+                    Price = 120.99m,
+                    Stock = "Disponible"
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Alarma Inal�mbrica 4 Zonas",
+                    Category = "Alarmas",
+                    Description = "Sistema de alarma inal�mbrico con 4 zonas, ideal para viviendas. Compatible con sensores de puertas y ventanas.",
+                    ImageUrl = "https://example.com/images/alarma-inalambrica.jpg",
+                    Price = 150.50m,
+                    Stock = "Disponible"
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Sensor de Movimiento PIR",
+                    Category = "Sensores",
+                    Description = "Sensor de movimiento PIR (infrarrojo pasivo) para sistemas de alarma. Detecta movimiento en un rango de hasta 10 metros.",
+                    ImageUrl = "https://example.com/images/sensor-movimiento-pir.jpg",
+                    Price = 45.30m,
+                    Stock = "Agotado"
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "C�mara de Seguridad Dome 4K",
+                    Category = "C�maras de Seguridad",
+                    Description = "C�mara dome 4K con visi�n panor�mica y grabaci�n en calidad ultra HD. Resistente a condiciones clim�ticas extremas.",
+                    ImageUrl = "https://example.com/images/camara-dome-4k.jpg",
+                    Price = 299.99m,
+                    Stock = "Disponible"
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Alarma para Puerta/ ventana",
+                    Category = "Alarmas",
+                    Description = "Alarma de seguridad para puertas y ventanas. Ideal para prevenir accesos no autorizados en el hogar o negocio.",
+                    ImageUrl = "https://example.com/images/alarma-puerta-ventana.jpg",
+                    Price = 32.99m,
+                    Stock = "Disponible"
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "C�mara de Seguridad para Exteriores",
+                    Category = "C�maras de Seguridad",
+                    Description = "C�mara de seguridad para exteriores, resistente al agua y con visi�n nocturna. Se conecta a trav�s de Wi-Fi.",
+                    ImageUrl = "https://example.com/images/camara-para-exteriores.jpg",
+                    Price = 180.75m,
+                    Stock = "Disponible"
+                }
+            };
+             */
+        }
+        public Product CreateProduct(Product product)
         {
             product.Id = Guid.NewGuid(); // Generar un nuevo ID
             _products.Add(product); // Agregar el producto a la lista en memoria
-            //Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}");
-             // Verificación en consola para asegurarse de que 'Category' está siendo guardada
-            //Console.WriteLine($"Producto creado: {product.Name} con categorías: {string.Join(", ", product.Category)}");
-
-
-            return Result<Product>.Success(product); // Devolver el producto creado con éxito
+            Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}"); // Log para verificar si se agrega
+            return product;
         }
-        catch (Exception ex)
+
+
+        public IEnumerable<Product> GetAllProducts()
         {
-            return Result<Product>.Failure($"Error al crear el producto: {ex.Message}"); // Si ocurre un error, devolverlo en el resultado
+            //Console.WriteLine($"Cantidad de productos en memoria: {_products.Count}"); // Log para verificar la cantidad de productos
+            return _context.Products.ToList();
+        }
+
+
+        public Product? GetProductById(Guid id)
+        {
+            return _products.FirstOrDefault(p => p.Id == id);
+        }
+
+        public bool DeleteProduct(Guid id)
+        {
+            var product = GetProductById(id);
+            if (product != null)
+            {
+                _products.Remove(product);
+                return true;
+            }
+            return false;
+        }
+
+        public bool UpdateProduct(Guid id, Product updatedProduct)
+        {
+            var existingProduct = GetProductById(id);
+            if (existingProduct != null)
+            {
+                existingProduct.Name = updatedProduct.Name;
+                existingProduct.CategoryId = updatedProduct.CategoryId;
+                existingProduct.Description = updatedProduct.Description;
+                existingProduct.ImageUrl = updatedProduct.ImageUrl;
+                existingProduct.Price = updatedProduct.Price;
+                return true;
+            }
+            return false;
+        }
+
+        public IEnumerable<Product> GetProductsByCategory(string category)
+        {
+            return _products;//.Where(p => p.CategoryId.Equals(category, StringComparison.OrdinalIgnoreCase));
         }
     }
-
-    public Result<IEnumerable<Product>> GetAllProducts()
-    {
-        try
-        {
-            Console.WriteLine($"Cantidad de productos en memoria: {_products.Count}"); // Log para verificar la cantidad de productos
-            return Result<IEnumerable<Product>>.Success(_products);
-        }
-        catch (Exception ex)
-        {
-            return Result<IEnumerable<Product>>.Failure($"Error al obtener productos: {ex.Message}");
-        }
-    }
-
-    public Result<PagedResult<Product>> GetProductsFiltered(
-        string? name = null, 
-        List<string>? category = null, 
-        decimal? minPrice = null, 
-        decimal? maxPrice = null, 
-        int pageNumber = 1, 
-        int pageSize = 10)
-    {
-        try
-        {
-            var query = _products.AsQueryable();
-
-            // Aplicar filtros por nombre, categoría, precio mínimo y máximo
-            if (!string.IsNullOrEmpty(name))
-            {
-                query = query.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (category != null && category.Any())
-            {
-                query = query.Where(p => p.Category.Intersect(category).Any());
-            }
-
-            if (minPrice.HasValue)
-            {
-                query = query.Where(p => p.Price >= minPrice.Value);
-            }
-
-            if (maxPrice.HasValue)
-            {
-                query = query.Where(p => p.Price <= maxPrice.Value);
-            }
-
-            // Obtener el total de productos antes de la paginación
-            var totalCount = query.Count();
-
-            // Paginación
-            var skip = (pageNumber - 1) * pageSize;
-            var paginatedProducts = query.Skip(skip).Take(pageSize).ToList();
-
-            var pagedResult = new PagedResult<Product>
-            {
-                Items = paginatedProducts,
-                TotalCount = totalCount,
-                PageNumber = pageNumber,
-                PageSize = pageSize
-            };
-
-            return Result<PagedResult<Product>>.Success(pagedResult);
-        }
-        catch (Exception ex)
-        {
-            return Result<PagedResult<Product>>.Failure($"Error al obtener productos filtrados: {ex.Message}");
-        }
-    }
-
-    public Result<Product> GetProductById(Guid id)
-    {
-        try
-        {
-            var product = _products.FirstOrDefault(p => p.Id == id);
-            if (product == null)
-            {
-                return Result<Product>.Failure("Producto no encontrado.");
-            }
-
-            return Result<Product>.Success(product);
-        }
-        catch (Exception ex)
-        {
-            return Result<Product>.Failure($"Error al obtener el producto: {ex.Message}");
-        }
-    }
-
-    public Result<bool> DeleteProduct(Guid id)
-    {
-        try
-        {
-            var result = GetProductById(id); // Obtenemos el producto
-            if (!result.IsSuccess)
-            {
-                return Result<bool>.Failure(result.ErrorMessage); // Si no se encuentra el producto, devolvemos el error
-            }
-
-            var product = result.Data;
-            _products.Remove(product); // Eliminamos el producto
-            return Result<bool>.Success(true); // Producto eliminado correctamente
-        }
-        catch (Exception ex)
-        {
-            return Result<bool>.Failure($"Error al eliminar el producto: {ex.Message}");
-        }
-    }
-
-
-    public Result<bool> UpdateProduct(Guid id, Product updatedProduct)
-    {
-        try
-        {
-            var result = GetProductById(id); // Obtener el producto
-            if (!result.IsSuccess)
-            {
-                return Result<bool>.Failure(result.ErrorMessage); // Si no existe, devolvemos el mensaje de error
-            }
-
-            var existingProduct = result.Data;
-
-            // Validación adicional (si es necesario)
-            if (string.IsNullOrEmpty(updatedProduct.Name))
-            {
-                return Result<bool>.Failure("El nombre del producto no puede estar vacío.");
-            }
-
-            existingProduct.Name = updatedProduct.Name;
-            existingProduct.Category = updatedProduct.Category;
-            existingProduct.Description = updatedProduct.Description;
-            existingProduct.ImageFile = updatedProduct.ImageFile;
-            existingProduct.Price = updatedProduct.Price;
-
-            return Result<bool>.Success(true); // Actualización exitosa
-        }
-        catch (Exception ex)
-        {
-            return Result<bool>.Failure($"Error al actualizar el producto: {ex.Message}");
-        }
-    }
-
 }

@@ -1,7 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace API.Models;
 
 public class LineOfCredit
 {
+    [Key]  // Esto indica que 'Id' es la clave primaria
+    public Guid Id { get; set; }
+
     private decimal _Balance;
     
     public string Provider { get; set; }

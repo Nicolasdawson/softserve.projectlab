@@ -12,17 +12,14 @@ namespace API.Models;
         [Required(ErrorMessage = "El nombre es obligatorio")]
         [StringLength(100, ErrorMessage = "El nombre no puede tener más de 100 caracteres")]
         public string Name { get; set; } = default!;
-
-        [JsonProperty("product_categories")]  
-        public List<string> Category { get; set; } = new();
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]  
-        public string? Description { get; set; } 
-
-        [JsonProperty("image")]  
-        public string? ImageFile { get; set; } 
-
-        [Range(0, double.MaxValue, ErrorMessage = "El precio debe ser un número positivo")]
+        public Guid CategoryId { get; set; }
+        public string Description { get; set; } = default!;
+        public string ImageUrl { get; set; } = default!;
         public decimal Price { get; set; }
-    }
+        public int Stock { get; set; }
+
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+}
 
