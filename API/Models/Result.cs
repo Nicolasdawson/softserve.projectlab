@@ -1,11 +1,22 @@
+using Newtonsoft.Json;
+
 namespace API.Models
 {
     public class PagedResult<T>
     {
+        [JsonProperty("items")]  // Cambia el nombre del campo en la respuesta
         public IEnumerable<T> Items { get; set; } = default!;
+
+        [JsonProperty("total_count")]
         public int TotalCount { get; set; }
+
+        [JsonProperty("page_number")]
         public int PageNumber { get; set; }
+
+        [JsonProperty("page_size")]
         public int PageSize { get; set; }
+
+        [JsonProperty("total_pages")]
         public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
     }
 
@@ -26,6 +37,6 @@ namespace API.Models
             new Result<T>(true, data, null);
 
         public static Result<T> Failure(string errorMessage) =>
-            new Result<T>(false, default, errorMessage);
+            new Result<T>(false, default!, errorMessage);
     }
 }

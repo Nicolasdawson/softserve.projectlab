@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using API.Models;
+using API.Models; 
 using API.Services;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace API.Controllers;
 
@@ -33,7 +35,10 @@ public class ProductController : ControllerBase
         var result = _productService.GetAllProducts();
         if (result.IsSuccess)
         {
-            return Ok(result.Data);
+            return new JsonResult(result.Data, new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
         }
         return BadRequest(result.ErrorMessage); // En caso de error, devolver mensaje de error
     }
@@ -44,7 +49,10 @@ public class ProductController : ControllerBase
         var result = _productService.GetProductById(id);
         if (result.IsSuccess)
         {
-            return Ok(result.Data);
+            return new JsonResult(result.Data, new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
         }
         return NotFound(result.ErrorMessage); // En caso de no encontrar el producto, devolver un 404 con el error
     }
@@ -62,12 +70,14 @@ public class ProductController : ControllerBase
 
         if (filteredProducts.IsSuccess)
         {
-            return Ok(filteredProducts.Data);
+            return new JsonResult(filteredProducts.Data, new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
         }
 
         return BadRequest(filteredProducts.ErrorMessage);
     }
-
 
     [HttpPut("{id}")]
     public IActionResult UpdateProduct(Guid id, Product updatedProduct)

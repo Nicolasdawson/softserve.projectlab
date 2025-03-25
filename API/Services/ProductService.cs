@@ -12,7 +12,10 @@ public class ProductService
         {
             product.Id = Guid.NewGuid(); // Generar un nuevo ID
             _products.Add(product); // Agregar el producto a la lista en memoria
-            Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}");
+            //Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}");
+             // Verificación en consola para asegurarse de que 'Category' está siendo guardada
+            //Console.WriteLine($"Producto creado: {product.Name} con categorías: {string.Join(", ", product.Category)}");
+
 
             return Result<Product>.Success(product); // Devolver el producto creado con éxito
         }
@@ -113,13 +116,14 @@ public class ProductService
     {
         try
         {
-            var product = GetProductById(id).Data;
-            if (product == null)
+            var result = GetProductById(id); // Obtenemos el producto
+            if (!result.IsSuccess)
             {
-                return Result<bool>.Failure("Producto no encontrado.");
+                return Result<bool>.Failure(result.ErrorMessage); // Si no se encuentra el producto, devolvemos el error
             }
 
-            _products.Remove(product);
+            var product = result.Data;
+            _products.Remove(product); // Eliminamos el producto
             return Result<bool>.Success(true); // Producto eliminado correctamente
         }
         catch (Exception ex)
@@ -128,14 +132,23 @@ public class ProductService
         }
     }
 
+
     public Result<bool> UpdateProduct(Guid id, Product updatedProduct)
     {
         try
         {
-            var existingProduct = GetProductById(id).Data;
-            if (existingProduct == null)
+            var result = GetProductById(id); // Obtener el producto
+            if (!result.IsSuccess)
             {
-                return Result<bool>.Failure("Producto no encontrado.");
+                return Result<bool>.Failure(result.ErrorMessage); // Si no existe, devolvemos el mensaje de error
+            }
+
+            var existingProduct = result.Data;
+
+            // Validación adicional (si es necesario)
+            if (string.IsNullOrEmpty(updatedProduct.Name))
+            {
+                return Result<bool>.Failure("El nombre del producto no puede estar vacío.");
             }
 
             existingProduct.Name = updatedProduct.Name;
@@ -151,4 +164,5 @@ public class ProductService
             return Result<bool>.Failure($"Error al actualizar el producto: {ex.Message}");
         }
     }
+
 }
