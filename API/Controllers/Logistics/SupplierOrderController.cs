@@ -1,60 +1,72 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using API.Models.Logistics.Interfaces;
-using API.Models.Logistics.LogisticsInterface;
+using API.Services.Logistics; // Updated to use service interface
 using Logistics.Models;
+using API.Models.Logistics.LogisticsInterface;
 
-namespace API.Controllers
+namespace API.Controllers.Logistics
 {
+    /// <summary>
+    /// Controller for managing supplier orders.
+    /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/supplier-orders")] // Use plural naming convention
     public class SupplierOrderController : ControllerBase
     {
-        private readonly ISupplierOrder _supplierOrderService;
+        private readonly ISupplierOrderService _supplierOrderService;
 
-        public SupplierOrderController(ISupplierOrder supplierOrderService)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SupplierOrderController"/> class.
+        /// </summary>
+        /// <param name="supplierOrderService">The supplier order service.</param>
+        public SupplierOrderController(ISupplierOrderService supplierOrderService)
         {
             _supplierOrderService = supplierOrderService;
         }
 
+        /// <summary>
+        /// Creates a new supplier order.
+        /// </summary>
         [HttpPost]
-        public IActionResult CreateOrder([FromBody] SupplierOrder order)
+        public IActionResult CreateSupplierOrder([FromBody] SupplierOrder order)
         {
             var result = _supplierOrderService.AddSupplierOrder(order as ISupplierOrder);
-            if (result.IsSuccess)
-                return Ok(result.Data);
-
-            return BadRequest(result.ErrorMessage);
+            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Gets a supplier order by its ID.
+        /// </summary>
         [HttpGet("{orderId}")]
-        public IActionResult GetOrder(int orderId)
+        public IActionResult GetSupplierOrderById(int orderId)
         {
             var result = _supplierOrderService.GetSupplierOrderById(orderId);
-            if (result.IsSuccess)
-                return Ok(result.Data);
-
-            return NotFound(result.ErrorMessage);
+            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Updates an existing supplier order.
+        /// </summary>
         [HttpPut("{orderId}")]
-        public IActionResult UpdateOrder(int orderId, [FromBody] SupplierOrder order)
+        public IActionResult UpdateSupplierOrder(int orderId, [FromBody] SupplierOrder order)
         {
-            order.OrderId = orderId; // Ensures that the ID in the request matches
+            order.OrderId = orderId;
             var result = _supplierOrderService.UpdateSupplierOrder(order as ISupplierOrder);
-            if (result.IsSuccess)
-                return Ok(result.Data);
-
-            return BadRequest(result.ErrorMessage);
+            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Deletes a supplier order by its ID.
+        /// </summary>
         [HttpDelete("{orderId}")]
-        public IActionResult DeleteOrder(int orderId)
+        public IActionResult DeleteSupplierOrder(int orderId)
         {
             var result = _supplierOrderService.DeleteSupplierOrder(orderId);
-            if (result.IsSuccess)
-                return NoContent();
-
-            return NotFound(result.ErrorMessage);
+            //return result.IsSuccess ? NoContent() : NotFound(result.ErrorMessage);
+            if (result.IsNoContent)
+            {
+                return NoContent();  // Returns HTTP 204 No Content
+            }
+            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
     }
 }

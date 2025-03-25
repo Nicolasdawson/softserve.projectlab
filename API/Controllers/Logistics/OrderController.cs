@@ -1,6 +1,7 @@
 ﻿using API.Models.Logistics;
 using API.Services.Logistics;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace API.Controllers.Logistics
 {
@@ -28,7 +29,8 @@ namespace API.Controllers.Logistics
         public async Task<IActionResult> CreateOrder([FromBody] Order order)
         {
             var result = await _orderService.CreateOrderAsync(order);
-            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
+            return result.IsSuccess ? CreatedAtAction(nameof(GetOrderById), new { id = result.Data.OrderId }, result.Data)
+                                    : BadRequest(result.ErrorMessage);
         }
 
         /// <summary>
@@ -57,10 +59,11 @@ namespace API.Controllers.Logistics
         /// <summary>
         /// Updates an existing order.
         /// </summary>
-        /// <param name="order">The order to update.</param>
+        /// <param name="id">The ID of the order.</param>
+        /// <param name="order">The updated order data.</param>
         /// <returns>The updated order.</returns>
-        [HttpPut]
-        public async Task<IActionResult> UpdateOrder([FromBody] Order order)
+        [HttpPut("{id}")] // Ensure updates specify an ID in the route
+        public async Task<IActionResult> UpdateOrder(int Orderid, [FromBody] Order order)
         {
             var result = await _orderService.UpdateOrderAsync(order);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
@@ -75,6 +78,11 @@ namespace API.Controllers.Logistics
         public async Task<IActionResult> DeleteOrder(int id)
         {
             var result = await _orderService.DeleteOrderAsync(id);
+            //return result.IsSuccess ? NoContent() : NotFound(result.ErrorMessage); 
+            if (result.IsNoContent)
+            {
+                return NoContent();  // Returns HTTP 204 No Content
+            }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
     }

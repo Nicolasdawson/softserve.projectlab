@@ -10,7 +10,7 @@ namespace API.Controllers.Logistics
     /// Controller for managing branches.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/branches")] // More explicit than [controller]
     public class BranchController : ControllerBase
     {
         private readonly IBranchService _branchService;
@@ -29,7 +29,7 @@ namespace API.Controllers.Logistics
         /// </summary>
         /// <param name="branch">The branch to add.</param>
         /// <returns>The result of the add operation.</returns>
-        [HttpPost("add")]
+        [HttpPost] // No need for "add" in route, POST already implies creation
         public async Task<IActionResult> AddBranch([FromBody] Branch branch)
         {
             var result = await _branchService.AddBranchAsync(branch);
@@ -39,11 +39,13 @@ namespace API.Controllers.Logistics
         /// <summary>
         /// Updates an existing branch.
         /// </summary>
+        /// <param name="branchId">The ID of the branch.</param>
         /// <param name="branch">The branch to update.</param>
         /// <returns>The result of the update operation.</returns>
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateBranch([FromBody] Branch branch)
+        [HttpPut("{branchId}")] // RESTful: Use resource identifier in route
+        public async Task<IActionResult> UpdateBranch(int branchId, [FromBody] Branch branch)
         {
+            branch.BranchId = branchId; // Ensure the branch ID is set correctly
             var result = await _branchService.UpdateBranchAsync(branch);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
@@ -53,7 +55,7 @@ namespace API.Controllers.Logistics
         /// </summary>
         /// <param name="branchId">The ID of the branch.</param>
         /// <returns>The branch with the specified ID.</returns>
-        [HttpGet("{branchId}")]
+        [HttpGet("{branchId}")] // Already correctly RESTful
         public async Task<IActionResult> GetBranchById(int branchId)
         {
             var result = await _branchService.GetBranchByIdAsync(branchId);
@@ -64,7 +66,7 @@ namespace API.Controllers.Logistics
         /// Gets all branches.
         /// </summary>
         /// <returns>A list of all branches.</returns>
-        [HttpGet("all")]
+        [HttpGet] // Remove "all" since GET /api/branches implies fetching all
         public async Task<IActionResult> GetAllBranches()
         {
             var result = await _branchService.GetAllBranchesAsync();
@@ -76,10 +78,15 @@ namespace API.Controllers.Logistics
         /// </summary>
         /// <param name="branchId">The ID of the branch to remove.</param>
         /// <returns>The result of the remove operation.</returns>
-        [HttpDelete("remove/{branchId}")]
+        [HttpDelete("{branchId}")] // RESTful: DELETE method with resource ID
         public async Task<IActionResult> RemoveBranch(int branchId)
         {
             var result = await _branchService.RemoveBranchAsync(branchId);
+            //return result.IsSuccess ? NoContent() : NotFound(result.ErrorMessage);
+            if (result.IsNoContent)
+            {
+                return NoContent();  // Returns HTTP 204 No Content
+            }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
     }

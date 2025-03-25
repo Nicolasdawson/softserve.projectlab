@@ -45,8 +45,13 @@ namespace API.Controllers
         public IActionResult RemoveItem(int warehouseId, [FromBody] Item item)
         {
             var result = _warehouseService.RemoveItemFromWarehouse(warehouseId, item);
+            if (result.IsNoContent)
+            {
+                return NoContent();  // Returns HTTP 204 No Content
+            }
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
+
 
         /// <summary>
         /// Checks the stock of an item in the warehouse.
