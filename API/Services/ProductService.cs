@@ -1,14 +1,18 @@
 // Services/ProductService.cs
+using API.implementations.Infrastructure.Data;
 using API.Models;
 
 namespace API.Services
 {
     public class ProductService
     {
+        private readonly AppDbContext _context; 
         private readonly List<Product> _products;
 
-        public ProductService() 
+        public ProductService(AppDbContext context) 
         {
+            _context = context;
+            /*
             _products = new List<Product>
             {
                 new Product
@@ -72,6 +76,7 @@ namespace API.Services
                     Stock = "Disponible"
                 }
             };
+             */
         }
         public Product CreateProduct(Product product)
         {
@@ -84,8 +89,8 @@ namespace API.Services
 
         public IEnumerable<Product> GetAllProducts()
         {
-            Console.WriteLine($"Cantidad de productos en memoria: {_products.Count}"); // Log para verificar la cantidad de productos
-            return _products;
+            //Console.WriteLine($"Cantidad de productos en memoria: {_products.Count}"); // Log para verificar la cantidad de productos
+            return _context.Products.ToList();
         }
 
 
@@ -111,7 +116,7 @@ namespace API.Services
             if (existingProduct != null)
             {
                 existingProduct.Name = updatedProduct.Name;
-                existingProduct.Category = updatedProduct.Category;
+                existingProduct.CategoryId = updatedProduct.CategoryId;
                 existingProduct.Description = updatedProduct.Description;
                 existingProduct.ImageUrl = updatedProduct.ImageUrl;
                 existingProduct.Price = updatedProduct.Price;
@@ -122,7 +127,7 @@ namespace API.Services
 
         public IEnumerable<Product> GetProductsByCategory(string category)
         {
-            return _products.Where(p => p.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
+            return _products;//.Where(p => p.CategoryId.Equals(category, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

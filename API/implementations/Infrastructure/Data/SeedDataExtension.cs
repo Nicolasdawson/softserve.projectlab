@@ -7,6 +7,7 @@ namespace API.implementations.Infrastructure.Data
     {
         public static void SeedProducts(this ModelBuilder modelBuilder)
         {
+            /*
             modelBuilder.Entity<Product>().HasData( 
                 new Product[]
             {
@@ -71,6 +72,7 @@ namespace API.implementations.Infrastructure.Data
                     Stock = "Disponible"
                 }
             });
+             */
         }
     }
 }

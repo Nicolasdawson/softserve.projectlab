@@ -4,9 +4,13 @@ namespace API.Models;
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = default!;
-        public string Category { get; set; } = default!;
+        public Guid CategoryId { get; set; }
         public string Description { get; set; } = default!;
         public string ImageUrl { get; set; } = default!;
         public decimal Price { get; set; }
-        public string Stock { get; set; } = default!;
+        public int Stock { get; set; }
+
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
 }
