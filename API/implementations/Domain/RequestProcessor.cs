@@ -61,7 +61,7 @@ public class RequestProcessor : IRequestProcessor
                 p.Id = packageId;
 
                 Packages.Add(p);
-                return p;
+                return Result.Ok(p);
             }
 
             Item? i = p.Cart.Find(delegate (Item it)
