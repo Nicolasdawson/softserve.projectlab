@@ -10,7 +10,7 @@ namespace API.Controllers.IntAdmin
     /// API Controller for managing Item operations.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/items")]
     public class ItemController : ControllerBase
     {
         private readonly IItemService _itemService;
@@ -28,8 +28,8 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="item">Item object to add</param>
         /// <returns>HTTP response with the created item or error message</returns>
-        [HttpPost("add")]
-        public async Task<IActionResult> AddItem([FromBody] Item item)
+        [HttpPost]
+        public async Task<IActionResult> CreateItem([FromBody] Item item)
         {
             var result = await _itemService.AddItemAsync(item);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
@@ -40,9 +40,10 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="item">Item object with updated data</param>
         /// <returns>HTTP response with the updated item or error message</returns>
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateItem([FromBody] Item item)
+        [HttpPut("{Sku}")]
+        public async Task<IActionResult> UpdateItem(int Sku, [FromBody] Item item)
         {
+            item.Sku = Sku;
             var result = await _itemService.UpdateItemAsync(item);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
@@ -52,7 +53,7 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="sku">Unique identifier of the item</param>
         /// <returns>HTTP response with the item or error message</returns>
-        [HttpGet("{sku}")]
+        [HttpGet("{Sku}")]
         public async Task<IActionResult> GetItemBySku(int sku)
         {
             var result = await _itemService.GetItemBySkuAsync(sku);
@@ -63,7 +64,7 @@ namespace API.Controllers.IntAdmin
         /// Retrieves all items.
         /// </summary>
         /// <returns>HTTP response with the list of items or error message</returns>
-        [HttpGet("all")]
+        [HttpGet]
         public async Task<IActionResult> GetAllItems()
         {
             var result = await _itemService.GetAllItemsAsync();
@@ -75,10 +76,14 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="sku">Unique identifier of the item to remove</param>
         /// <returns>HTTP response indicating success or failure</returns>
-        [HttpDelete("remove/{sku}")]
-        public async Task<IActionResult> RemoveItem(int sku)
+        [HttpDelete("{Sku}")]
+        public async Task<IActionResult> RemoveItem(int Sku)
         {
-            var result = await _itemService.RemoveItemAsync(sku);
+            var result = await _itemService.RemoveItemAsync(Sku);
+            if (result.IsNoContent)
+            {
+                return NoContent();
+            }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
