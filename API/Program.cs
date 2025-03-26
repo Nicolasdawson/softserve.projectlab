@@ -9,6 +9,7 @@ using API.Services.IntAdmin;
 using API.Implementations.Domain;
 using API.implementations.Domain;
 using API.Domain.Logistics;
+using API.Utils.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,9 @@ builder.Services.AddSwaggerGen();
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+// Add services to the container using the extension method
+builder.Services.AddCustomerServices();
 
 // Register your services
 builder.Services.AddScoped<IPackageService, PackageService>();
