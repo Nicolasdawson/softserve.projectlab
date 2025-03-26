@@ -1,66 +1,42 @@
-﻿using API.Models.IntAdmin;
-using API.Models.Logistics.LogisticsInterface;
-using API.Models;
-using Logistics.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using API.Models.Logistics.Interfaces;
+using API.Domain.Logistics;
 
 namespace API.Services.Logistics
 {
     public class SupplierOrderService : ISupplierOrderService
     {
-        /// <summary>
-        /// Adds a new supplier order.
-        /// </summary>
-        /// <param name="supplierOrder">The supplier order to add.</param>
-        /// <returns>A result containing the added supplier order.</returns>
-        public Result<ISupplierOrder> AddSupplierOrder(ISupplierOrder supplierOrder)
+        private readonly SupplierOrderDomain _domain;
+
+        public SupplierOrderService(SupplierOrderDomain domain)
         {
-            // Logic for adding the supplier order (e.g., save to database or in-memory store)
-            return Result<ISupplierOrder>.Success(supplierOrder);
+            _domain = domain;
         }
 
-        /// <summary>
-        /// Updates an existing supplier order.
-        /// </summary>
-        /// <param name="supplierOrder">The supplier order to update.</param>
-        /// <returns>A result containing the updated supplier order.</returns>
-        public Result<ISupplierOrder> UpdateSupplierOrder(ISupplierOrder supplierOrder)
+        public async Task<List<ISupplierOrder>> GetAllSupplierOrdersAsync()
         {
-            // Logic to update the supplier order
-            return Result<ISupplierOrder>.Success(supplierOrder);
+            return await _domain.GetAllSupplierOrdersAsync();
         }
 
-        /// <summary>
-        /// Gets a supplier order by its ID.
-        /// </summary>
-        /// <param name="orderId">The ID of the supplier order to retrieve.</param>
-        /// <returns>A result containing the supplier order.</returns>
-        public Result<ISupplierOrder> GetSupplierOrderById(int orderId)
+        public async Task<ISupplierOrder> GetSupplierOrderByIdAsync(int orderId)
         {
-            // Logic to get a supplier order by ID
-            var order = new SupplierOrder(1, new List<Item>()) { OrderId = orderId };
-            return Result<ISupplierOrder>.Success((ISupplierOrder)order);
+            return await _domain.GetSupplierOrderByIdAsync(orderId);
         }
 
-        /// <summary>
-        /// Gets all supplier orders.
-        /// </summary>
-        /// <returns>A result containing a list of all supplier orders.</returns>
-        public Result<List<ISupplierOrder>> GetAllSupplierOrders()
+        public async Task<ISupplierOrder> AddSupplierOrderAsync(ISupplierOrder order)
         {
-            // Logic to get all supplier orders (e.g., fetch from database)
-            var orders = new List<ISupplierOrder>();
-            return Result<List<ISupplierOrder>>.Success(orders);
+            return await _domain.AddSupplierOrderAsync(order);
         }
 
-        /// <summary>
-        /// Deletes a supplier order by its ID.
-        /// </summary>
-        /// <param name="orderId">The ID of the supplier order to delete.</param>
-        /// <returns>A result indicating whether the deletion was successful.</returns>
-        public Result<bool> DeleteSupplierOrder(int orderId)
+        public async Task<bool> UpdateSupplierOrderAsync(ISupplierOrder order)
         {
-            // Logic to delete a supplier order by ID
-            return Result<bool>.Success(true);
+            return await _domain.UpdateSupplierOrderAsync(order);
+        }
+
+        public async Task<bool> DeleteSupplierOrderAsync(int orderId)
+        {
+            return await _domain.DeleteSupplierOrderAsync(orderId);
         }
     }
 }

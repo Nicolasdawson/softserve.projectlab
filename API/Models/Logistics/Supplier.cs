@@ -1,6 +1,7 @@
 ﻿using API.Models.IntAdmin;
 using API.Models;
 using API.Models.Logistics.Interfaces;
+using API.Models.Logistics;
 
 namespace Logistics.Models
 {
@@ -12,7 +13,11 @@ namespace Logistics.Models
         public string Address { get; set; }
         public List<Item> ProductsSupplied { get; set; }
         public bool IsActive { get; set; } 
-        public List<SupplierOrder> Orders { get; set; } 
+        public List<SupplierOrder> Orders { get; set; }
+
+
+        // Parameterless constructor for Dependency Injection (DI) & serialization
+        public Supplier() { }
 
         public Supplier(int supplierId, string name, string contactInfo)
         {
