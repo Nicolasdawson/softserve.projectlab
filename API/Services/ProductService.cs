@@ -125,9 +125,9 @@ namespace API.Services
             return false;
         }
 
-        public IEnumerable<Product> GetProductsByCategory(string category)
+        public IEnumerable<Product> GetProductsByCategory(Guid category)
         {
-            return _products;//.Where(p => p.CategoryId.Equals(category, StringComparison.OrdinalIgnoreCase));
+            return _context.Products.Where(p => p.CategoryId == category);
         }
     }
 }

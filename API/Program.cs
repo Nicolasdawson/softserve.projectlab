@@ -14,6 +14,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Configurar CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOrigin", policy =>
+    {
+        // Permitir cualquier origen que tenga 'localhost' en la URL
+        policy.AllowAnyOrigin()  // Permite cualquier puerto de localhost
+              .AllowAnyMethod()  // Permite cualquier método HTTP (GET, POST, etc.)
+              .AllowAnyHeader();  // Permite cualquier encabezado
+    });
+});
+
 // Agregar servicios para controllers
 builder.Services.AddControllers();
 
@@ -38,6 +50,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();  // Habilita la UI de Swagger
 }
 
+// Usar la política de CORS
+app.UseCors("AllowAnyOrigin");
 
 // Configurar los controladores
 app.MapControllers();
