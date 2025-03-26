@@ -79,16 +79,6 @@ namespace API.Controllers.IntAdmin
         }
 
         /// <summary>
-        /// Authenticates a user by email and password.
-        /// </summary>
-        [HttpPost("authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody] LoginRequest request)
-        {
-            var result = await _userService.AuthenticateAsync(request.Email, request.Password);
-            return result.IsSuccess ? Ok("Authenticated successfully") : Unauthorized(result.ErrorMessage);
-        }
-
-        /// <summary>
         /// Assigns a role to a user.
         /// </summary>
         [HttpPut("assign-role/{userId}/{roleId}")]
@@ -98,14 +88,5 @@ namespace API.Controllers.IntAdmin
             return result.IsSuccess ? Ok("Role assigned successfully") : NotFound(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Updates the user's password.
-        /// </summary>
-        [HttpPut("update-password/{userId}")]
-        public async Task<IActionResult> UpdatePassword(int userId, [FromBody] PasswordRequest request)
-        {
-            var result = await _userService.UpdatePasswordAsync(userId, request.NewPassword);
-            return result.IsSuccess ? Ok("Password updated successfully") : NotFound(result.ErrorMessage);
-        }
     }
 }
