@@ -20,7 +20,10 @@ namespace API.Models.Logistics
         /// <param name="warehouseId"></param>
         /// <param name="name"></param>
         /// <param name="location"></param>
-        /// <param name="capacity"></param>
+        /// <param name="capacity"></param>        
+
+        // Parameterless constructor for Dependency Injection (DI) & serialization
+        public Warehouse() { }
         public Warehouse(int warehouseId, string name, string location, int capacity)
         {
             WareHouseId = warehouseId;

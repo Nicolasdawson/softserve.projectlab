@@ -1,72 +1,58 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using API.Services.Logistics; // Updated to use service interface
-using Logistics.Models;
-using API.Models.Logistics.LogisticsInterface;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using API.Services.Logistics;
+using API.Models.Logistics.Interfaces;
 
-namespace API.Controllers.Logistics
+namespace API.Controllers
 {
-    /// <summary>
-    /// Controller for managing supplier orders.
-    /// </summary>
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/supplier-orders")] // Use plural naming convention
     public class SupplierOrderController : ControllerBase
     {
-        private readonly ISupplierOrderService _supplierOrderService;
+        private readonly ISupplierOrderService _service;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SupplierOrderController"/> class.
-        /// </summary>
-        /// <param name="supplierOrderService">The supplier order service.</param>
-        public SupplierOrderController(ISupplierOrderService supplierOrderService)
+        public SupplierOrderController(ISupplierOrderService service)
         {
-            _supplierOrderService = supplierOrderService;
+            _service = service;
         }
 
-        /// <summary>
-        /// Creates a new supplier order.
-        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<List<ISupplierOrder>>> GetAllOrders()
+        {
+            return Ok(await _service.GetAllSupplierOrdersAsync());
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ISupplierOrder>> GetOrderById(int id)
+        {
+            var order = await _service.GetSupplierOrderByIdAsync(id);
+            if (order == null) return NotFound();
+            return Ok(order);
+        }
+
         [HttpPost]
-        public IActionResult CreateSupplierOrder([FromBody] SupplierOrder order)
+        public async Task<ActionResult<ISupplierOrder>> CreateOrder(ISupplierOrder order)
         {
-            var result = _supplierOrderService.AddSupplierOrder(order as ISupplierOrder);
-            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
+            var newOrder = await _service.AddSupplierOrderAsync(order);
+            return CreatedAtAction(nameof(GetOrderById), new { id = newOrder.OrderId }, newOrder);
         }
 
-        /// <summary>
-        /// Gets a supplier order by its ID.
-        /// </summary>
-        [HttpGet("{orderId}")]
-        public IActionResult GetSupplierOrderById(int orderId)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateOrder(int id, ISupplierOrder order)
         {
-            var result = _supplierOrderService.GetSupplierOrderById(orderId);
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            if (id != order.OrderId) return BadRequest();
+            var updated = await _service.UpdateSupplierOrderAsync(order);
+            if (!updated) return NotFound();
+            return NoContent();
         }
 
-        /// <summary>
-        /// Updates an existing supplier order.
-        /// </summary>
-        [HttpPut("{orderId}")]
-        public IActionResult UpdateSupplierOrder(int orderId, [FromBody] SupplierOrder order)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder(int id)
         {
-            order.OrderId = orderId;
-            var result = _supplierOrderService.UpdateSupplierOrder(order as ISupplierOrder);
-            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
-        }
-
-        /// <summary>
-        /// Deletes a supplier order by its ID.
-        /// </summary>
-        [HttpDelete("{orderId}")]
-        public IActionResult DeleteSupplierOrder(int orderId)
-        {
-            var result = _supplierOrderService.DeleteSupplierOrder(orderId);
-            //return result.IsSuccess ? NoContent() : NotFound(result.ErrorMessage);
-            if (result.IsNoContent)
-            {
-                return NoContent();  // Returns HTTP 204 No Content
-            }
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            var deleted = await _service.DeleteSupplierOrderAsync(id);
+            if (!deleted) return NotFound();
+            return NoContent();
         }
     }
 }

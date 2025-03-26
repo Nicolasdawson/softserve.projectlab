@@ -6,20 +6,15 @@ namespace API.Models.Logistics
     {
         public int BranchId { get; set; }
         public string Name { get; set; }
-        public string City { get; set; }  // New attribute for City
-        public string Region { get; set; }  // New attribute for Region
+        public string City { get; set; }
+        public string Region { get; set; }
         public string ContactNumber { get; set; }
-        public string ContactEmail { get; set; }  // New attribute for ContactEmail
+        public string ContactEmail { get; set; }
         public string Address { get; set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Branch"/> class.
-        /// </summary>
-        /// <param name="branchId">The branch identifier.</param>
-        /// <param name="name">The name of the branch.</param>
-        /// <param name="city">The city where the branch is located.</param>
-        /// <param name="region">The region where the branch is located.</param>
-        /// <param name="contactNumber">The contact number of the branch.</param>
+        // Parameterless constructor for Dependency Injection (DI) & serialization
+        public Branch() { }
+
         public Branch(int branchId, string name, string city, string region, string contactNumber)
         {
             BranchId = branchId;

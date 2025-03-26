@@ -7,15 +7,20 @@ using Logistics.Models;
 using API.Services.Interfaces;
 using API.Services.IntAdmin; 
 using API.Implementations.Domain;
-using API.Models.Logistics.LogisticsInterface;
+using API.implementations.Domain;
+using API.Domain.Logistics;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 // Add services to the container.
 builder.Services.AddControllers();
 
 // Register your services
 builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddScoped<PackagesDomain>();
 builder.Services.AddScoped<IWarehouse, Warehouse>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IBranch, Branch>();
@@ -24,6 +29,11 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrder, Order>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<ISupplier, Supplier>();
+builder.Services.AddScoped<BranchDomain>();
+builder.Services.AddScoped<OrderDomain>();
+builder.Services.AddScoped<SupplierDomain>();
+builder.Services.AddScoped<SupplierOrderDomain>();
+builder.Services.AddScoped<WarehouseDomain>();
 builder.Services.AddScoped<CatalogDomain>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<CategoryDomain>();

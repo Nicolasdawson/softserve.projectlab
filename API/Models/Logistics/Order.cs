@@ -52,6 +52,10 @@ namespace API.Models.Logistics
         /// <param name="orderDate">The order date.</param>
         /// <param name="items">The list of items in the order.</param>
         /// <param name="status">The status of the order.</param>
+
+        // Parameterless constructor for Dependency Injection (DI) & serialization
+        public Order(){}
+
         public Order(int orderId, string customerId, DateTime orderDate, List<Item> items, string status)
         {
             OrderId = orderId;
