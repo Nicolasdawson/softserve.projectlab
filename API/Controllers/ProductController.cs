@@ -63,13 +63,9 @@ namespace API.Controllers;
 
         // Filters
         [HttpGet("filter/{category}")] 
-        public ActionResult<IEnumerable<Product>> GetProductsByCategory(string category)
+        public ActionResult<IEnumerable<Product>> GetProductsByCategory(Guid category)
         {
-            if (string.IsNullOrWhiteSpace(category))
-                return BadRequest("Category cannot be empty or null.");
-
-        var products = _productService.GetProductsByCategory(category);
-
+            var products = _productService.GetProductsByCategory(category);
             return Ok(products);
         }
 }
