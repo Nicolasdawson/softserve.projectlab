@@ -100,9 +100,7 @@ namespace API.Models.IntAdmin
         /// <returns>Result indicating success or failure</returns>
         public Result<bool> AddCategory()
         {
-            // TODO: If you want to pass a category as a parameter, adjust this signature
-            // Example:
-            // Categories.Add(category);
+            // TODO: Add the logic to add a category to the list
             return Result<bool>.Success(true);
         }
 
@@ -112,10 +110,7 @@ namespace API.Models.IntAdmin
         /// <returns>Result indicating success or failure</returns>
         public Result<bool> RemoveCategory()
         {
-            // TODO: If you want to pass the categoryId as a parameter, adjust this signature
-            // Example:
-            // var catToRemove = Categories.FirstOrDefault(c => c.CategoryId == categoryId);
-            // if (catToRemove != null) { Categories.Remove(catToRemove); return Success... }
+            // TODO: Add the logic to remove a category from the list
             return Result<bool>.Success(true);
         }
     }

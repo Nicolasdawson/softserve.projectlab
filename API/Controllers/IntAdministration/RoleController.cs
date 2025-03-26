@@ -11,7 +11,7 @@ namespace API.Controllers.IntAdmin
     /// API Controller for managing Role operations.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/roles")]
     public class RoleController : ControllerBase
     {
         private readonly IRoleService _roleService;
@@ -27,8 +27,8 @@ namespace API.Controllers.IntAdmin
         /// <summary>
         /// Adds a new role.
         /// </summary>
-        [HttpPost("add")]
-        public async Task<IActionResult> AddRole([FromBody] Role role)
+        [HttpPost]
+        public async Task<IActionResult> CreateRole([FromBody] Role role)
         {
             var result = await _roleService.AddRoleAsync(role);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
@@ -37,9 +37,10 @@ namespace API.Controllers.IntAdmin
         /// <summary>
         /// Updates an existing role.
         /// </summary>
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateRole([FromBody] Role role)
+        [HttpPut("{RoleId}")]
+        public async Task<IActionResult> UpdateRole(int RoleId, [FromBody] Role role)
         {
+            role.RoleId = RoleId;
             var result = await _roleService.UpdateRoleAsync(role);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
@@ -47,7 +48,7 @@ namespace API.Controllers.IntAdmin
         /// <summary>
         /// Retrieves a role by its unique ID.
         /// </summary>
-        [HttpGet("{roleId}")]
+        [HttpGet("{RoleId}")]
         public async Task<IActionResult> GetRoleById(int roleId)
         {
             var result = await _roleService.GetRoleByIdAsync(roleId);
@@ -57,7 +58,7 @@ namespace API.Controllers.IntAdmin
         /// <summary>
         /// Retrieves all roles.
         /// </summary>
-        [HttpGet("all")]
+        [HttpGet]
         public async Task<IActionResult> GetAllRoles()
         {
             var result = await _roleService.GetAllRolesAsync();
@@ -67,10 +68,14 @@ namespace API.Controllers.IntAdmin
         /// <summary>
         /// Removes a role by its unique ID.
         /// </summary>
-        [HttpDelete("remove/{roleId}")]
-        public async Task<IActionResult> RemoveRole(int roleId)
+        [HttpDelete("{RoleId}")]
+        public async Task<IActionResult> RemoveRole(int RoleId)
         {
-            var result = await _roleService.RemoveRoleAsync(roleId);
+            var result = await _roleService.RemoveRoleAsync(RoleId);
+            if (result.IsNoContent)
+            {
+                return NoContent();
+            }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 

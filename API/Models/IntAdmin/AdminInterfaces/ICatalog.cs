@@ -12,8 +12,6 @@ namespace API.Models.IntAdmin.Interfaces
 
         bool CatalogStatus { get; set; }
 
-        List<ICategory> Categories { get; set; }
-
         // CRUD methods
 
         /// <summary>
