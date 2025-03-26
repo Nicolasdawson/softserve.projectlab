@@ -10,7 +10,7 @@ namespace API.Controllers.IntAdmin
     /// API Controller for managing Permission operations.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/permissions")]
     public class PermissionController : ControllerBase
     {
         private readonly IPermissionService _permissionService;
@@ -28,8 +28,8 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="permission">Permission object to add</param>
         /// <returns>HTTP response with the created permission or error message</returns>
-        [HttpPost("add")]
-        public async Task<IActionResult> AddPermission([FromBody] Permission permission)
+        [HttpPost]
+        public async Task<IActionResult> CreatePermission([FromBody] Permission permission)
         {
             var result = await _permissionService.AddPermissionAsync(permission);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
@@ -40,9 +40,10 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="permission">Permission object with updated data</param>
         /// <returns>HTTP response with the updated permission or error message</returns>
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdatePermission([FromBody] Permission permission)
+        [HttpPut("{PermissionId}")]
+        public async Task<IActionResult> UpdatePermission(int PermissionId, [FromBody] Permission permission)
         {
+            permission.PermissionId = PermissionId;
             var result = await _permissionService.UpdatePermissionAsync(permission);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
@@ -52,10 +53,10 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="permissionId">Unique identifier of the permission</param>
         /// <returns>HTTP response with the permission or error message</returns>
-        [HttpGet("{permissionId}")]
-        public async Task<IActionResult> GetPermissionById(int permissionId)
+        [HttpGet("{PermissionId}")]
+        public async Task<IActionResult> GetPermissionById(int PermissionId)
         {
-            var result = await _permissionService.GetPermissionByIdAsync(permissionId);
+            var result = await _permissionService.GetPermissionByIdAsync(PermissionId);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
@@ -63,7 +64,7 @@ namespace API.Controllers.IntAdmin
         /// Retrieves all permissions.
         /// </summary>
         /// <returns>HTTP response with the list of permissions or error message</returns>
-        [HttpGet("all")]
+        [HttpGet]
         public async Task<IActionResult> GetAllPermissions()
         {
             var result = await _permissionService.GetAllPermissionsAsync();
@@ -75,10 +76,14 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="permissionId">Unique identifier of the permission to remove</param>
         /// <returns>HTTP response indicating success or failure</returns>
-        [HttpDelete("remove/{permissionId}")]
+        [HttpDelete("{permissionId}")]
         public async Task<IActionResult> RemovePermission(int permissionId)
         {
             var result = await _permissionService.RemovePermissionAsync(permissionId);
+            if (result.IsNoContent)
+            {
+                return NoContent();
+            }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
     }

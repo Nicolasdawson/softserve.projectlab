@@ -10,7 +10,7 @@ namespace API.Controllers.IntAdmin
     /// API Controller for managing Catalog operations.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/catalogs")]
     public class CatalogController : ControllerBase
     {
         private readonly ICatalogService _catalogService;
@@ -24,12 +24,12 @@ namespace API.Controllers.IntAdmin
         }
 
         /// <summary>
-        /// Adds a new catalog.
+        /// Creates a new catalog.
         /// </summary>
         /// <param name="catalog">Catalog object to add</param>
         /// <returns>HTTP response with the created catalog or error message</returns>
-        [HttpPost("add")]
-        public async Task<IActionResult> AddCatalog([FromBody] Catalog catalog)
+        [HttpPost]
+        public async Task<IActionResult> CreateCatalog([FromBody] Catalog catalog)
         {
             var result = await _catalogService.AddCatalogAsync(catalog);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
@@ -40,9 +40,10 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="catalog">Catalog object with updated data</param>
         /// <returns>HTTP response with the updated catalog or error message</returns>
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateCatalog([FromBody] Catalog catalog)
+        [HttpPut("{catalogId}")]
+        public async Task<IActionResult> UpdateCatalog(int catalogId, [FromBody] Catalog catalog)
         {
+            catalog.CatalogID = catalogId;
             var result = await _catalogService.UpdateCatalogAsync(catalog);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
@@ -63,7 +64,7 @@ namespace API.Controllers.IntAdmin
         /// Retrieves all catalogs.
         /// </summary>
         /// <returns>HTTP response with the list of catalogs or error message</returns>
-        [HttpGet("all")]
+        [HttpGet]
         public async Task<IActionResult> GetAllCatalogs()
         {
             var result = await _catalogService.GetAllCatalogsAsync();
@@ -75,10 +76,14 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="catalogId">Unique identifier of the catalog to remove</param>
         /// <returns>HTTP response indicating success or failure</returns>
-        [HttpDelete("remove/{catalogId}")]
-        public async Task<IActionResult> RemoveCatalog(int catalogId)
+        [HttpDelete("{catalogId}")]
+        public async Task<IActionResult> DeleteCatalog(int catalogId)
         {
             var result = await _catalogService.RemoveCatalogAsync(catalogId);
+            if (result.IsNoContent)
+            {
+                return NoContent();
+            }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
     }

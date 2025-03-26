@@ -10,7 +10,7 @@ namespace API.Controllers.IntAdmin
     /// API Controller for managing Category operations.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/categories")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -29,8 +29,8 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="category">Category object to add</param>
         /// <returns>HTTP response with the created category or error message</returns>
-        [HttpPost("add")]
-        public async Task<IActionResult> AddCategory([FromBody] Category category)
+        [HttpPost]
+        public async Task<IActionResult> CreateCategory([FromBody] Category category)
         {
             var result = await _categoryService.AddCategoryAsync(category);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
@@ -41,9 +41,10 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="category">Category object with updated data</param>
         /// <returns>HTTP response with the updated category or error message</returns>
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateCategory([FromBody] Category category)
+        [HttpPut("{categoryId}")]
+        public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] Category category)
         {
+            category.CategoryId = categoryId;
             var result = await _categoryService.UpdateCategoryAsync(category);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
@@ -64,7 +65,7 @@ namespace API.Controllers.IntAdmin
         /// Retrieves all categories.
         /// </summary>
         /// <returns>HTTP response with the list of categories or error message</returns>
-        [HttpGet("all")]
+        [HttpGet]
         public async Task<IActionResult> GetAllCategories()
         {
             var result = await _categoryService.GetAllCategoriesAsync();
@@ -76,10 +77,14 @@ namespace API.Controllers.IntAdmin
         /// </summary>
         /// <param name="categoryId">Unique identifier of the category to remove</param>
         /// <returns>HTTP response indicating success or failure</returns>
-        [HttpDelete("remove/{categoryId}")]
+        [HttpDelete("{categoryId}")]
         public async Task<IActionResult> RemoveCategory(int categoryId)
         {
             var result = await _categoryService.RemoveCategoryAsync(categoryId);
+            if (result.IsNoContent)
+            {
+                return NoContent();
+            }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
     }
