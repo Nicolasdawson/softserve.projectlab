@@ -1,11 +1,16 @@
-﻿namespace API.Models.Logistics.LogisticsInterface
+﻿using API.Models.IntAdmin;
+using System;
+using System.Collections.Generic;
+
+namespace API.Models.Logistics.Interfaces
 {
     public interface ISupplierOrder
     {
-        Result<ISupplierOrder> AddSupplierOrder(ISupplierOrder supplierOrder);
-        Result<ISupplierOrder> UpdateSupplierOrder(ISupplierOrder supplierOrder);
-        Result<ISupplierOrder> GetSupplierOrderById(int orderId);
-        Result<List<ISupplierOrder>> GetAllSupplierOrders();
-        Result<bool> DeleteSupplierOrder(int orderId);
+        int OrderId { get; set; }
+        int SupplierId { get; set; }
+        List<Item> OrderedItems { get; set; }
+        DateTime OrderDate { get; set; }
+        DateTime? ExpectedDeliveryDate { get; set; }
+        string Status { get; set; }
     }
 }

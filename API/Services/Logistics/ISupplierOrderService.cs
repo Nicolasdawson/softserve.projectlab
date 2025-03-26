@@ -1,16 +1,15 @@
-﻿using API.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using API.Models.Logistics.Interfaces;
-using API.Models.Logistics.LogisticsInterface;
-using System.Collections.Generic;
 
 namespace API.Services.Logistics
 {
     public interface ISupplierOrderService
     {
-        Result<ISupplierOrder> AddSupplierOrder(ISupplierOrder supplierOrder);
-        Result<ISupplierOrder> UpdateSupplierOrder(ISupplierOrder supplierOrder);
-        Result<ISupplierOrder> GetSupplierOrderById(int orderId);
-        Result<List<ISupplierOrder>> GetAllSupplierOrders();
-        Result<bool> DeleteSupplierOrder(int orderId);
+        Task<List<ISupplierOrder>> GetAllSupplierOrdersAsync();
+        Task<ISupplierOrder> GetSupplierOrderByIdAsync(int orderId);
+        Task<ISupplierOrder> AddSupplierOrderAsync(ISupplierOrder order);
+        Task<bool> UpdateSupplierOrderAsync(ISupplierOrder order);
+        Task<bool> DeleteSupplierOrderAsync(int orderId);
     }
 }

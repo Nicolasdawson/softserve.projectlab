@@ -1,33 +1,48 @@
-﻿using API.Models.Logistics.LogisticsInterface;
-using API.Models;
-using Logistics.Models;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using API.Models.Logistics.Interfaces;
 
 namespace API.Domain.Logistics
 {
     public class SupplierOrderDomain
     {
-        private readonly ISupplierOrder _supplierOrderService;
+        private readonly List<ISupplierOrder> _orders = new(); // Mock Data
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SupplierOrderDomain"/> class.
-        /// </summary>
-        /// <param name="supplierOrderService">The supplier order service.</param>
-        public SupplierOrderDomain(ISupplierOrder supplierOrderService)
+        public Task<List<ISupplierOrder>> GetAllSupplierOrdersAsync()
         {
-            _supplierOrderService = supplierOrderService;
+            return Task.FromResult(_orders);
         }
 
-        /// <summary>
-        /// Creates a new supplier order.
-        /// </summary>
-        /// <param name="order">The supplier order to create.</param>
-        /// <returns>A result containing the created supplier order.</returns>
-        public Result<ISupplierOrder> CreateOrder(SupplierOrder order)
+        public Task<ISupplierOrder> GetSupplierOrderByIdAsync(int orderId)
         {
-            // Additional business logic
-            return _supplierOrderService.AddSupplierOrder(order as ISupplierOrder);
+            var order = _orders.FirstOrDefault(o => o.OrderId == orderId);
+            return Task.FromResult(order);
         }
 
-        // Additional domain methods can be added here for validation or logic
+        public Task<ISupplierOrder> AddSupplierOrderAsync(ISupplierOrder order)
+        {
+            _orders.Add(order);
+            return Task.FromResult(order);
+        }
+
+        public Task<bool> UpdateSupplierOrderAsync(ISupplierOrder order)
+        {
+            var existing = _orders.FirstOrDefault(o => o.OrderId == order.OrderId);
+            if (existing == null) return Task.FromResult(false);
+
+            _orders.Remove(existing);
+            _orders.Add(order);
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> DeleteSupplierOrderAsync(int orderId)
+        {
+            var order = _orders.FirstOrDefault(o => o.OrderId == orderId);
+            if (order == null) return Task.FromResult(false);
+
+            _orders.Remove(order);
+            return Task.FromResult(true);
+        }
     }
 }
