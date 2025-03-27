@@ -49,7 +49,12 @@ namespace API.Controllers
             {
                 return NoContent();  // Returns HTTP 204 No Content
             }
-            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
+            else if (result.IsSuccess)
+            {
+                return Ok(result.Data);  // HTTP 200 OK with the result
+            }
+
+            return BadRequest(result.ErrorMessage);  // HTTP 400 with the error message
         }
 
 
