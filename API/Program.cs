@@ -1,4 +1,16 @@
+using API.Entity;
+using API.implementations.Domain;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var conectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
+
+builder.Services.AddTransient<IProductProcessor, ProductProcessor>();
+
+builder.Services.AddDbContext<AppDbContext>(
+    db => db.UseSqlServer(conectionString), ServiceLifetime.Singleton
+    );
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

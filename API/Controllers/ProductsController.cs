@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using API.implementations.Domain;
+using API.Models;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,15 +10,22 @@ namespace API.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        [HttpPost("Get/{type}")]
-        public IEnumerable<string> GetProduct(string type, [FromBody] string? value)
+        private readonly IProductProcessor _productProcessor;
+        public ProductsController(IProductProcessor productProcessor)
         {
-            return new string[] { "value1", "value2" };
+            _productProcessor = productProcessor;
+        }
+
+        [HttpPost("Get/{type}")]
+        public List<Product> GetProduct(string type, [FromBody] string? value)
+        {
+            return _productProcessor.GetAllProducts(true);
         }
 
         [HttpGet("{type}/{id}")]
         public string GetProduct(string type, int id)
         {
+
             return "value";
         }
 
