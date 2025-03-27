@@ -5,11 +5,13 @@ using API.Services.Logistics;
 using API.Services.OrderService;
 using Logistics.Models;
 using API.Services.Interfaces;
-using API.Services.IntAdmin; 
+using API.Services.IntAdmin;
 using API.Implementations.Domain;
 using API.implementations.Domain;
 using API.Domain.Logistics;
 using API.Utils.Extensions;
+using Microsoft.EntityFrameworkCore;
+using API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +22,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
 // Add services to the container using the extension method
-builder.Services.AddCustomerServices();
+//builder.Services.AddCustomerServices();
+builder.Services.AddWarehouseServices();
+builder.Services.AddBranchServices();
+builder.Services.AddOrderServices();
+builder.Services.AddSupplierServices();
+builder.Services.AddSupplierOrderServices();
 
 // Register your services
 builder.Services.AddScoped<IPackageService, PackageService>();
@@ -53,6 +60,15 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISupplierOrderService, SupplierOrderService>();
 
 
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+    sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    });
 
 var app = builder.Build();
 
@@ -68,5 +84,11 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.Run();

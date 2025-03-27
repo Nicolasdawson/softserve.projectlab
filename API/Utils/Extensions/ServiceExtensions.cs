@@ -1,5 +1,15 @@
-﻿using API.Implementations.Domain.Customers;
+﻿using API.Domain.Logistics;
+using API.implementations.Domain;
+using API.Implementations.Domain;
+using API.Implementations.Domain.Customers;
+using API.Models.Logistics;
+using API.Models.Logistics.Interfaces;
+using API.Services;
 using API.Services.Customers;
+using API.Services.Interfaces;
+using API.Services.Logistics;
+using API.Services.OrderService;
+using Logistics.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace API.Utils.Extensions;
@@ -14,13 +24,57 @@ public static class ServiceExtensions
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <returns>The service collection with customer services added.</returns>
-    public static IServiceCollection AddCustomerServices(this IServiceCollection services)
-    {
-        // Register the customer services
-        services.AddScoped<ICustomerService, CustomerService>();
-        services.AddScoped<ICartService, CartService>();
-        services.AddScoped<IPackageService, PackageService>();
+    //public static IServiceCollection AddCustomerServices(this IServiceCollection services)
+    //{
+    //    // Register the customer services
+    //    services.AddScoped<ICustomerService, CustomerService>();
+    //    services.AddScoped<ICartService, CartService>();
+    //    services.AddScoped<Services.IPackageService, Services.PackageService>();
         
+    //    return services;
+    //}
+
+    public static IServiceCollection AddWarehouseServices(this IServiceCollection services)
+    {
+        // Register the warehouse services
+        services.AddScoped<IWarehouseService, WarehouseService>();
+        services.AddScoped<IWarehouse, Warehouse>();
+        services.AddScoped<WarehouseDomain>();
+        return services;
+    }
+
+    public static IServiceCollection AddBranchServices(this IServiceCollection services)
+    {
+        // Register the branch services
+        services.AddScoped<IBranchService, BranchService>();
+        services.AddScoped<IBranch, Branch>();
+        services.AddScoped<BranchDomain>();
+        return services;
+    }
+
+    public static IServiceCollection AddOrderServices(this IServiceCollection services)
+    {
+        // Register the order services
+        services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IOrder, Order>();
+        services.AddScoped<OrderDomain>();
+        return services;
+    }
+
+    public static IServiceCollection AddSupplierServices(this IServiceCollection services)
+    {
+        // Register the supplier services
+        services.AddScoped<ISupplierService, SupplierService>();
+        services.AddScoped<ISupplier, Supplier>();
+        services.AddScoped<SupplierDomain>();
+        return services;
+    }
+
+    public static IServiceCollection AddSupplierOrderServices(this IServiceCollection services)
+    {
+        // Register the supplier order services
+        services.AddScoped<ISupplierOrderService, SupplierOrderService>();
+        services.AddScoped<SupplierOrderDomain>();
         return services;
     }
 }

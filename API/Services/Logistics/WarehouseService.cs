@@ -11,7 +11,7 @@ namespace API.Services
     public class WarehouseService : IWarehouseService
     {
         private readonly List<IWarehouse> _warehouses;
-        
+
         public WarehouseService()
         {
             _warehouses = new List<IWarehouse>();
