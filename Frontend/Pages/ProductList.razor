@@ -17,7 +17,16 @@ else
     <ul>
         @foreach (var product in products)
         {
-            <li>@product.Name - @product.Price</li>
+            <li>
+                <MudCard>
+                    <MudCardMedia Image="" Height="200" />
+                    <MudCardContent>
+                        <MudText Typo="Typo.h5">@product.Name - @product.Price</MudText>
+                        <MudText Typo="Typo.body2">Old paint found on a stone house door.</MudText>
+                        <MudText Typo="Typo.body2">This photo was taken in a small village in Istra Croatia.</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </li>
         }
     </ul>
 }
