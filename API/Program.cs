@@ -35,6 +35,14 @@ builder.Services.AddScoped<ProductService>();
 
 var app = builder.Build();
 
+// Aplicar las migraciones automáticamente al iniciar la aplicación
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.EnsureCreated();  // Esto creará las tablas si no existen
+}
+
+
 // Habilitar el uso de Swagger en la API
 if (app.Environment.IsDevelopment())  // Solo habilitar Swagger en desarrollo
 {
