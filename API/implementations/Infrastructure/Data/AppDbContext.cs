@@ -30,6 +30,10 @@ namespace API.implementations.Infrastructure.Data
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
                 .HasPrecision(18, 2);
+                
+            modelBuilder.Entity<LineOfCredit>()
+                .Property(l => l.Balance)
+                .HasColumnType("decimal(18,2)");
         }
     }
 }
