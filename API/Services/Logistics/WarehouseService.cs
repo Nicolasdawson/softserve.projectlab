@@ -26,7 +26,7 @@ namespace API.Services
         public async Task<List<API.Models.Logistics.Warehouse>> GetWarehousesAsync()
         {
             var warehouses = await _context.Warehouses
-                                           .Include(w => w.Branch)  // Include Branch to avoid lazy loading issues
+                                           .Include(w => w.Branch)  
                                            .ToListAsync();
 
             // Map the entities to the model using AutoMapper (ensure we map from entity to model)

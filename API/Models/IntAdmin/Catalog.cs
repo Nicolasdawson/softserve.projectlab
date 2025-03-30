@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using API.Data.Entities;
 using API.Models.IntAdmin.Interfaces;
 
 namespace API.Models.IntAdmin

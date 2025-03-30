@@ -54,7 +54,7 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<SupplierItemEntity> SupplierItems { get; set; }
 
-    public virtual DbSet<UserEntity> Users { get; set; }
+    public virtual DbSet<UsersEntity> Users { get; set; }
 
     public virtual DbSet<UserRoleEntity> UserRoles { get; set; }
 
@@ -62,14 +62,14 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<WarehouseItemEntity> WarehouseItems { get; set; }
 
-   
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BranchEntity>(entity =>
         {
             entity.HasKey(e => e.BranchId).HasName("PK__Branch__A1682FC500954FE5");
 
-            entity.ToTable("Branch");
+            entity.ToTable("BranchEntity");
 
             entity.Property(e => e.BranchId).ValueGeneratedNever();
             entity.Property(e => e.Address).HasColumnType("text");
@@ -94,11 +94,11 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B7103B1C89");
 
-            entity.ToTable("Cart");
+            entity.ToTable("CartEntity");
 
             entity.Property(e => e.CartId).ValueGeneratedNever();
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Carts)
+            entity.HasOne(d => d.Customer).WithMany(p => p.CartEntities)
                 .HasForeignKey(d => d.CustomerId)
                 .HasConstraintName("FK_Cart_Customer");
         });
@@ -107,7 +107,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity
                 .HasNoKey()
-                .ToTable("CartItem");
+                .ToTable("CartItemEntity");
 
             entity.HasOne(d => d.Cart).WithMany()
                 .HasForeignKey(d => d.CartId)
@@ -124,7 +124,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.CatalogId).HasName("PK__Catalog__C2513B6835A0C5A2");
 
-            entity.ToTable("Catalog");
+            entity.ToTable("CatalogEntity");
 
             entity.Property(e => e.CatalogId).ValueGeneratedNever();
             entity.Property(e => e.Description).HasColumnType("text");
@@ -135,26 +135,31 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CatalogCategoryEntity>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("CatalogCategory");
+            // Set composite key for the junction table
+            entity.HasKey(cc => new { cc.CatalogId, cc.CategoryId });
 
-            entity.HasOne(d => d.Catalog).WithMany()
-                .HasForeignKey(d => d.CatalogId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CatalogCategory_Catalog");
+            // Define foreign key relationship with CatalogEntity
+            entity.HasOne(e => e.Catalog)
+                  .WithMany(c => c.CatalogCategories) // Collection navigation property in CatalogEntity
+                  .HasForeignKey(e => e.CatalogId)
+                  .OnDelete(DeleteBehavior.Cascade); // Adjust delete behavior if needed
 
-            entity.HasOne(d => d.Category).WithMany()
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CatalogCategory_Category");
+            // Define foreign key relationship with CategoryEntity
+            entity.HasOne(e => e.Category)
+                  .WithMany(c => c.CatalogCategories) // Collection navigation property in CategoryEntity
+                  .HasForeignKey(e => e.CategoryId)
+                  .OnDelete(DeleteBehavior.Cascade); // Adjust delete behavior if needed
+
+            // Set table name
+            entity.ToTable("CatalogCategoryEntity");
         });
+
 
         modelBuilder.Entity<CategoryEntity>(entity =>
         {
             entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B813139CC");
 
-            entity.ToTable("Category");
+            entity.ToTable("CategoryEntity");
 
             entity.Property(e => e.CategoryId).ValueGeneratedNever();
             entity.Property(e => e.Name)
@@ -166,7 +171,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity
                 .HasNoKey()
-                .ToTable("CategoryItem");
+                .ToTable("CategoryItemEntity");
 
             entity.HasOne(d => d.Category).WithMany()
                 .HasForeignKey(d => d.CategoryId)
@@ -183,7 +188,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D892601F68");
 
-            entity.ToTable("Customer");
+            entity.ToTable("CustomerEntity");
 
             entity.Property(e => e.CustomerId).ValueGeneratedNever();
             entity.Property(e => e.CustomerType)
@@ -199,16 +204,17 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ItemEntity>(entity =>
         {
-            // 1. Define Primary Key
+            // Define Primary Key
             entity.HasKey(e => e.Sku).HasName("PK__Item__CA1FD3C4297D061E");
 
-            // 2. Define Relationships
-            entity.HasOne(d => d.Category).WithMany(p => p.Items)
-                .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("FK_Item_Category");
+            // Define Relationships
+            entity.HasOne(e => e.CatalogCategory)
+                .WithMany()
+                .HasForeignKey(e => new { e.CatalogId, e.CategoryId })
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // 3. Configure Properties (data types, lengths, etc.)
-            entity.ToTable("Item");
+            // Configure Properties
+            entity.ToTable("ItemEntity");
 
             entity.Property(e => e.Sku).ValueGeneratedNever();
             entity.Property(e => e.AdditionalTax).HasColumnType("decimal(10, 2)");
@@ -231,13 +237,13 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.CustomerId).HasName("PK__LineOfCr__A4AE64D8236E36B3");
 
-            entity.ToTable("LineOfCredit");
+            entity.ToTable("LineOfCreditEntity");
 
             entity.Property(e => e.CustomerId).ValueGeneratedNever();
             entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
 
-            entity.HasOne(d => d.Customer).WithOne(p => p.LineOfCredit)
+            entity.HasOne(d => d.Customer).WithOne(p => p.LineOfCreditEntity)
                 .HasForeignKey<LineOfCreditEntity>(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_LineOfCredit_Customer");
@@ -247,7 +253,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCF024AFF95");
 
-            entity.ToTable("Order");
+            entity.ToTable("OrderEntity");
 
             entity.Property(e => e.OrderId).ValueGeneratedNever();
             entity.Property(e => e.OrderDate).HasColumnType("datetime");
@@ -256,7 +262,7 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
+            entity.HasOne(d => d.Customer).WithMany(p => p.OrderEntities)
                 .HasForeignKey(d => d.CustomerId)
                 .HasConstraintName("FK_Order_Customer");
         });
@@ -265,7 +271,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity
                 .HasNoKey()
-                .ToTable("OrderItem");
+                .ToTable("OrderItemEntity");
 
             entity.HasOne(d => d.Order).WithMany()
                 .HasForeignKey(d => d.OrderId)
@@ -282,7 +288,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.PackageId).HasName("PK__Package__322035CCB13E1AE6");
 
-            entity.ToTable("Package");
+            entity.ToTable("PackageEntity");
 
             entity.Property(e => e.PackageId).ValueGeneratedNever();
             entity.Property(e => e.PackageName)
@@ -294,7 +300,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity
                 .HasNoKey()
-                .ToTable("PackageItem");
+                .ToTable("PackageItemEntity");
 
             entity.HasOne(d => d.Package).WithMany()
                 .HasForeignKey(d => d.PackageId)
@@ -311,7 +317,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.PermissionId).HasName("PK__Permissi__EFA6FB2FC59A3517");
 
-            entity.ToTable("Permission");
+            entity.ToTable("PermissionEntity");
 
             entity.Property(e => e.PermissionId).ValueGeneratedNever();
             entity.Property(e => e.PermissionDescription).HasColumnType("text");
@@ -324,7 +330,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE1A2011D1B1");
 
-            entity.ToTable("Role");
+            entity.ToTable("RoleEntity");
 
             entity.Property(e => e.RoleId).ValueGeneratedNever();
             entity.Property(e => e.RoleDescription).HasColumnType("text");
@@ -337,11 +343,11 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.RoleId);
 
-            entity.ToTable("RolePermission");
+            entity.ToTable("RolePermissionEntity");
 
             entity.Property(e => e.RoleId).ValueGeneratedNever();
 
-            entity.HasOne(d => d.Permission).WithMany(p => p.RolePermissions)
+            entity.HasOne(d => d.Permission).WithMany(p => p.RolePermissionEntities)
                 .HasForeignKey(d => d.PermissionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RolePermission_Permission");
@@ -351,7 +357,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.SupplierId).HasName("PK__Supplier__4BE666B4DF7753F2");
 
-            entity.ToTable("Supplier");
+            entity.ToTable("SupplierEntity");
 
             entity.Property(e => e.SupplierId).ValueGeneratedNever();
             entity.Property(e => e.Name)
@@ -364,7 +370,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity
                 .HasNoKey()
-                .ToTable("SupplierItem");
+                .ToTable("SupplierItemEntity");
 
             entity.HasOne(d => d.SkuNavigation).WithMany()
                 .HasForeignKey(d => d.Sku)
@@ -377,7 +383,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_SupplierItem_Supplier");
         });
 
-        modelBuilder.Entity<UserEntity>(entity =>
+        modelBuilder.Entity<UsersEntity>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4CC6DAD6B7");
 
@@ -385,7 +391,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.Username, "UQ__Users__536C85E41539B69F").IsUnique();
 
-            entity.ToTable("User");
+            entity.ToTable("UserEntity");
 
             entity.Property(e => e.UserId).ValueGeneratedNever();
             entity.Property(e => e.UserEmail)
@@ -404,12 +410,12 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Branch).WithMany(p => p.Users)
+            entity.HasOne(d => d.Branch).WithMany(p => p.UsersEntities)
                 .HasForeignKey(d => d.BranchId)
                 .HasConstraintName("FK_Users_Branch");
         });
 
-        modelBuilder.Entity<UserEntity>(entity =>
+        modelBuilder.Entity<UsersEntity>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4CC6DAD6B7");
 
@@ -434,7 +440,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Branch).WithMany(p => p.Users)
+            entity.HasOne(d => d.Branch).WithMany(p => p.UsersEntities)
                 .HasForeignKey(d => d.BranchId)
                 .HasConstraintName("FK_Users_Branch");
         });
@@ -442,21 +448,21 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.UserId);
 
-            entity.ToTable("UserRole");
+            entity.ToTable("UserRoleEntity");
 
             entity.Property(e => e.UserId).ValueGeneratedNever();
 
-            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
+            entity.HasOne(d => d.Role).WithMany(p => p.UserRoleEntities)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserRole_Role");
 
-            entity.HasOne(d => d.RoleNavigation).WithMany(p => p.UserRoles)
+            entity.HasOne(d => d.RoleNavigation).WithMany(p => p.UserRoleEntities)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserRole_RolePermission");
 
-            entity.HasOne(d => d.User).WithOne(p => p.UserRole)
+            entity.HasOne(d => d.User).WithOne(p => p.UserRoleEntity)
                 .HasForeignKey<UserRoleEntity>(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserRole_Users");
@@ -466,14 +472,14 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.WarehouseId).HasName("PK__Warehous__2608AFF9068F2E75");
 
-            entity.ToTable("Warehouse");
+            entity.ToTable("WarehouseEntity");
 
             entity.Property(e => e.WarehouseId).ValueGeneratedNever();
             entity.Property(e => e.Location)
                 .HasMaxLength(255)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Branch).WithMany(p => p.Warehouses)
+            entity.HasOne(d => d.Branch).WithMany(p => p.WarehouseEntities)
                 .HasForeignKey(d => d.BranchId)
                 .HasConstraintName("FK_Warehouse_Branch");
         });
@@ -499,7 +505,7 @@ public partial class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_WarehouseItem_Warehouse");
 
-            entity.ToTable("WarehouseItem");  // Make sure the table name is correct
+            entity.ToTable("WarehouseItemEntity");  // Make sure the table name is correct
         });
 
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using API.Data.Entities;
+using API.Models;
 using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;
 
@@ -15,7 +15,7 @@ namespace API.Models.Logistics
         public int Capacity { get; set; }
         public List<Item> Items { get; set; } = new List<Item>();
         public int BranchId { get; internal set; }
-        public Data.Entities.BranchEntity Branch { get; internal set; }
+        //public Data.Entities.BranchEntity Branch { get; internal set; }
 
         /// <summary>
         /// Constructor

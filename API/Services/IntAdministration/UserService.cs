@@ -3,6 +3,7 @@ using API.Implementations.Domain;
 using API.Models.IntAdmin;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API.Models;
 
 namespace API.Services.IntAdmin
 {

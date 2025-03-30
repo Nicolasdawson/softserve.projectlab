@@ -1,6 +1,8 @@
 ﻿using API.Data.Entities;
 using API.Implementations.Domain;
 using Logistics.Models;
+using API.Models;
+
 
 namespace API.Services.Logistics
 {

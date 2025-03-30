@@ -1,12 +1,12 @@
-namespace API.Data.Entities
+﻿namespace API.Models
 {
     public class Result<T>
     {
         public bool IsSuccess { get; set; }
-        public string? ErrorMessage { get; set; } // Nullable
-        public T? Data { get; set; } // Nullable
+        public string ErrorMessage { get; set; }
+        public T Data { get; set; }
         public int ErrorCode { get; set; }  // Optional error code
-        public string? StackTrace { get; set; }  // Nullable
+        public string StackTrace { get; set; }  // Optional stack trace
         public bool IsNoContent { get; set; }  // Flag to indicate No Content response
 
         // Success result
@@ -16,7 +16,7 @@ namespace API.Data.Entities
         }
 
         // Failure result
-        public static Result<T> Failure(string errorMessage, int errorCode = 0, string? stackTrace = null)
+        public static Result<T> Failure(string errorMessage, int errorCode = 0, string stackTrace = null)
         {
             return new Result<T> { IsSuccess = false, ErrorMessage = errorMessage, ErrorCode = errorCode, StackTrace = stackTrace };
         }

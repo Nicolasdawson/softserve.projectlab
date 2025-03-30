@@ -3,9 +3,15 @@ using System.Collections.Generic;
 
 namespace API.Data.Entities;
 
-public partial class CatalogCategoryEntity
+public class CatalogCategoryEntity
 {
-    public int CatalogId { get; set; }
+    public int CatalogId { get; set; }  // Foreign key to CatalogEntity
+    public int CategoryId { get; set; }  // Foreign key to CategoryEntity
 
-    public int CategoryId { get; set; }
+    // Navigation properties to related entities
+    public CatalogEntity Catalog { get; set; }
+    public CategoryEntity Category { get; set; }
 }
+
+
+

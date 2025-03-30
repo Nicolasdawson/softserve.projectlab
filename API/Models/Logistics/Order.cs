@@ -1,4 +1,4 @@
-﻿using API.Data.Entities;
+﻿using API.Models;
 using API.Models.Customers;
 using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;

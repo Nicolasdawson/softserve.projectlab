@@ -12,4 +12,7 @@ public partial class CategoryEntity
     public bool? Status { get; set; }
 
     public virtual ICollection<ItemEntity> ItemEntities { get; set; } = new List<ItemEntity>();
+
+    // Navigation property to related items
+    public ICollection<CatalogCategoryEntity> CatalogCategories { get; set; }
 }

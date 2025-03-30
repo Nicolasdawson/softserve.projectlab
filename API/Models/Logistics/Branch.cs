@@ -1,5 +1,4 @@
-﻿using API.Data.Entities;
-using API.Models.Logistics.Interfaces;
+﻿using API.Models.Logistics.Interfaces;
 
 namespace API.Models.Logistics
 {

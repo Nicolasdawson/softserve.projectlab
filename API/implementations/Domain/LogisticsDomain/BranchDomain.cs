@@ -1,6 +1,6 @@
 ﻿using API.Models.Logistics;
 using API.Data.Entities;
-
+using API.Models;
 namespace API.Implementations.Domain
 {
     public class BranchDomain

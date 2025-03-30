@@ -3,6 +3,8 @@ using API.Data.Entities;
 using API.Models.IntAdmin;
 using API.Models.Logistics;
 using API.Models.Logistics.Interfaces;
+using API.Models;
+
 
 namespace API.Services.Interfaces
 {

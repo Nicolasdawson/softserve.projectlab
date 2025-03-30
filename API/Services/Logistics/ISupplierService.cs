@@ -1,5 +1,7 @@
 ﻿using API.Data.Entities;
 using Logistics.Models;
+using API.Models;
+
 
 namespace API.Services.Logistics
 {

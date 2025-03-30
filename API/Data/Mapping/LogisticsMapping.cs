@@ -12,11 +12,9 @@ public class LogisticsMapping : Profile
         CreateMap<WarehouseEntity, IWarehouse>()
             .ForMember(dest => dest.WarehouseId, opt => opt.MapFrom(src => src.WarehouseId))
             .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location));
-            // Add other property mappings here
-            
+        // Add other property mappings here
 
-
-        //CreateMap<WarehouseEntity, Warehouse>(); // Map to concrete class
+        // CreateMap<WarehouseEntity, Warehouse>(); // Map to concrete class
         CreateMap<ItemEntity, Item>(); // Add other necessary mappings
     }
 }
