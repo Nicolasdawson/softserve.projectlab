@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using API.Data.Entities;
 using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;
 
@@ -8,11 +9,13 @@ namespace API.Models.Logistics
 {
     public class Warehouse : IWarehouse
     {
-        public int WareHouseId { get; set; }
+        public int WarehouseId { get; set; }
         public string Name { get; set; }
         public string Location { get; set; }
         public int Capacity { get; set; }
         public List<Item> Items { get; set; } = new List<Item>();
+        public int BranchId { get; internal set; }
+        public Data.Entities.BranchEntity Branch { get; internal set; }
 
         /// <summary>
         /// Constructor
@@ -26,7 +29,7 @@ namespace API.Models.Logistics
         public Warehouse() { }
         public Warehouse(int warehouseId, string name, string location, int capacity)
         {
-            WareHouseId = warehouseId;
+            WarehouseId = warehouseId;
             Name = name;
             Location = location;
             Capacity = capacity;
@@ -130,7 +133,7 @@ namespace API.Models.Logistics
                 targetWarehouse.AddItem(new Item
                 {
                     Sku = item.Sku,
-                    ItemName = item.ItemName,
+                    //ItemName = item.ItemName,
                     CurrentStock = quantity
                 });
                 return Result<bool>.Success(true);
@@ -204,7 +207,7 @@ namespace API.Models.Logistics
             {
                 var warehouseItem = Items.FirstOrDefault(i => i.Sku == item.Sku);
                 if (warehouseItem == null || warehouseItem.CurrentStock < item.CurrentStock)
-                    return Result<bool>.Failure($"Not enough stock for item: {item.ItemName}");
+                    return Result<bool>.Failure($"Not enough stock for item: {item.Name}");
 
                 warehouseItem.CurrentStock -= item.CurrentStock;
             }

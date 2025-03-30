@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Cart
+public partial class CartEntity
 {
     public int CartId { get; set; }
 
     public int? CustomerId { get; set; }
 
-    public virtual Customer? Customer { get; set; }
+    public virtual CustomerEntity? Customer { get; set; }
 }

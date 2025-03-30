@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Role
+public partial class RoleEntity
 {
     public int RoleId { get; set; }
 
@@ -13,5 +13,5 @@ public partial class Role
 
     public bool? RoleStatus { get; set; }
 
-    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public virtual ICollection<UserRoleEntity> UserRoleEntities { get; set; } = new List<UserRoleEntity>();
 }

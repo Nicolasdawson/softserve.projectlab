@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class User
+public partial class UsersEntity
 {
     public int UserId { get; set; }
 
@@ -23,7 +23,7 @@ public partial class User
 
     public int? BranchId { get; set; }
 
-    public virtual Branch? Branch { get; set; }
+    public virtual BranchEntity? Branch { get; set; }
 
-    public virtual UserRole? UserRole { get; set; }
+    public virtual UserRoleEntity? UserRoleEntity { get; set; }
 }

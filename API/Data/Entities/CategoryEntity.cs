@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Category
+public partial class CategoryEntity
 {
     public int CategoryId { get; set; }
 
@@ -11,5 +11,5 @@ public partial class Category
 
     public bool? Status { get; set; }
 
-    public virtual ICollection<Item> Items { get; set; } = new List<Item>();
+    public virtual ICollection<ItemEntity> ItemEntities { get; set; } = new List<ItemEntity>();
 }

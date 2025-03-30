@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class LineOfCredit
+public partial class LineOfCreditEntity
 {
     public int CustomerId { get; set; }
 
@@ -11,5 +11,5 @@ public partial class LineOfCredit
 
     public decimal? CurrentBalance { get; set; }
 
-    public virtual Customer Customer { get; set; } = null!;
+    public virtual CustomerEntity Customer { get; set; } = null!;
 }

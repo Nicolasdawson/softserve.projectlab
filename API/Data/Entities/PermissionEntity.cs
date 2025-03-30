@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Permission
+public partial class PermissionEntity
 {
     public int PermissionId { get; set; }
 
@@ -11,5 +11,5 @@ public partial class Permission
 
     public string? PermissionDescription { get; set; }
 
-    public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+    public virtual ICollection<RolePermissionEntity> RolePermissionEntities { get; set; } = new List<RolePermissionEntity>();
 }

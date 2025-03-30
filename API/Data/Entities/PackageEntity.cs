@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Package
+public partial class PackageEntity
 {
     public int PackageId { get; set; }
 

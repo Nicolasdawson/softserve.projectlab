@@ -1,7 +1,7 @@
 ﻿using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;
-using API.Models;
 using API.Models.Logistics;
+using API.Data.Entities;
 
 namespace API.Services.Logistics
 {

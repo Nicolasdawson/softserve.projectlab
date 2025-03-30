@@ -1,4 +1,5 @@
-﻿using API.Models.IntAdmin.Interfaces;
+﻿using API.Data.Entities;
+using API.Models.IntAdmin.Interfaces;
 
 namespace API.Models.IntAdmin
 {

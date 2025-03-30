@@ -1,4 +1,6 @@
-﻿namespace API.Models.IntAdmin.Interfaces
+﻿using API.Data.Entities;
+
+namespace API.Models.IntAdmin.Interfaces
 {
     public interface IUser
     {

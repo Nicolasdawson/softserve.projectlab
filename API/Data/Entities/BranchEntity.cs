@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Branch
+public partial class BranchEntity
 {
     public int BranchId { get; set; }
 
@@ -19,7 +19,7 @@ public partial class Branch
 
     public string? Address { get; set; }
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<UsersEntity> UsersEntities { get; set; } = new List<UsersEntity>();
 
-    public virtual ICollection<Warehouse> Warehouses { get; set; } = new List<Warehouse>();
+    public virtual ICollection<WarehouseEntity> WarehouseEntities { get; set; } = new List<WarehouseEntity>();
 }

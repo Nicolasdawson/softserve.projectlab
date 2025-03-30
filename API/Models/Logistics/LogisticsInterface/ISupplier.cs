@@ -1,4 +1,5 @@
-﻿using API.Models.IntAdmin;
+﻿using API.Data.Entities;
+using API.Models.IntAdmin;
 
 namespace API.Models.Logistics.Interfaces
 {

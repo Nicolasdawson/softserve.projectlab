@@ -1,5 +1,5 @@
-﻿using API.Implementations.Domain;
-using API.Models;
+﻿using API.Data.Entities;
+using API.Implementations.Domain;
 using Logistics.Models;
 
 namespace API.Services.Logistics

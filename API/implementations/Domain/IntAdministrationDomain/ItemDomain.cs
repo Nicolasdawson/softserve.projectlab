@@ -1,4 +1,4 @@
-﻿using API.Models;
+﻿using API.Data.Entities;
 using API.Models.IntAdmin;
 using System;
 using System.Collections.Generic;
@@ -46,8 +46,8 @@ namespace API.Implementations.Domain
                 var existingItem = _items.FirstOrDefault(i => i.Sku == item.Sku);
                 if (existingItem != null)
                 {
-                    existingItem.ItemName = item.ItemName;
-                    existingItem.ItemDescription = item.ItemDescription;
+                    //existingItem.ItemName = item.ItemName;
+                    //existingItem.ItemDescription = item.ItemDescription;
                     existingItem.OriginalStock = item.OriginalStock;
                     existingItem.CurrentStock = item.CurrentStock;
                     existingItem.ItemCurrency = item.ItemCurrency;

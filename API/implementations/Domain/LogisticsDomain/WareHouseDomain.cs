@@ -1,6 +1,6 @@
 ﻿using API.Models.IntAdmin;
-using API.Models;
 using API.Models.Logistics.Interfaces;
+using API.Data.Entities;
 
 namespace API.implementations.Domain
 {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using API.Data.Entities;
 using API.Models.IntAdmin.Interfaces;
 
 namespace API.Models.IntAdmin
@@ -14,8 +15,8 @@ namespace API.Models.IntAdmin
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int Sku { get; set; }
-        public string ItemName { get; set; }
-        public string ItemDescription { get; set; }
+        //public string ItemName { get; set; }
+        //public string ItemDescription { get; set; }
         public int OriginalStock { get; set; }
         public int CurrentStock { get; set; }
         public string ItemCurrency { get; set; }
@@ -34,8 +35,8 @@ namespace API.Models.IntAdmin
                     decimal additionalTax, decimal itemPrice, bool itemStatus, int categoryId, string itemImage)
         {
             Sku = sku;
-            ItemName = itemName;
-            ItemDescription = itemDescription;
+            //ItemName = itemName;
+            //ItemDescription = itemDescription;
             OriginalStock = originalStock;
             CurrentStock = currentStock;
             ItemCurrency = itemCurrency;

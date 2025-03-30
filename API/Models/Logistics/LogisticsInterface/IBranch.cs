@@ -1,4 +1,6 @@
-﻿namespace API.Models.Logistics.Interfaces
+﻿using API.Data.Entities;
+
+namespace API.Models.Logistics.Interfaces
 {
     public interface IBranch
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Item
+public partial class ItemEntity
 {
     public int Sku { get; set; }
 
@@ -33,5 +33,7 @@ public partial class Item
 
     public string? Image { get; set; }
 
-    public virtual Category? Category { get; set; }
+    public virtual CategoryEntity? Category { get; set; }
+
+    public virtual ICollection<WarehouseItemEntity> WarehouseItems { get; set; } = new List<WarehouseItemEntity>();
 }

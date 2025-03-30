@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using API.Models.IntAdmin;
 using API.Services.Interfaces;
+using API.Services;
 
 namespace API.Controllers
 {
@@ -22,18 +23,40 @@ namespace API.Controllers
             _warehouseService = warehouseService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllWarehouses()
+        {
+            var warehouses = await _warehouseService.GetWarehousesAsync();
+            return Ok(warehouses);
+        }
+
+
+
         /// <summary>
         /// Adds an item to the warehouse.
         /// </summary>
         /// <param name="warehouseId">The warehouse identifier.</param>
         /// <param name="item">The item to add.</param>
         /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
-        [HttpPost("{warehouseId}/add-item")]
-        public IActionResult AddItem(int warehouseId, [FromBody] Item item)
+        [HttpPost]
+        [Route("{warehouseId}/add-item")]
+        public async Task<IActionResult> AddItem(int warehouseId, [FromBody] Item item)
         {
-            var result = _warehouseService.AddItemToWarehouse(warehouseId, item);
-            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
+            if (item == null)
+            {
+                return BadRequest("Item data is required.");
+            }
+
+            var result = await _warehouseService.AddItemToWarehouseAsync(warehouseId, item);
+
+            if (result.IsSuccess)
+            {
+                return Ok("Item added successfully to the warehouse.");
+            }
+
+            return BadRequest(result.ErrorMessage);
         }
+
 
         /// <summary>
         /// Removes an item from the warehouse.

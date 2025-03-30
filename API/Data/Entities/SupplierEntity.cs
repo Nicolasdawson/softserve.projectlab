@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Supplier
+public partial class SupplierEntity
 {
     public int SupplierId { get; set; }
 

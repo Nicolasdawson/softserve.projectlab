@@ -1,7 +1,7 @@
 ﻿using API.Implementations.Domain;
 using API.Models.Logistics;
-using API.Models;
 using API.Services.Logistics;
+using API.Data.Entities;
 
 namespace API.Services.OrderService
 {

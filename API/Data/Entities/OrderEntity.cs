@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Order
+public partial class OrderEntity
 {
     public int OrderId { get; set; }
 
@@ -15,5 +15,5 @@ public partial class Order
 
     public DateTime? OrderDate { get; set; }
 
-    public virtual Customer? Customer { get; set; }
+    public virtual CustomerEntity? Customer { get; set; }
 }

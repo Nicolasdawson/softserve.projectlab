@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using API.Data.Entities;
+using System.Collections.Generic;
 
 namespace API.Models.IntAdmin.Interfaces
 {

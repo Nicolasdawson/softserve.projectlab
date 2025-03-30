@@ -1,41 +1,103 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using API.Data;
+using API.Data.Entities;
 using API.Models;
 using API.Models.IntAdmin;
 using API.Models.Logistics;
 using API.Models.Logistics.Interfaces;
 using API.Services.Interfaces;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services
 {
     public class WarehouseService : IWarehouseService
     {
-        private readonly List<IWarehouse> _warehouses;
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public WarehouseService()
+        public WarehouseService(ApplicationDbContext context, IMapper mapper)
         {
-            _warehouses = new List<IWarehouse>();
+            _context = context;
+            _mapper = mapper;
         }
+
+        public async Task<List<API.Models.Logistics.Warehouse>> GetWarehousesAsync()
+        {
+            var warehouses = await _context.Warehouses
+                                           .Include(w => w.Branch)  // Include Branch to avoid lazy loading issues
+                                           .ToListAsync();
+
+            // Map the entities to the model using AutoMapper (ensure we map from entity to model)
+            return _mapper.Map<List<API.Models.Logistics.Warehouse>>(warehouses);  // Map to the model class, not the interface
+        }
+
+
         /// <summary>
         /// Get a warehouse by its ID
         /// </summary>
         /// <param name="warehouseId"></param>
         /// <returns></returns>
-        private IWarehouse GetWarehouseById(int warehouseId)
+        private Warehouse GetWarehouseById(int warehouseId)
         {
-            return _warehouses.FirstOrDefault(w => w.WareHouseId == warehouseId);
+            var warehouseEntity = _context.Warehouses.FirstOrDefault(w => w.WarehouseId == warehouseId);
+            return warehouseEntity != null ? _mapper.Map<Warehouse>(warehouseEntity) : null;
         }
+
         /// <summary>
         /// Add an item to a warehouse  
         /// </summary>
         /// <param name="warehouseId"></param>
         /// <param name="item"></param>
         /// <returns></returns>
-        public Result<IWarehouse> AddItemToWarehouse(int warehouseId, Item item)
+        public async Task<Result<IWarehouse>> AddItemToWarehouseAsync(int warehouseId, Item item)
         {
-            var warehouse = GetWarehouseById(warehouseId);
-            return warehouse != null ? warehouse.AddItem(item) : Result<IWarehouse>.Failure("Warehouse not found.");
+            // Fetch the warehouse entity from the database
+            var warehouseEntity = await _context.Warehouses
+                                                .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
+
+            if (warehouseEntity == null)
+            {
+                return Result<IWarehouse>.Failure("Warehouse not found.");
+            }
+
+            // Ensure the item exists in the Item table, if not, add it
+            var itemEntity = await _context.Items
+                                            .FirstOrDefaultAsync(i => i.Sku == item.Sku);
+            if (itemEntity == null)
+            {
+                itemEntity = new ItemEntity
+                {
+                    Sku = item.Sku,
+                    // Map other properties of item
+                };
+
+                _context.Items.Add(itemEntity);
+                await _context.SaveChangesAsync(); // Save the new item to the Item table
+            }
+
+            // Add the item to the warehouse by inserting into WarehouseItemEntity table
+            var warehouseItem = new WarehouseItemEntity
+            {
+                WarehouseId = warehouseId,
+                Sku = item.Sku, // Link the item using SKU
+                Stock = item.CurrentStock // Set the stock of the item in the warehouse
+            };
+
+            _context.WarehouseItems.Add(warehouseItem);
+            await _context.SaveChangesAsync(); // Commit the changes
+
+            // Map WarehouseEntity to the concrete Warehouse class
+            var warehouse = _mapper.Map<Warehouse>(warehouseEntity);
+
+            // Return success with the warehouse
+            return Result<IWarehouse>.Success(warehouse);
         }
+
+
+
+
         /// <summary>
         /// Remove an item from a warehouse
         /// </summary>

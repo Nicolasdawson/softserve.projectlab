@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace API.Entities;
+namespace API.Data.Entities;
 
-public partial class Catalog
+public partial class CatalogEntity
 {
     public int CatalogId { get; set; }
 

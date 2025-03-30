@@ -1,4 +1,4 @@
-﻿using API.Models;
+﻿using API.Data.Entities;
 using API.Models.IntAdmin;
 using System.Collections.Generic;
 using System.Threading.Tasks;

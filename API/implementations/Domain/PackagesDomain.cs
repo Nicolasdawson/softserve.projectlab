@@ -1,5 +1,5 @@
 
-using API.Models;
+using API.Data.Entities;
 using API.Models.Customers;
 using API.Models.IntAdmin;
 

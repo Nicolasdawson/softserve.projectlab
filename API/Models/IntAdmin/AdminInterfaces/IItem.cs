@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using API.Data.Entities;
+using System.Collections.Generic;
 
 namespace API.Models.IntAdmin.Interfaces
 {
@@ -8,8 +9,8 @@ namespace API.Models.IntAdmin.Interfaces
     public interface IItem
     {
         int Sku { get; set; }
-        string ItemName { get; set; }
-        string ItemDescription { get; set; }
+        //string ItemName { get; set; }
+        //string ItemDescription { get; set; }
         int OriginalStock { get; set; }
         int CurrentStock { get; set; }
         string ItemCurrency { get; set; }

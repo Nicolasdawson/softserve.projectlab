@@ -1,11 +1,12 @@
-﻿using API.Models.IntAdmin;
+﻿using API.Data.Entities;
+using API.Models.IntAdmin;
 using System.Collections.Generic;
 
 namespace API.Models.Logistics.Interfaces
 {
     public interface IWarehouse
     {
-        int WareHouseId { get; set; }
+        int WarehouseId { get; set; }
         string Name { get; set; }
         string Location { get; set; }
         int Capacity { get; set; }
