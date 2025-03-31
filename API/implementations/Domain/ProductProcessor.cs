@@ -1,41 +1,53 @@
 ﻿using API.Entity;
-using API.Models;
-using Microsoft.AspNetCore.Http;
+// Microsoft.AspNetCore.Http;
+using API.Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using API.Data;
 
 namespace API.implementations.Domain
 {
     public class ProductProcessor : Controller , IProductProcessor
     {
-        private readonly AppDbContext _db;
-        public ProductProcessor(AppDbContext db)
+        private readonly ProjectlabContext _db;
+        public ProductProcessor(ProjectlabContext db)
         {
-            _db = db;
+            _db = db ?? throw new ArgumentNullException(nameof(db));
         }
+
         public List<Product> GetAllProducts(bool? isActive)
         {
-            bool isAnyProducts = _db.Products.Any();
             List<Product> products = new List<Product>();
-            if (isAnyProducts)
-            {
-                products = _db.Products.ToList();
-            }
-
+            products = _db.Products.ToList();
             return products;
         }
         public Product? GetProductByID(int id)
         {
             return new Product();
         }
-        public Product? AddProduct(Product obj)
+        public bool AddProduct(string type, Product obj)
         {
-            return new Product();
+            return true;
         }
-        public Product? UpdateProduct(int id, Product obj)
+        public bool UpdateProduct(int id, Product obj)
         {
-            return new Product();
+            return true;
         }
         public bool DeleteProduct(int id)
+        {
+            return true;
+        }
+
+        public bool AddAttribute(int product_id, API.Data.Models.Attribute attribute)
+        {
+            return true;
+        }
+
+        public bool UpdateAttribute(int attribute_id, API.Data.Models.Attribute attribute)
+        {
+            return true;
+        }
+
+        public bool DeleteAttribute(int attribute_id)
         {
             return true;
         }
