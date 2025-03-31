@@ -1,0 +1,35 @@
+﻿@using Frontend.Layout;
+
+<MudStack Spacing="0">
+    <MudPaper>
+        Ofertas #1
+    </MudPaper>
+
+    <MudPaper>
+        <!-- Barra Superior -->
+        <MudAppBar Fixed="false">
+
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            My Application
+
+        </MudAppBar>
+        <!-- Fin Barra Superior -->
+        <!-- Barra lateral -->
+        <MudDrawer @bind-Open="@_drawerOpen">
+            <NavMenu />
+        </MudDrawer>
+        <!-- Fin Barra Lateral -->
+    </MudPaper>
+
+</MudStack>
+
+
+
+@code {
+    bool _drawerOpen = false;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

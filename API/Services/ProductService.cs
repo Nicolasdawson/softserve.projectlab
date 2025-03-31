@@ -81,7 +81,7 @@ namespace API.Services
         public Product CreateProduct(Product product)
         {
             product.Id = Guid.NewGuid(); // Generar un nuevo ID
-            _products.Add(product); // Agregar el producto a la lista en memoria
+            //_products.Add(product); // Agregar el producto a la lista en memoria
             Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}"); // Log para verificar si se agrega
             return product;
         }
