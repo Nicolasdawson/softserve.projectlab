@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +13,8 @@
 
     <ItemGroup>
       <Folder Include="Abstractions\" />
+      <Folder Include="Controllers\" />
+      <Folder Include="Utils\" />
     </ItemGroup>
 
 </Project>
