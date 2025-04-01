@@ -1,5 +1,7 @@
 
 using API.Data;
+using API.Repository.IRepository;
+using API.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Add dbContext service
 builder.Services.AddDbContext<DbAb6d2eProjectlabContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionSql")));
+
+// Add Repositories
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
 
 
 // Add services to the container.
