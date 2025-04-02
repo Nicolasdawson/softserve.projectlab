@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using API.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Services.AddDbContext<DbAb6d2eProjectlabContext>(options => options.UseS
 // Add Repositories
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(ClientMapper));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
