@@ -6,38 +6,25 @@ namespace API.Data.Entities;
 public partial class ItemEntity
 {
     public int Sku { get; set; }
-
     public string? Name { get; set; }
-
-    public string? Description { get; set; }
-
-    public int? OriginalStock { get; set; }
-
-    public int? CurrentStock { get; set; }
-
-    public string? Currency { get; set; }
-
-    public decimal? UnitCost { get; set; }
-
-    public decimal? MarginGain { get; set; }
-
-    public decimal? Discount { get; set; }
-
-    public decimal? AdditionalTax { get; set; }
-
     public decimal? ItemPrice { get; set; }
-
-    public bool? ItemStatus { get; set; }
-
-    public int? CategoryId { get; set; }
-
-    public int CatalogId { get; set; }
-
+    public string? Currency { get; set; }
+    public decimal? AdditionalTax { get; set; }
+    public decimal? Discount { get; set; }
+    public decimal? UnitCost { get; set; }
+    public decimal? MarginGain { get; set; }
+    public string? Description { get; set; }
     public string? Image { get; set; }
+    public int? OriginalStock { get; internal set; }
+    public int? CurrentStock { get; internal set; }
+    public bool? ItemStatus { get; internal set; }
+    public int? CategoryId { get; internal set; }
 
-    public virtual CategoryEntity? Category { get; set; }
-    public virtual CatalogCategoryEntity? CatalogCategory { get; set; }
-
-
-    public virtual ICollection<WarehouseItemEntity> WarehouseItems { get; set; } = new List<WarehouseItemEntity>();
+    // Correct relationship with CategoryItemEntity
+    public virtual ICollection<CategoryItemEntity> CategoryItems { get; set; } = new List<CategoryItemEntity>();
+   
 }
+
+
+
+

@@ -14,6 +14,4 @@ public partial class WarehouseEntity
     public int? BranchId { get; set; }
 
     public virtual BranchEntity? Branch { get; set; }
-
-    public virtual ICollection<WarehouseItemEntity> WarehouseItems { get; set; } = new List<WarehouseItemEntity>();
 }

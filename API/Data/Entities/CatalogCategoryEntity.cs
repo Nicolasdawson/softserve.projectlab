@@ -3,15 +3,12 @@ using System.Collections.Generic;
 
 namespace API.Data.Entities;
 
-public class CatalogCategoryEntity
+public partial class CatalogCategoryEntity
 {
-    public int CatalogId { get; set; }  // Foreign key to CatalogEntity
-    public int CategoryId { get; set; }  // Foreign key to CategoryEntity
+    public int CatalogId { get; set; }
+    public int CategoryId { get; set; }
 
-    // Navigation properties to related entities
-    public CatalogEntity Catalog { get; set; }
-    public CategoryEntity Category { get; set; }
+    public virtual CatalogEntity Catalog { get; set; } = null!;
+    public virtual CategoryEntity Category { get; set; } = null!;
 }
-
-
 

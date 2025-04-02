@@ -15,7 +15,7 @@ namespace API.Models.Logistics
         public int Capacity { get; set; }
         public List<Item> Items { get; set; } = new List<Item>();
         public int BranchId { get; internal set; }
-        //public Data.Entities.BranchEntity Branch { get; internal set; }
+        public Data.Entities.BranchEntity Branch { get; internal set; }
 
         /// <summary>
         /// Constructor
@@ -27,6 +27,7 @@ namespace API.Models.Logistics
 
         // Parameterless constructor for Dependency Injection (DI) & serialization
         public Warehouse() { }
+
         public Warehouse(int warehouseId, string name, string location, int capacity)
         {
             WarehouseId = warehouseId;

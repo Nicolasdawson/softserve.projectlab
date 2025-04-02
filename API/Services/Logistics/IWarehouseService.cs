@@ -17,8 +17,6 @@ namespace API.Services.Interfaces
         Result<List<Item>> GetLowStockItems(int warehouseId, int threshold);
         Result<decimal> CalculateTotalInventoryValue(int warehouseId);
         Result<string> GenerateInventoryReport(int warehouseId);
-
         Task<List<Warehouse>> GetWarehousesAsync();
-
     }
 }
