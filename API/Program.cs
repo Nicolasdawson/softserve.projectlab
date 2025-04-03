@@ -16,9 +16,13 @@ builder.Services.AddDbContext<DbAb6d2eProjectlabContext>(options => options.UseS
 
 // Add Repositories
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(ClientMapper));
+builder.Services.AddAutoMapper(typeof(ProductCategoryMapper));
+builder.Services.AddAutoMapper(typeof(ProductMapper));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
