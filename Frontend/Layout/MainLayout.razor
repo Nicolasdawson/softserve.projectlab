@@ -18,6 +18,28 @@
 </main>
 </div>
 -->
+<style>
+    .mud-layout {
+        min-width : 400px;
+
+    }
+    .mud-main-content {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        height: 372px;
+    }
+    .mud-container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: initial !important;
+        height: 190%;
+    }
+
+    .mud-container-maxwidth-lg {
+        max-width: 100% !important;
+    }
+
+</style>
 
 @* Required *@
 <MudThemeProvider />
@@ -33,8 +55,7 @@
 <MudLayout>
     <MudMainContent>
 
-        <MudContainer MaxWidth="MaxWidth.Medium">
-           
+        <MudContainer>
             @Body
         </MudContainer>
     </MudMainContent>
