@@ -9,7 +9,7 @@ public partial class WarehouseItemEntity
 
     public int Sku { get; set; }
 
-    public int? Stock { get; set; }
+    public int ItemQuantity { get; set; }
 
     public virtual ItemEntity SkuNavigation { get; set; } = null!;
 

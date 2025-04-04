@@ -6,11 +6,12 @@ namespace API.Data.Entities;
 public partial class CatalogEntity
 {
     public int CatalogId { get; set; }
-    public string? Name { get; set; }
-    public string? Description { get; set; }
-    public bool? Status { get; set; }
 
-    public virtual ICollection<CatalogCategoryEntity> CatalogCategories { get; set; } = new List<CatalogCategoryEntity>();
+    public string CatalogName { get; set; } = null!;
+
+    public string CatalogDescription { get; set; } = null!;
+
+    public bool CatalogStatus { get; set; }
+
+    public virtual ICollection<CatalogCategoryEntity> CatalogCategoryEntities { get; set; } = new List<CatalogCategoryEntity>();
 }
-
-

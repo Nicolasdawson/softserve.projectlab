@@ -9,7 +9,7 @@ public partial class OrderItemEntity
 
     public int Sku { get; set; }
 
-    public int? Quantity { get; set; }
+    public int ItemQuantity { get; set; }
 
     public virtual OrderEntity Order { get; set; } = null!;
 

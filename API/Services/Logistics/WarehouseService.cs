@@ -25,7 +25,7 @@ namespace API.Services
 
         public async Task<List<API.Models.Logistics.Warehouse>> GetWarehousesAsync()
         {
-            var warehouses = await _context.Warehouses
+            var warehouses = await _context.WarehouseEntities
                                            .Include(w => w.Branch)
                                            .ToListAsync();
 
@@ -40,7 +40,7 @@ namespace API.Services
         /// <returns></returns>
         private async Task<Warehouse> GetWarehouseByIdAsync(int warehouseId)
         {
-            var warehouseEntity = await _context.Warehouses.FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
+            var warehouseEntity = await _context.WarehouseEntities.FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
             return warehouseEntity != null ? _mapper.Map<Warehouse>(warehouseEntity) : null;
         }
 
@@ -59,7 +59,7 @@ namespace API.Services
             }
 
             var itemEntity = _mapper.Map<ItemEntity>(item);
-            _context.Items.Add(itemEntity);
+            _context.ItemEntities.Add(itemEntity);
             await _context.SaveChangesAsync();
 
             return warehouse.AddItem(item);
@@ -149,7 +149,7 @@ namespace API.Services
         /// <returns></returns>
         private Warehouse GetWarehouseById(int warehouseId)
         {
-            var warehouseEntity = _context.Warehouses.FirstOrDefault(w => w.WarehouseId == warehouseId);
+            var warehouseEntity = _context.WarehouseEntities.FirstOrDefault(w => w.WarehouseId == warehouseId);
             return warehouseEntity != null ? _mapper.Map<Warehouse>(warehouseEntity) : null;
         }
     }

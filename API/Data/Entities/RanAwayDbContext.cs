@@ -16,54 +16,28 @@ public partial class RanAwayDbContext : DbContext
     }
 
     public virtual DbSet<BranchEntity> BranchEntities { get; set; }
-
     public virtual DbSet<CartEntity> CartEntities { get; set; }
-
     public virtual DbSet<CartItemEntity> CartItemEntities { get; set; }
-
     public virtual DbSet<CatalogCategoryEntity> CatalogCategoryEntities { get; set; }
-
     public virtual DbSet<CatalogEntity> CatalogEntities { get; set; }
-
     public virtual DbSet<CategoryEntity> CategoryEntities { get; set; }
-
     public virtual DbSet<CategoryItemEntity> CategoryItemEntities { get; set; }
-
     public virtual DbSet<CustomerEntity> CustomerEntities { get; set; }
-
     public virtual DbSet<ItemEntity> ItemEntities { get; set; }
-
     public virtual DbSet<LineOfCreditEntity> LineOfCreditEntities { get; set; }
-
     public virtual DbSet<OrderEntity> OrderEntities { get; set; }
-
     public virtual DbSet<OrderItemEntity> OrderItemEntities { get; set; }
-
     public virtual DbSet<PackageEntity> PackageEntities { get; set; }
-
     public virtual DbSet<PackageItemEntity> PackageItemEntities { get; set; }
-
     public virtual DbSet<PermissionEntity> PermissionEntities { get; set; }
-
     public virtual DbSet<RoleEntity> RoleEntities { get; set; }
-
     public virtual DbSet<RolePermissionEntity> RolePermissionEntities { get; set; }
-
     public virtual DbSet<SupplierEntity> SupplierEntities { get; set; }
-
     public virtual DbSet<SupplierItemEntity> SupplierItemEntities { get; set; }
-
     public virtual DbSet<UserRoleEntity> UserRoleEntities { get; set; }
-
     public virtual DbSet<UsersEntity> UsersEntities { get; set; }
-
     public virtual DbSet<WarehouseEntity> WarehouseEntities { get; set; }
-
     public virtual DbSet<WarehouseItemEntity> WarehouseItemEntities { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-1TCSDCL\\SQLEXPRESS;Initial Catalog=RanAwayDB;Integrated Security=True;Multiple Active Result Sets=True;Encrypt=True;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,21 +47,21 @@ public partial class RanAwayDbContext : DbContext
 
             entity.ToTable("BranchEntity");
 
-            entity.Property(e => e.BranchId).ValueGeneratedNever();
-            entity.Property(e => e.Address).HasColumnType("text");
-            entity.Property(e => e.City)
+            entity.Property(e => e.BranchId).ValueGeneratedOnAdd();
+            entity.Property(e => e.BranchAddress).HasColumnType("text");
+            entity.Property(e => e.BranchCity)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.ContactEmail)
+            entity.Property(e => e.BranchContactEmail)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.ContactNumber)
+            entity.Property(e => e.BranchContactNumber)
                 .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.Name)
+            entity.Property(e => e.BranchName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.Region)
+            entity.Property(e => e.BranchRegion)
                 .HasMaxLength(255)
                 .IsUnicode(false);
         });
@@ -146,8 +120,8 @@ public partial class RanAwayDbContext : DbContext
             entity.ToTable("CatalogEntity");
 
             entity.Property(e => e.CatalogId).ValueGeneratedNever();
-            entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Name)
+            entity.Property(e => e.CatalogDescription).HasColumnType("text");
+            entity.Property(e => e.CatalogName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
         });
@@ -159,42 +133,7 @@ public partial class RanAwayDbContext : DbContext
             entity.ToTable("CategoryEntity");
 
             entity.Property(e => e.CategoryId).ValueGeneratedNever();
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<CategoryItemEntity>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("CategoryItemEntity");
-
-            entity.HasOne(d => d.Category).WithMany()
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CategoryItem_Category");
-
-            entity.HasOne(d => d.Item).WithMany()
-                .HasForeignKey(d => d.Sku)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CategoryItem_Item");
-        });
-
-        modelBuilder.Entity<CustomerEntity>(entity =>
-        {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D8A7E01C20");
-
-            entity.ToTable("CustomerEntity");
-
-            entity.Property(e => e.CustomerId).ValueGeneratedNever();
-            entity.Property(e => e.CustomerType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Email)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Name)
+            entity.Property(e => e.CategoryName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
         });
@@ -206,27 +145,33 @@ public partial class RanAwayDbContext : DbContext
             entity.ToTable("ItemEntity");
 
             entity.Property(e => e.Sku).ValueGeneratedNever();
-            entity.Property(e => e.AdditionalTax).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Currency)
+            entity.Property(e => e.ItemAdditionalTax).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemCurrency)
                 .HasMaxLength(10)
                 .IsUnicode(false);
-            entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Discount).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Image).HasColumnType("text");
+            entity.Property(e => e.ItemDescription).HasColumnType("text");
+            entity.Property(e => e.ItemDiscount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemImage).HasColumnType("text");
             entity.Property(e => e.ItemPrice).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.MarginGain).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Name)
+            entity.Property(e => e.ItemMarginGain).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.UnitCost).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemUnitCost).HasColumnType("decimal(10, 2)");
 
             // Define relationship to CategoryItemEntity (Junction Table)
             entity.HasMany(i => i.CategoryItems)
                 .WithOne(ci => ci.Item)
                 .HasForeignKey(ci => ci.Sku)
                 .OnDelete(DeleteBehavior.Cascade);
-        });
 
+            // Define relationship to CategoryEntity
+            entity.HasOne(i => i.Category)
+                .WithMany(c => c.ItemEntities)
+                .HasForeignKey(i => i.CategoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Item_Category");
+        });
 
         modelBuilder.Entity<LineOfCreditEntity>(entity =>
         {
@@ -252,10 +197,10 @@ public partial class RanAwayDbContext : DbContext
 
             entity.Property(e => e.OrderId).ValueGeneratedNever();
             entity.Property(e => e.OrderDate).HasColumnType("datetime");
-            entity.Property(e => e.Status)
+            entity.Property(e => e.OrderStatus)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.OrderTotalAmount).HasColumnType("decimal(10, 2)");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.OrderEntities)
                 .HasForeignKey(d => d.CustomerId)
@@ -355,7 +300,7 @@ public partial class RanAwayDbContext : DbContext
             entity.ToTable("SupplierEntity");
 
             entity.Property(e => e.SupplierId).ValueGeneratedNever();
-            entity.Property(e => e.Name)
+            entity.Property(e => e.SupplierName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.SupplierAddress).HasColumnType("text");
@@ -441,7 +386,7 @@ public partial class RanAwayDbContext : DbContext
             entity.ToTable("WarehouseEntity");
 
             entity.Property(e => e.WarehouseId).ValueGeneratedNever();
-            entity.Property(e => e.Location)
+            entity.Property(e => e.WarehouseLocation)
                 .HasMaxLength(255)
                 .IsUnicode(false);
 

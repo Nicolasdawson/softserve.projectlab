@@ -9,6 +9,8 @@ public partial class CartItemEntity
 
     public int Sku { get; set; }
 
+    public int ItemQuantity { get; set; }
+
     public virtual CartEntity Cart { get; set; } = null!;
 
     public virtual ItemEntity SkuNavigation { get; set; } = null!;

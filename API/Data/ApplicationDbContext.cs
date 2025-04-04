@@ -16,223 +16,204 @@ public partial class ApplicationDbContext : DbContext
     {
     }
 
-    public virtual DbSet<BranchEntity> Branches { get; set; }
+    public virtual DbSet<BranchEntity> BranchEntities { get; set; }
 
-    public virtual DbSet<CartEntity> Carts { get; set; }
+    public virtual DbSet<CartEntity> CartEntities { get; set; }
 
-    public virtual DbSet<CartItemEntity> CartItems { get; set; }
+    public virtual DbSet<CartItemEntity> CartItemEntities { get; set; }
 
-    public virtual DbSet<CatalogEntity> Catalogs { get; set; }
+    public virtual DbSet<CatalogCategoryEntity> CatalogCategoryEntities { get; set; }
 
-    public virtual DbSet<CatalogCategoryEntity> CatalogCategories { get; set; }
+    public virtual DbSet<CatalogEntity> CatalogEntities { get; set; }
 
-    public virtual DbSet<CategoryEntity> Categories { get; set; }
+    public virtual DbSet<CategoryEntity> CategoryEntities { get; set; }
 
-    public virtual DbSet<CategoryItemEntity> CategoryItems { get; set; }
+    public virtual DbSet<CustomerEntity> CustomerEntities { get; set; }
 
-    public virtual DbSet<CustomerEntity> Customers { get; set; }
+    public virtual DbSet<ItemEntity> ItemEntities { get; set; }
 
-    public virtual DbSet<ItemEntity> Items { get; set; }
+    public virtual DbSet<LineOfCreditEntity> LineOfCreditEntities { get; set; }
 
-    public virtual DbSet<LineOfCreditEntity> LineOfCredits { get; set; }
+    public virtual DbSet<OrderEntity> OrderEntities { get; set; }
 
-    public virtual DbSet<OrderEntity> Orders { get; set; }
+    public virtual DbSet<OrderItemEntity> OrderItemEntities { get; set; }
 
-    public virtual DbSet<OrderItemEntity> OrderItems { get; set; }
+    public virtual DbSet<PackageEntity> PackageEntities { get; set; }
 
-    public virtual DbSet<PackageEntity> Packages { get; set; }
+    public virtual DbSet<PackageItemEntity> PackageItemEntities { get; set; }
 
-    public virtual DbSet<PackageItemEntity> PackageItems { get; set; }
+    public virtual DbSet<PermissionEntity> PermissionEntities { get; set; }
 
-    public virtual DbSet<PermissionEntity> Permissions { get; set; }
+    public virtual DbSet<RoleEntity> RoleEntities { get; set; }
 
-    public virtual DbSet<RoleEntity> Roles { get; set; }
+    public virtual DbSet<RolePermissionEntity> RolePermissionEntities { get; set; }
 
-    public virtual DbSet<RolePermissionEntity> RolePermissions { get; set; }
+    public virtual DbSet<SupplierEntity> SupplierEntities { get; set; }
 
-    public virtual DbSet<SupplierEntity> Suppliers { get; set; }
+    public virtual DbSet<SupplierItemEntity> SupplierItemEntities { get; set; }
 
-    public virtual DbSet<SupplierItemEntity> SupplierItems { get; set; }
+    public virtual DbSet<UserEntity> UserEntities { get; set; }
 
-    public virtual DbSet<UsersEntity> Users { get; set; }
+    public virtual DbSet<UserRoleEntity> UserRoleEntities { get; set; }
 
-    public virtual DbSet<UserRoleEntity> UserRoles { get; set; }
+    public virtual DbSet<WarehouseEntity> WarehouseEntities { get; set; }
 
-    public virtual DbSet<WarehouseEntity> Warehouses { get; set; }
+    public virtual DbSet<WarehouseItemEntity> WarehouseItemEntities { get; set; }
 
-    public virtual DbSet<WarehouseItemEntity> WarehouseItems { get; set; }
-
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-1TCSDCL\\SQLEXPRESS;Initial Catalog=RanAwayDBV2;Integrated Security=True;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BranchEntity>(entity =>
         {
-            entity.HasKey(e => e.BranchId).HasName("PK__Branch__A1682FC500954FE5");
+            entity.HasKey(e => e.BranchId).HasName("PK__BranchEn__A1682FC5D35345B3");
 
             entity.ToTable("BranchEntity");
 
-            entity.Property(e => e.BranchId).ValueGeneratedNever();
-            entity.Property(e => e.Address).HasColumnType("text");
-            entity.Property(e => e.City)
+            entity.Property(e => e.BranchAddress)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.ContactEmail)
+            entity.Property(e => e.BranchCity)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.ContactNumber)
+            entity.Property(e => e.BranchContactEmail)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.BranchContactNumber)
                 .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.Name)
+            entity.Property(e => e.BranchName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.Region)
+            entity.Property(e => e.BranchRegion)
                 .HasMaxLength(255)
                 .IsUnicode(false);
         });
 
         modelBuilder.Entity<CartEntity>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B7103B1C89");
+            entity.HasKey(e => e.CartId).HasName("PK__CartEnti__51BCD7B71DAE1FFB");
 
             entity.ToTable("CartEntity");
 
-            entity.Property(e => e.CartId).ValueGeneratedNever();
-
             entity.HasOne(d => d.Customer).WithMany(p => p.CartEntities)
                 .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Cart_Customer");
         });
 
         modelBuilder.Entity<CartItemEntity>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("CartItemEntity");
+            entity.HasKey(e => new { e.CartId, e.Sku }).HasName("PK__CartItem__0D1D2A8BF7B0524A");
 
-            entity.HasOne(d => d.Cart).WithMany()
+            entity.ToTable("CartItemEntity");
+
+            entity.HasOne(d => d.Cart).WithMany(p => p.CartItemEntities)
                 .HasForeignKey(d => d.CartId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CartItem_Cart");
 
-            entity.HasOne(d => d.SkuNavigation).WithMany()
+            entity.HasOne(d => d.SkuNavigation).WithMany(p => p.CartItemEntities)
                 .HasForeignKey(d => d.Sku)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CartItem_Item");
         });
 
-        modelBuilder.Entity<CatalogEntity>(entity =>
-        {
-            entity.HasKey(e => e.CatalogId).HasName("PK__Catalog__C2513B6835A0C5A2");
-
-            entity.ToTable("CatalogEntity");
-
-            entity.Property(e => e.CatalogId).ValueGeneratedNever();
-            entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-        });
-
         modelBuilder.Entity<CatalogCategoryEntity>(entity =>
         {
-            entity.HasKey(e => new { e.CatalogId, e.CategoryId }).HasName("PK_CatalogCategory");
+            entity.HasKey(e => new { e.CatalogId, e.CategoryId }).HasName("PK__CatalogC__63C1A8C874017AEE");
+
             entity.ToTable("CatalogCategoryEntity");
 
-            entity.HasOne(d => d.Catalog)
-                .WithMany(p => p.CatalogCategories)
+            entity.Property(e => e.CategoryName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Catalog).WithMany(p => p.CatalogCategoryEntities)
                 .HasForeignKey(d => d.CatalogId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CatalogCategoryEntity_CatalogEntity");
 
-            entity.HasOne(d => d.Category)
-                .WithMany(p => p.CatalogCategories)
+            entity.HasOne(d => d.Category).WithMany(p => p.CatalogCategoryEntities)
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CatalogCategoryEntity_CategoryEntity");
         });
 
+        modelBuilder.Entity<CatalogEntity>(entity =>
+        {
+            entity.HasKey(e => e.CatalogId).HasName("PK__CatalogE__C2513B68D94F7F2F");
+
+            entity.ToTable("CatalogEntity");
+
+            entity.Property(e => e.CatalogDescription).IsUnicode(false);
+            entity.Property(e => e.CatalogName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<CategoryEntity>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B813139CC");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0BC298FEA4");
 
             entity.ToTable("CategoryEntity");
 
-            entity.Property(e => e.CategoryId).ValueGeneratedNever();
-            entity.Property(e => e.Name)
+            entity.Property(e => e.CategoryName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
         });
-
-        modelBuilder.Entity<CategoryItemEntity>(entity =>
-        {
-            entity.HasKey(ci => new { ci.CategoryId, ci.Sku }); // Composite primary key
-
-            entity.ToTable("CategoryItemEntity");
-
-            entity.HasOne(d => d.Category)
-                .WithMany(c => c.CategoryItemEntities) // Ensure correct navigation property in CategoryEntity
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_CategoryItem_Category");
-
-            entity.HasOne(d => d.Item)
-                .WithMany(i => i.CategoryItems) // Ensure correct navigation property in ItemEntity
-                .HasForeignKey(d => d.Sku)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_CategoryItem_Item");
-        });
-
-
 
         modelBuilder.Entity<CustomerEntity>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D892601F68");
+            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D8A5DDC42C");
 
             entity.ToTable("CustomerEntity");
 
-            entity.Property(e => e.CustomerId).ValueGeneratedNever();
+            entity.Property(e => e.CustomerContactEmail)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CustomerContactNumber)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CustomerName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
             entity.Property(e => e.CustomerType)
                 .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Email)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
                 .IsUnicode(false);
         });
 
         modelBuilder.Entity<ItemEntity>(entity =>
         {
-            entity.HasKey(e => e.Sku).HasName("PK__Item__CA1FD3C4297D061E");
+            entity.HasKey(e => e.Sku).HasName("PK__ItemEnti__CA1FD3C4976EE3A1");
 
             entity.ToTable("ItemEntity");
 
-            entity.Property(e => e.Sku).ValueGeneratedNever();
-            entity.Property(e => e.AdditionalTax).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Currency)
+            entity.Property(e => e.ItemAdditionalTax).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemCurrency)
                 .HasMaxLength(10)
                 .IsUnicode(false);
-            entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.Discount).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Image).HasColumnType("text");
-            entity.Property(e => e.ItemPrice).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.MarginGain).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Name)
+            entity.Property(e => e.ItemDescription).IsUnicode(false);
+            entity.Property(e => e.ItemDiscount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemImage).IsUnicode(false);
+            entity.Property(e => e.ItemMarginGain).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.UnitCost).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemPrice).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemUnitCost).HasColumnType("decimal(10, 2)");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.ItemEntities)
+                .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Item_Category");
         });
-
-
-
-
-
-
 
         modelBuilder.Entity<LineOfCreditEntity>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__LineOfCr__A4AE64D8236E36B3");
+            entity.HasKey(e => e.CustomerId).HasName("PK__LineOfCr__A4AE64D89BA2C4F9");
 
             entity.ToTable("LineOfCreditEntity");
 
@@ -248,34 +229,34 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<OrderEntity>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCF024AFF95");
+            entity.HasKey(e => e.OrderId).HasName("PK__OrderEnt__C3905BCF0D888BBB");
 
             entity.ToTable("OrderEntity");
 
-            entity.Property(e => e.OrderId).ValueGeneratedNever();
             entity.Property(e => e.OrderDate).HasColumnType("datetime");
-            entity.Property(e => e.Status)
+            entity.Property(e => e.OrderStatus)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.OrderTotalAmount).HasColumnType("decimal(10, 2)");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.OrderEntities)
                 .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Order_Customer");
         });
 
         modelBuilder.Entity<OrderItemEntity>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("OrderItemEntity");
+            entity.HasKey(e => new { e.OrderId, e.Sku }).HasName("PK__OrderIte__9F31A6F3DAAB80C2");
 
-            entity.HasOne(d => d.Order).WithMany()
+            entity.ToTable("OrderItemEntity");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderItemEntities)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_OrderItem_Order");
 
-            entity.HasOne(d => d.SkuNavigation).WithMany()
+            entity.HasOne(d => d.SkuNavigation).WithMany(p => p.OrderItemEntities)
                 .HasForeignKey(d => d.Sku)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_OrderItem_Item");
@@ -283,11 +264,10 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PackageEntity>(entity =>
         {
-            entity.HasKey(e => e.PackageId).HasName("PK__Package__322035CCB13E1AE6");
+            entity.HasKey(e => e.PackageId).HasName("PK__PackageE__322035CC00528419");
 
             entity.ToTable("PackageEntity");
 
-            entity.Property(e => e.PackageId).ValueGeneratedNever();
             entity.Property(e => e.PackageName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
@@ -295,16 +275,16 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PackageItemEntity>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("PackageItemEntity");
+            entity.HasKey(e => new { e.PackageId, e.Sku }).HasName("PK__PackageI__6E81C8F0E01D6553");
 
-            entity.HasOne(d => d.Package).WithMany()
+            entity.ToTable("PackageItemEntity");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.PackageItemEntities)
                 .HasForeignKey(d => d.PackageId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PackageItem_Package");
 
-            entity.HasOne(d => d.SkuNavigation).WithMany()
+            entity.HasOne(d => d.SkuNavigation).WithMany(p => p.PackageItemEntities)
                 .HasForeignKey(d => d.Sku)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PackageItem_Item");
@@ -312,12 +292,11 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PermissionEntity>(entity =>
         {
-            entity.HasKey(e => e.PermissionId).HasName("PK__Permissi__EFA6FB2FC59A3517");
+            entity.HasKey(e => e.PermissionId).HasName("PK__Permissi__EFA6FB2F3448C132");
 
             entity.ToTable("PermissionEntity");
 
-            entity.Property(e => e.PermissionId).ValueGeneratedNever();
-            entity.Property(e => e.PermissionDescription).HasColumnType("text");
+            entity.Property(e => e.PermissionDescription).IsUnicode(false);
             entity.Property(e => e.PermissionName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -325,12 +304,11 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<RoleEntity>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE1A2011D1B1");
+            entity.HasKey(e => e.RoleId).HasName("PK__RoleEnti__8AFACE1A865EA8E1");
 
             entity.ToTable("RoleEntity");
 
-            entity.Property(e => e.RoleId).ValueGeneratedNever();
-            entity.Property(e => e.RoleDescription).HasColumnType("text");
+            entity.Property(e => e.RoleDescription).IsUnicode(false);
             entity.Property(e => e.RoleName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -338,60 +316,75 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<RolePermissionEntity>(entity =>
         {
-            entity.HasKey(e => e.RoleId);
+            entity.HasKey(e => new { e.RoleId, e.PermissionId }).HasName("PK_RolePermission");
 
             entity.ToTable("RolePermissionEntity");
 
-            entity.Property(e => e.RoleId).ValueGeneratedNever();
+            entity.Property(e => e.PermissionName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Permission).WithMany(p => p.RolePermissionEntities)
                 .HasForeignKey(d => d.PermissionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RolePermission_Permission");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.RolePermissionEntities)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RolePermission_Role");
         });
 
         modelBuilder.Entity<SupplierEntity>(entity =>
         {
-            entity.HasKey(e => e.SupplierId).HasName("PK__Supplier__4BE666B4DF7753F2");
+            entity.HasKey(e => e.SupplierId).HasName("PK__Supplier__4BE666B4802C8BE3");
 
             entity.ToTable("SupplierEntity");
 
-            entity.Property(e => e.SupplierId).ValueGeneratedNever();
-            entity.Property(e => e.Name)
+            entity.Property(e => e.SupplierAddress).IsUnicode(false);
+            entity.Property(e => e.SupplierContactEmail)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.SupplierAddress).HasColumnType("text");
+            entity.Property(e => e.SupplierContactNumber)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.SupplierName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<SupplierItemEntity>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("SupplierItemEntity");
+            entity.HasKey(e => new { e.SupplierId, e.Sku }).HasName("PK__Supplier__17479B882D750307");
 
-            entity.HasOne(d => d.SkuNavigation).WithMany()
+            entity.ToTable("SupplierItemEntity");
+
+            entity.HasOne(d => d.SkuNavigation).WithMany(p => p.SupplierItemEntities)
                 .HasForeignKey(d => d.Sku)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_SupplierItem_Item");
 
-            entity.HasOne(d => d.Supplier).WithMany()
+            entity.HasOne(d => d.Supplier).WithMany(p => p.SupplierItemEntities)
                 .HasForeignKey(d => d.SupplierId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_SupplierItem_Supplier");
         });
 
-        modelBuilder.Entity<UsersEntity>(entity =>
+        modelBuilder.Entity<UserEntity>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4CC6DAD6B7");
-
-            entity.HasIndex(e => e.UserEmail, "UQ__Users__08638DF888EF9CA9").IsUnique();
-
-            entity.HasIndex(e => e.Username, "UQ__Users__536C85E41539B69F").IsUnique();
+            entity.HasKey(e => e.UserId).HasName("PK__UserEnti__1788CC4CEC9F3C93");
 
             entity.ToTable("UserEntity");
 
-            entity.Property(e => e.UserId).ValueGeneratedNever();
-            entity.Property(e => e.UserEmail)
+            entity.HasIndex(e => e.UserContactEmail, "UQ__UserEnti__BFDC6510DB81E6FC").IsUnique();
+
+            entity.Property(e => e.UserContactEmail)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.UserContactNumber)
                 .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.UserFirstName)
@@ -403,108 +396,66 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.UserPassword)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.Username)
-                .HasMaxLength(100)
-                .IsUnicode(false);
 
-            entity.HasOne(d => d.Branch).WithMany(p => p.UsersEntities)
+            entity.HasOne(d => d.Branch).WithMany(p => p.UserEntities)
                 .HasForeignKey(d => d.BranchId)
-                .HasConstraintName("FK_Users_Branch");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_User_Branch");
         });
 
-        modelBuilder.Entity<UsersEntity>(entity =>
-        {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4CC6DAD6B7");
-
-            entity.HasIndex(e => e.UserEmail, "UQ__Users__08638DF888EF9CA9").IsUnique();
-
-            entity.HasIndex(e => e.Username, "UQ__Users__536C85E41539B69F").IsUnique();
-
-            entity.Property(e => e.UserId).ValueGeneratedNever();
-            entity.Property(e => e.UserEmail)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.UserFirstName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.UserLastName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.UserPassword)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Username)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.Branch).WithMany(p => p.UsersEntities)
-                .HasForeignKey(d => d.BranchId)
-                .HasConstraintName("FK_Users_Branch");
-        });
         modelBuilder.Entity<UserRoleEntity>(entity =>
         {
-            entity.HasKey(e => e.UserId);
+            entity.HasKey(e => new { e.UserId, e.RoleId }).HasName("PK_UserRole");
 
             entity.ToTable("UserRoleEntity");
 
-            entity.Property(e => e.UserId).ValueGeneratedNever();
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Role).WithMany(p => p.UserRoleEntities)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserRole_Role");
 
-            entity.HasOne(d => d.RoleNavigation).WithMany(p => p.UserRoleEntities)
-                .HasForeignKey(d => d.RoleId)
+            entity.HasOne(d => d.User).WithMany(p => p.UserRoleEntities)
+                .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UserRole_RolePermission");
-
-            entity.HasOne(d => d.User).WithOne(p => p.UserRoleEntity)
-                .HasForeignKey<UserRoleEntity>(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UserRole_Users");
+                .HasConstraintName("FK_UserRole_User");
         });
 
         modelBuilder.Entity<WarehouseEntity>(entity =>
         {
-            entity.HasKey(e => e.WarehouseId).HasName("PK__Warehous__2608AFF9068F2E75");
+            entity.HasKey(e => e.WarehouseId).HasName("PK__Warehous__2608AFF9C0233E9E");
 
             entity.ToTable("WarehouseEntity");
 
-            entity.Property(e => e.WarehouseId).ValueGeneratedNever();
-            entity.Property(e => e.Location)
+            entity.Property(e => e.WarehouseLocation)
                 .HasMaxLength(255)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Branch).WithMany(p => p.WarehouseEntities)
                 .HasForeignKey(d => d.BranchId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Warehouse_Branch");
         });
 
         modelBuilder.Entity<WarehouseItemEntity>(entity =>
         {
-            entity.HasKey(wi => new { wi.WarehouseId, wi.Sku });
-            entity.Property(e => e.Sku).HasColumnName("Sku");  // Explicit column mapping
-            entity.Property(e => e.WarehouseId).HasColumnName("WarehouseId");  // Explicit column mapping
+            entity.HasKey(e => new { e.WarehouseId, e.Sku }).HasName("PK__Warehous__7AA952C548B3D0F0");
 
+            entity.ToTable("WarehouseItemEntity");
 
-            // Define relationship with Item (SkuNavigation)
-            entity.HasOne(d => d.SkuNavigation)
-                .WithMany()
+            entity.HasOne(d => d.SkuNavigation).WithMany(p => p.WarehouseItemEntities)
                 .HasForeignKey(d => d.Sku)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_WarehouseItem_Item");
 
-            // Define relationship with Warehouse
-            entity.HasOne(d => d.Warehouse)
-                .WithMany()
+            entity.HasOne(d => d.Warehouse).WithMany(p => p.WarehouseItemEntities)
                 .HasForeignKey(d => d.WarehouseId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_WarehouseItem_Warehouse");
-
-            entity.ToTable("WarehouseItemEntity");  // Make sure the table name is correct
         });
-
 
         OnModelCreatingPartial(modelBuilder);
     }

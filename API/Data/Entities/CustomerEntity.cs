@@ -7,11 +7,13 @@ public partial class CustomerEntity
 {
     public int CustomerId { get; set; }
 
-    public string? CustomerType { get; set; }
+    public string CustomerType { get; set; } = null!;
 
-    public string? Name { get; set; }
+    public string CustomerName { get; set; } = null!;
 
-    public string? Email { get; set; }
+    public string CustomerContactNumber { get; set; } = null!;
+
+    public string CustomerContactEmail { get; set; } = null!;
 
     public virtual ICollection<CartEntity> CartEntities { get; set; } = new List<CartEntity>();
 
