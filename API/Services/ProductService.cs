@@ -1,115 +1,91 @@
-// Services/ProductService.cs
 using API.implementations.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using API.Models;
 
 namespace API.Services
 {
+    /// <summary>
+    /// Service for managing products.
+    /// </summary>
     public class ProductService
     {
         private readonly AppDbContext _context; 
-        private readonly List<Product> _products;
 
+        /// <summary>
+        /// Initializes a new instance of the ProductService class.
+        /// </summary>
+        /// <param name="context">The application database context.</param>
         public ProductService(AppDbContext context) 
         {
             _context = context;
-            /*
-            _products = new List<Product>
+        }
+
+        /// <summary>
+        /// Creates a new product.
+        /// </summary>
+        /// <param name="product">The product to create.</param>
+        /// <returns>The created product.</returns>
+        public async Task<Product> CreateProduct(Product product)
+        {
+            product.Id = Guid.NewGuid();
+            // Log para verificar si se agrega
+            Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}");
+            return await Task.FromResult(product);
+        }
+
+        /// <summary>
+        /// Retrieves all products.
+        /// </summary>
+        /// <returns>A collection of all products.</returns>
+        public async Task<IEnumerable<Product>> GetAllProducts()
+        {
+            try
             {
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Cámara de Seguridad IP 1080p",
-                    Category = "Cámaras de Seguridad",
-                    Description = "Cámara de seguridad de alta definición con visión nocturna y grabación en 1080p. Conectividad Wi-Fi y detección de movimiento.",
-                    ImageUrl = "https://example.com/images/camara-ip-1080p.jpg",
-                    Price = 120.99m,
-                    Stock = "Disponible"
-                },
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Alarma Inalámbrica 4 Zonas",
-                    Category = "Alarmas",
-                    Description = "Sistema de alarma inalámbrico con 4 zonas, ideal para viviendas. Compatible con sensores de puertas y ventanas.",
-                    ImageUrl = "https://example.com/images/alarma-inalambrica.jpg",
-                    Price = 150.50m,
-                    Stock = "Disponible"
-                },
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Sensor de Movimiento PIR",
-                    Category = "Sensores",
-                    Description = "Sensor de movimiento PIR (infrarrojo pasivo) para sistemas de alarma. Detecta movimiento en un rango de hasta 10 metros.",
-                    ImageUrl = "https://example.com/images/sensor-movimiento-pir.jpg",
-                    Price = 45.30m,
-                    Stock = "Agotado"
-                },
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Cámara de Seguridad Dome 4K",
-                    Category = "Cámaras de Seguridad",
-                    Description = "Cámara dome 4K con visión panorámica y grabación en calidad ultra HD. Resistente a condiciones climáticas extremas.",
-                    ImageUrl = "https://example.com/images/camara-dome-4k.jpg",
-                    Price = 299.99m,
-                    Stock = "Disponible"
-                },
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Alarma para Puerta/ ventana",
-                    Category = "Alarmas",
-                    Description = "Alarma de seguridad para puertas y ventanas. Ideal para prevenir accesos no autorizados en el hogar o negocio.",
-                    ImageUrl = "https://example.com/images/alarma-puerta-ventana.jpg",
-                    Price = 32.99m,
-                    Stock = "Disponible"
-                },
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Cámara de Seguridad para Exteriores",
-                    Category = "Cámaras de Seguridad",
-                    Description = "Cámara de seguridad para exteriores, resistente al agua y con visión nocturna. Se conecta a través de Wi-Fi.",
-                    ImageUrl = "https://example.com/images/camara-para-exteriores.jpg",
-                    Price = 180.75m,
-                    Stock = "Disponible"
-                }
-            };
-             */
-        }
-        public Product CreateProduct(Product product)
-        {
-            product.Id = Guid.NewGuid(); // Generar un nuevo ID
-            //_products.Add(product); // Agregar el producto a la lista en memoria
-            Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}"); // Log para verificar si se agrega
-            return product;
+                var products = await _context.Products.ToListAsync(); // Espera la ejecución de la consulta
+
+                Console.WriteLine($"Cantidad de productos en memoria: {products.Count}");
+
+                return products; // No es necesario usar Task.FromResult
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener los productos: {ex.Message}");
+                return new List<Product>(); // Retornar una lista vacía en caso de error
+            }
         }
 
-
-        public IEnumerable<Product> GetAllProducts()
-        {
-            //Console.WriteLine($"Cantidad de productos en memoria: {_products.Count}"); // Log para verificar la cantidad de productos
-            return _context.Products.ToList();
-        }
-
-
+        /// <summary>
+        /// Retrieves a product by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the product.</param>
+        /// <returns>The product if found; otherwise, null.</returns>
         public Product? GetProductById(Guid id)
         {
-            return _products.FirstOrDefault(p => p.Id == id);
+            return _context.Products.FirstOrDefault(p => p.Id == id);
         }
 
+        /// <summary>
+        /// Deletes a product by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the product to delete.</param>
+        /// <returns>True if the product was deleted; otherwise, false.</returns>
         public bool DeleteProduct(Guid id)
         {
             var product = GetProductById(id);
             if (product != null)
             {
-                _products.Remove(product);
+                _context.Products.Remove(product);
                 return true;
             }
             return false;
         }
 
+        /// <summary>
+        /// Updates an existing product.
+        /// </summary>
+        /// <param name="id">The ID of the product to update.</param>
+        /// <param name="updatedProduct">The updated product information.</param>
+        /// <returns>True if the product was updated; otherwise, false.</returns>
         public bool UpdateProduct(Guid id, Product updatedProduct)
         {
             var existingProduct = GetProductById(id);
@@ -125,9 +101,15 @@ namespace API.Services
             return false;
         }
 
+        /// <summary>
+        /// Retrieves products by category.
+        /// </summary>
+        /// <param name="category">The category ID.</param>
+        /// <returns>A collection of products in the specified category.</returns>
         public IEnumerable<Product> GetProductsByCategory(Guid category)
         {
-            return _context.Products.Where(p => p.CategoryId == category);
+            var products = _context.Products.Where(p => p.CategoryId == category);
+            return products;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace API.implementations.Infrastructure.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<Customer> Customers { get; set; }
+        //public DbSet<Customer> Customers { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
 
@@ -15,9 +15,11 @@ namespace API.implementations.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            /*
             modelBuilder.Entity<Customer>()
                 .Property(c => c.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
+                .HasDefaultValueSql("GETDATE()");             
+            */
 
             modelBuilder.Entity<Product>()
                 .Property(p => p.CreatedAt)
