@@ -39,7 +39,7 @@ namespace API.Controllers;
         public ActionResult<IEnumerable<Product>> GetProducts()
         {
             var products = _productService.GetAllProducts();
-            return Ok(products);
+            return Ok(products.Result);
         }
 
         /// <summary>

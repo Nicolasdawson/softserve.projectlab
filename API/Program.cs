@@ -27,6 +27,8 @@ builder.Services.AddCors(options =>
 // Agregar servicios para controllers
 builder.Services.AddControllers();
 
+    
+
 // Agregar Swagger
 builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger en tu API
 
