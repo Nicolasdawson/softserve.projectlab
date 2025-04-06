@@ -14,8 +14,6 @@ namespace API.Models.IntAdmin
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int Sku { get; set; }
-        //public string ItemName { get; set; }
-        //public string ItemDescription { get; set; }
         public int OriginalStock { get; set; }
         public int CurrentStock { get; set; }
         public string ItemCurrency { get; set; }
