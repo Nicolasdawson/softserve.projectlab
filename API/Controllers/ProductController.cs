@@ -71,7 +71,7 @@ namespace API.Controllers;
             {
                 return NotFound();
             }
-            return NoContent();
+            return Ok();
         }
 
         /// <summary>
