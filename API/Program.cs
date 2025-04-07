@@ -12,7 +12,7 @@ using API.Domain.Logistics;
 using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
 using API.Data.Entities;
-using API.Data.Mapping; // Added missing using directive
+using API.Data.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,8 +31,6 @@ builder.Services.AddSupplierServices();
 builder.Services.AddSupplierOrderServices();
 
 // Register your services
-builder.Services.AddScoped<IPackageService, PackageService>();
-builder.Services.AddScoped<PackagesDomain>();
 builder.Services.AddScoped<IWarehouse, Warehouse>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IBranch, Branch>();
@@ -93,7 +91,6 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    //dbContext.Database.Migrate();
 }
 
 app.Run();
