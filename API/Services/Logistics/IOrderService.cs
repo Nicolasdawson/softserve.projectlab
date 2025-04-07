@@ -6,7 +6,7 @@ namespace API.Services.Logistics
 {
     public interface IOrderService
     {
-        Task<Result<Order>> CreateOrderAsync(Order order);
+        Task<Result<Order>> CreateOrderAsync(OrderItemRequest orderItemRequest);
         Task<Result<Order>> GetOrderByIdAsync(int orderId);
         Task<Result<List<Order>>> GetAllOrdersAsync();
         Task<Result<Order>> UpdateOrderAsync(Order order);

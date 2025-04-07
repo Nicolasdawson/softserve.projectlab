@@ -6,9 +6,13 @@ namespace API.Models.Logistics.Interfaces
     public interface ISupplier
     {
         int SupplierId { get; set; }
-        string Name { get; set; }
-        string ContactInfo { get; set; }
-        public List<Item> ProductsSupplied { get; set; }
+        string SupplierName { get; set; }
+        string SupplierAddress { get; set; }
+        string SupplierContactNumber { get; set; }
+        string SupplierContactEmail { get; set; }
+        List<Item> ProductsSupplied { get; set; }
+        bool IsActive { get; set; }
+        List<SupplierOrder> Orders { get; set; }
 
         Result<ISupplier> AddSupplier(ISupplier supplier);
         Result<ISupplier> UpdateSupplier(ISupplier supplier);

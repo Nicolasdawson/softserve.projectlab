@@ -73,9 +73,9 @@ namespace API.Implementations.Domain
                 var existingSupplier = _suppliers.FirstOrDefault(s => s.SupplierId == supplier.SupplierId);
                 if (existingSupplier != null)
                 {
-                    existingSupplier.Name = supplier.Name;
-                    existingSupplier.Address = supplier.Address;
-                    existingSupplier.ContactInfo = supplier.ContactInfo;
+                    existingSupplier.SupplierName = supplier.SupplierName;
+                    existingSupplier.SupplierName = supplier.SupplierName;
+                    existingSupplier.SupplierName = supplier.SupplierName;
                     // Update any other properties here
                     return Result<Supplier>.Success(existingSupplier);
                 }

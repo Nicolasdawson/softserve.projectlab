@@ -18,6 +18,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<BranchEntity> BranchEntities { get; set; }
 
+    public virtual DbSet<BusinessCustomerEntity> BusinessCustomerEntities { get; set; }
+
     public virtual DbSet<CartEntity> CartEntities { get; set; }
 
     public virtual DbSet<CartItemEntity> CartItemEntities { get; set; }
@@ -28,7 +30,11 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<CategoryEntity> CategoryEntities { get; set; }
 
+    public virtual DbSet<CreditTransactionEntity> CreditTransactionEntities { get; set; }
+
     public virtual DbSet<CustomerEntity> CustomerEntities { get; set; }
+
+    public virtual DbSet<IndividualCustomerEntity> IndividualCustomerEntities { get; set; }
 
     public virtual DbSet<ItemEntity> ItemEntities { get; set; }
 
@@ -42,7 +48,11 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<PackageItemEntity> PackageItemEntities { get; set; }
 
+    public virtual DbSet<PackageNoteEntity> PackageNoteEntities { get; set; }
+
     public virtual DbSet<PermissionEntity> PermissionEntities { get; set; }
+
+    public virtual DbSet<PremiumCustomerEntity> PremiumCustomerEntities { get; set; }
 
     public virtual DbSet<RoleEntity> RoleEntities { get; set; }
 
@@ -59,6 +69,12 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<WarehouseEntity> WarehouseEntities { get; set; }
 
     public virtual DbSet<WarehouseItemEntity> WarehouseItemEntities { get; set; }
+
+    public virtual DbSet<vw_BusinessCustomer> vw_BusinessCustomers { get; set; }
+
+    public virtual DbSet<vw_IndividualCustomer> vw_IndividualCustomers { get; set; }
+
+    public virtual DbSet<vw_PremiumCustomer> vw_PremiumCustomers { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -90,6 +106,39 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.BranchRegion)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<BusinessCustomerEntity>(entity =>
+        {
+            entity.HasKey(e => e.CustomerId).HasName("PK__Business__A4AE64D839A2D50F");
+
+            entity.ToTable("BusinessCustomerEntity");
+
+            entity.Property(e => e.CustomerId).ValueGeneratedNever();
+            entity.Property(e => e.AnnualRevenue).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.BusinessSize)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("Small");
+            entity.Property(e => e.CompanyName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CreditTerms)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("Net30");
+            entity.Property(e => e.EmployeeCount).HasDefaultValue(1);
+            entity.Property(e => e.Industry)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TaxId)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.VolumeDiscountRate).HasColumnType("decimal(5, 2)");
+
+            entity.HasOne(d => d.Customer).WithOne(p => p.BusinessCustomerEntity)
+                .HasForeignKey<BusinessCustomerEntity>(d => d.CustomerId)
+                .HasConstraintName("FK_BusinessCustomer_Customer");
         });
 
         modelBuilder.Entity<CartEntity>(entity =>
@@ -165,12 +214,45 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<CreditTransactionEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__CreditTr__3214EC07E3DD6E74");
+
+            entity.ToTable("CreditTransactionEntity");
+
+            entity.Property(e => e.Id)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Description)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.TransactionDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.TransactionType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.LineOfCredit).WithMany(p => p.CreditTransactionEntities)
+                .HasForeignKey(d => d.LineOfCreditId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CreditTransaction_LineOfCredit");
+        });
+
         modelBuilder.Entity<CustomerEntity>(entity =>
         {
             entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D88FE47D79");
 
             entity.ToTable("CustomerEntity");
 
+            entity.Property(e => e.Address)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.City)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.CustomerContactEmail)
                 .HasMaxLength(255)
                 .IsUnicode(false);
@@ -183,6 +265,46 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CustomerType)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.Email)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.FirstName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.LastName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.RegistrationDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.State)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ZipCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<IndividualCustomerEntity>(entity =>
+        {
+            entity.HasKey(e => e.CustomerId).HasName("PK__Individu__A4AE64D8A2FE7E5C");
+
+            entity.ToTable("IndividualCustomerEntity");
+
+            entity.Property(e => e.CustomerId).ValueGeneratedNever();
+            entity.Property(e => e.CommunicationPreference)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("Email");
+            entity.Property(e => e.IsEligibleForPromotions).HasDefaultValue(true);
+            entity.Property(e => e.LastPurchaseDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Customer).WithOne(p => p.IndividualCustomerEntity)
+                .HasForeignKey<IndividualCustomerEntity>(d => d.CustomerId)
+                .HasConstraintName("FK_IndividualCustomer_Customer");
         });
 
         modelBuilder.Entity<ItemEntity>(entity =>
@@ -218,8 +340,31 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("LineOfCreditEntity");
 
             entity.Property(e => e.CustomerId).ValueGeneratedNever();
+            entity.Property(e => e.AnnualInterestRate).HasColumnType("decimal(10, 5)");
             entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Id)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasDefaultValueSql("(newid())");
+            entity.Property(e => e.LastReviewDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.MinimumPaymentAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.NextPaymentDueDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.OpenDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Provider)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasDefaultValue("");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("Active");
 
             entity.HasOne(d => d.Customer).WithOne(p => p.LineOfCreditEntity)
                 .HasForeignKey<LineOfCreditEntity>(d => d.CustomerId)
@@ -268,9 +413,43 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("PackageEntity");
 
+            entity.Property(e => e.ActualDeliveryDate).HasColumnType("datetime");
+            entity.Property(e => e.ContractId)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.ContractStartDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description).IsUnicode(false);
+            entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.EstimatedDeliveryDate).HasColumnType("datetime");
+            entity.Property(e => e.MonthlyFee).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PackageName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+            entity.Property(e => e.PaymentMethod)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValue("Credit Card");
+            entity.Property(e => e.SaleDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.SetupFee).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ShippingAddress)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValue("Processing");
+            entity.Property(e => e.TrackingNumber)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.PackageEntities)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Package_Customer");
         });
 
         modelBuilder.Entity<PackageItemEntity>(entity =>
@@ -278,6 +457,11 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => new { e.PackageId, e.Sku }).HasName("PK__PackageI__6E81C8F064A5F7FB");
 
             entity.ToTable("PackageItemEntity");
+
+            entity.Property(e => e.Notes).IsUnicode(false);
+            entity.Property(e => e.SerialNumber)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Package).WithMany(p => p.PackageItemEntities)
                 .HasForeignKey(d => d.PackageId)
@@ -290,6 +474,32 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_PackageItem_Item");
         });
 
+        modelBuilder.Entity<PackageNoteEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__PackageN__3214EC07352B8039");
+
+            entity.ToTable("PackageNoteEntity");
+
+            entity.Property(e => e.Id)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Content).IsUnicode(false);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Title)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Package).WithMany(p => p.PackageNoteEntities)
+                .HasForeignKey(d => d.PackageId)
+                .HasConstraintName("FK_PackageNote_Package");
+        });
+
         modelBuilder.Entity<PermissionEntity>(entity =>
         {
             entity.HasKey(e => e.PermissionId).HasName("PK__Permissi__EFA6FB2FBF68546A");
@@ -300,6 +510,28 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.PermissionName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<PremiumCustomerEntity>(entity =>
+        {
+            entity.HasKey(e => e.CustomerId).HasName("PK__PremiumC__A4AE64D889B381F9");
+
+            entity.ToTable("PremiumCustomerEntity");
+
+            entity.Property(e => e.CustomerId).ValueGeneratedNever();
+            entity.Property(e => e.DiscountRate).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.MembershipExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.MembershipStartDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.TierLevel)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("Silver");
+
+            entity.HasOne(d => d.Customer).WithOne(p => p.PremiumCustomerEntity)
+                .HasForeignKey<PremiumCustomerEntity>(d => d.CustomerId)
+                .HasConstraintName("FK_PremiumCustomer_Customer");
         });
 
         modelBuilder.Entity<RoleEntity>(entity =>
@@ -455,6 +687,174 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.WarehouseId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_WarehouseItem_Warehouse");
+        });
+
+        modelBuilder.Entity<vw_BusinessCustomer>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_BusinessCustomers");
+
+            entity.Property(e => e.Address)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.AnnualRevenue).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.BusinessSize)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.City)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CompanyName)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.ContactFirstName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.ContactLastName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CreditProvider)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreditStatus)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreditTerms)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CustomerType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Email)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.Industry)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.LineOfCreditId)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
+            entity.Property(e => e.State)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.TaxId)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.VolumeDiscountRate).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.ZipCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<vw_IndividualCustomer>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_IndividualCustomers");
+
+            entity.Property(e => e.Address)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.City)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CommunicationPreference)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CreditProvider)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreditStatus)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CustomerType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Email)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.FirstName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.LastName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.LastPurchaseDate).HasColumnType("datetime");
+            entity.Property(e => e.LineOfCreditId)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
+            entity.Property(e => e.State)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ZipCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<vw_PremiumCustomer>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_PremiumCustomers");
+
+            entity.Property(e => e.Address)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.City)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CreditProvider)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreditStatus)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CustomerType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.DiscountRate).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.Email)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.FirstName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.LastName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.LineOfCreditId)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.MembershipExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.MembershipStartDate).HasColumnType("datetime");
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
+            entity.Property(e => e.State)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.TierLevel)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ZipCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -8,24 +8,24 @@ namespace Logistics.Models
     public class Supplier : ISupplier
     {
         public int SupplierId { get; set; }
-        public string Name { get; set; }
-        public string ContactInfo { get; set; }
-        public string Address { get; set; }
-        public List<Item> ProductsSupplied { get; set; }
-        public bool IsActive { get; set; } 
-        public List<SupplierOrder> Orders { get; set; }
-
+        public string SupplierName { get; set; } = null!;
+        public string SupplierAddress { get; set; } = null!;
+        public string SupplierContactNumber { get; set; } = null!;
+        public string SupplierContactEmail { get; set; } = null!;
+        public List<Item> ProductsSupplied { get; set; } = new List<Item>();
+        public bool IsActive { get; set; }
+        public List<SupplierOrder> Orders { get; set; } = new List<SupplierOrder>();
 
         // Parameterless constructor for Dependency Injection (DI) & serialization
         public Supplier() { }
 
-        public Supplier(int supplierId, string name, string contactInfo)
+        public Supplier(int supplierId, string supplierName, string supplierAddress, string supplierContactNumber, string supplierContactEmail)
         {
             SupplierId = supplierId;
-            Name = name;
-            ContactInfo = contactInfo;
-            ProductsSupplied = new List<Item>();
-            Orders = new List<SupplierOrder>();
+            SupplierName = supplierName;
+            SupplierAddress = supplierAddress;
+            SupplierContactNumber = supplierContactNumber;
+            SupplierContactEmail = supplierContactEmail;
             IsActive = true;
         }
         /// <summary>
@@ -55,7 +55,7 @@ namespace Logistics.Models
         /// <returns></returns>
         public Result<ISupplier> GetSupplierById(int supplierId)
         {
-            var supplier = new Supplier(supplierId, "Sample Supplier", "contact@sample.com");
+            var supplier = new Supplier(supplierId, "Sample Supplier", "Sample Address", "123-456-7890", "contact@sample.com");
             return Result<ISupplier>.Success(supplier);
         }
         /// <summary>
@@ -66,8 +66,8 @@ namespace Logistics.Models
         {
             var suppliers = new List<ISupplier>
             {
-                new Supplier(1, "Sample Supplier 1", "contact1@sample.com"),
-                new Supplier(2, "Sample Supplier 2", "contact2@sample.com")
+                new Supplier(1, "Sample Supplier 1", "Sample Address", "123-456-7890", "contact1@sample.com"),
+                new Supplier(2, "Sample Supplier 2", "Sample Address", "123-456-7890", "contact2@sample.com")
             };
             return Result<List<ISupplier>>.Success(suppliers);
         }

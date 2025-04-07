@@ -3,6 +3,7 @@ using API.Data.Entities;
 using API.Models.Logistics;
 using API.Models.Logistics.Interfaces;
 using API.Models.IntAdmin;
+using Logistics.Models;
 
 public class LogisticsMapping : Profile
 {
@@ -47,5 +48,62 @@ public class LogisticsMapping : Profile
             .ForMember(dest => dest.ItemStatus, opt => opt.MapFrom(src => src.ItemStatus))
             .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
             .ForMember(dest => dest.ItemImage, opt => opt.MapFrom(src => src.ItemImage));
+
+
+        // Map from SupplierEntity to Supplier
+        CreateMap<SupplierEntity, Supplier>()
+            .ForMember(dest => dest.SupplierId, opt => opt.MapFrom(src => src.SupplierId))
+            .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.SupplierName))
+            .ForMember(dest => dest.SupplierAddress, opt => opt.MapFrom(src => src.SupplierAddress))
+            .ForMember(dest => dest.SupplierContactNumber, opt => opt.MapFrom(src => src.SupplierContactNumber))
+            .ForMember(dest => dest.SupplierContactEmail, opt => opt.MapFrom(src => src.SupplierContactEmail))
+            .ForMember(dest => dest.ProductsSupplied, opt => opt.Ignore()) 
+            .ForMember(dest => dest.IsActive, opt => opt.Ignore()) 
+            .ForMember(dest => dest.Orders, opt => opt.Ignore()); 
+
+        // Map from Supplier to SupplierEntity
+        CreateMap<Supplier, SupplierEntity>()
+            .ForMember(dest => dest.SupplierId, opt => opt.MapFrom(src => src.SupplierId))
+            .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.SupplierName))
+            .ForMember(dest => dest.SupplierAddress, opt => opt.MapFrom(src => src.SupplierAddress))
+            .ForMember(dest => dest.SupplierContactNumber, opt => opt.MapFrom(src => src.SupplierContactNumber))
+            .ForMember(dest => dest.SupplierContactEmail, opt => opt.MapFrom(src => src.SupplierContactEmail));
+
+
+        // Order mappings
+        CreateMap<OrderEntity, Order>()
+            .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
+            .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.CustomerId))
+            .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.OrderStatus))
+            .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.OrderTotalAmount))
+            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderItemEntities.Select(oi => new OrderItemResponse
+            {
+                Sku = oi.Sku,
+                Quantity = oi.ItemQuantity,
+                Name = oi.SkuNavigation.ItemName,
+                UnitPrice = oi.SkuNavigation.ItemPrice
+            })));
+
+        CreateMap<OrderItemRequest, OrderEntity>()
+            .ForMember(dest => dest.OrderId, opt => opt.Ignore())
+            .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(_ => "Pending"))
+            .ForMember(dest => dest.OrderTotalAmount, opt => opt.Ignore()) // Will be calculated
+            .ForMember(dest => dest.OrderItemEntities, opt => opt.MapFrom(src => src.Sku));
+
+        // Order item mappings
+        CreateMap<OrderItemRequest, OrderItemEntity>()
+            .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.Sku))
+            .ForMember(dest => dest.ItemQuantity, opt => opt.MapFrom(src => src.Quantity))
+            .ForMember(dest => dest.OrderId, opt => opt.Ignore())
+            .ForMember(dest => dest.SkuNavigation, opt => opt.Ignore());
+
+        CreateMap<OrderItemEntity, OrderItemResponse>()
+            .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.Sku))
+            .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.ItemQuantity))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.SkuNavigation.ItemName))
+            .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.SkuNavigation.ItemPrice));
     }
 }
+

@@ -2,6 +2,7 @@
 using API.Models.Customers;
 using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Models.Logistics
 {
@@ -44,6 +45,24 @@ namespace API.Models.Logistics
         /// Gets or sets the total amount of the order.
         /// </summary>
         public decimal TotalAmount { get; set; }
+
+        [NotMapped]
+        public List<OrderItemRequest> OrderLineItems { get; set; } = new();
+
+        // Legacy compatible property
+        //public List<Item> Items
+        //{
+        //    get => OrderLineItems.Select(oi => new Item
+        //    {
+        //        Sku = oi.Sku,
+        //        Quantity = oi.Quantity
+        //    }).ToList();
+        //    set => OrderLineItems = value?.Select(i => new OrderItemRequest
+        //    {
+        //        Sku = i.Sku,
+        //        Quantity = i.Quantity
+        //    }).ToList() ?? new List<OrderItemRequest>();
+        //}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Order"/> class.

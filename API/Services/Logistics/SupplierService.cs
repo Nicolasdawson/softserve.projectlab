@@ -2,70 +2,70 @@
 using API.Implementations.Domain;
 using Logistics.Models;
 using API.Models;
+using API.Data;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace API.Services.Logistics
 {
     public class SupplierService : ISupplierService
     {
-        private readonly SupplierDomain _supplierDomain;
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SupplierService"/> class.
-        /// </summary>
-        /// <param name="supplierDomain">The supplier domain.</param>
-        public SupplierService(SupplierDomain supplierDomain)
+        public SupplierService(ApplicationDbContext context, IMapper mapper)
         {
-            _supplierDomain = supplierDomain;
+            _context = context;
+            _mapper = mapper;
         }
 
-        /// <summary>
-        /// Creates a new supplier asynchronously.
-        /// </summary>
-        /// <param name="supplier">The supplier to create.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the result of the creation operation.</returns>
         public async Task<Result<Supplier>> CreateSupplierAsync(Supplier supplier)
         {
-            return await _supplierDomain.CreateSupplier(supplier);
+            var entity = _mapper.Map<SupplierEntity>(supplier);
+            _context.SupplierEntities.Add(entity);
+            await _context.SaveChangesAsync();
+            return Result<Supplier>.Success(_mapper.Map<Supplier>(entity));
         }
 
-        /// <summary>
-        /// Gets a supplier by its identifier asynchronously.
-        /// </summary>
-        /// <param name="supplierId">The supplier identifier.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the result of the retrieval operation.</returns>
         public async Task<Result<Supplier>> GetSupplierByIdAsync(int supplierId)
         {
-            return await _supplierDomain.GetSupplierById(supplierId);
+            var entity = await _context.SupplierEntities.FindAsync(supplierId);
+            if (entity == null)
+            {
+                return Result<Supplier>.Failure("Supplier not found.");
+            }
+            return Result<Supplier>.Success(_mapper.Map<Supplier>(entity));
         }
 
-        /// <summary>
-        /// Gets all suppliers asynchronously.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the result of the retrieval operation.</returns>
         public async Task<Result<List<Supplier>>> GetAllSuppliersAsync()
         {
-            return await _supplierDomain.GetAllSuppliers();
+            var entities = await _context.SupplierEntities.ToListAsync();
+            return Result<List<Supplier>>.Success(_mapper.Map<List<Supplier>>(entities));
         }
 
-        /// <summary>
-        /// Updates a supplier asynchronously.
-        /// </summary>
-        /// <param name="supplier">The supplier to update.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the result of the update operation.</returns>
         public async Task<Result<Supplier>> UpdateSupplierAsync(Supplier supplier)
         {
-            return await _supplierDomain.UpdateSupplier(supplier);
+            var entity = await _context.SupplierEntities.FindAsync(supplier.SupplierId);
+            if (entity == null)
+            {
+                return Result<Supplier>.Failure("Supplier not found.");
+            }
+            _mapper.Map(supplier, entity);
+            await _context.SaveChangesAsync();
+            return Result<Supplier>.Success(_mapper.Map<Supplier>(entity));
         }
 
-        /// <summary>
-        /// Deletes a supplier by its identifier asynchronously.
-        /// </summary>
-        /// <param name="supplierId">The supplier identifier.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the result of the deletion operation.</returns>
         public async Task<Result<bool>> DeleteSupplierAsync(int supplierId)
         {
-            return await _supplierDomain.RemoveSupplier(supplierId);
+            var entity = await _context.SupplierEntities.FindAsync(supplierId);
+            if (entity == null)
+            {
+                return Result<bool>.Failure("Supplier not found.");
+            }
+            _context.SupplierEntities.Remove(entity);
+            await _context.SaveChangesAsync();
+            return Result<bool>.Success(true);
         }
     }
 }
