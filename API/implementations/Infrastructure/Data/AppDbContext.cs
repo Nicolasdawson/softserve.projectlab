@@ -15,11 +15,28 @@ namespace API.implementations.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            /*
-            modelBuilder.Entity<Customer>()
-                .Property(c => c.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");             
-            */
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(u => u.Email)
+                .IsRequired()
+                .HasMaxLength(255);
+                entity.Property(u => u.Password)
+                .IsRequired()
+                .HasMaxLength(255);
+
+                //Defining the Foreign key relationship
+                entity.HasOne(u => u.Role)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.IdRole)
+                .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Role>(entity => 
+            { 
+                entity.Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+            });
 
             modelBuilder.Entity<Product>()
                 .Property(p => p.CreatedAt)

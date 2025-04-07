@@ -29,10 +29,10 @@ builder.Services.AddControllers();
 
     
 
-// Agregar Swagger
+// Add Swagger
 builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger en tu API
 
-// Agregar el servicio ProductService
+// Add service ProductService
 builder.Services.AddScoped<ProductService>();
 
 var app = builder.Build();
