@@ -31,6 +31,9 @@ builder.Services.AddSupplierServices();
 builder.Services.AddSupplierOrderServices();
 
 // Register your services
+builder.Services.AddScoped<API.Implementations.Domain.CustomerDomain>();
+builder.Services.AddScoped<API.Services.Interfaces.ICustomerService, API.Services.CustomerService>();
+
 builder.Services.AddScoped<IWarehouse, Warehouse>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IBranch, Branch>();
