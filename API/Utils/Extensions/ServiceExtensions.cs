@@ -1,16 +1,13 @@
 ﻿using API.Domain.Logistics;
 using API.implementations.Domain;
 using API.Implementations.Domain;
-using API.Implementations.Domain.Customers;
 using API.Models.Logistics;
 using API.Models.Logistics.Interfaces;
 using API.Services;
-using API.Services.Customers;
 using API.Services.Interfaces;
 using API.Services.Logistics;
 using API.Services.OrderService;
 using Logistics.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace API.Utils.Extensions;
 
@@ -19,21 +16,6 @@ namespace API.Utils.Extensions;
 /// </summary>
 public static class ServiceExtensions
 {
-    /// <summary>
-    /// Adds customer services to the service collection.
-    /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <returns>The service collection with customer services added.</returns>
-    //public static IServiceCollection AddCustomerServices(this IServiceCollection services)
-    //{
-    //    // Register the customer services
-    //    services.AddScoped<ICustomerService, CustomerService>();
-    //    services.AddScoped<ICartService, CartService>();
-    //    services.AddScoped<Services.IPackageService, Services.PackageService>();
-        
-    //    return services;
-    //}
-
     public static IServiceCollection AddWarehouseServices(this IServiceCollection services)
     {
         // Register the warehouse services

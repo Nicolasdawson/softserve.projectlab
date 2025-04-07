@@ -11,7 +11,8 @@ using API.implementations.Domain;
 using API.Domain.Logistics;
 using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
-using API.Data;
+using API.Data.Entities;
+using API.Data.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +31,9 @@ builder.Services.AddSupplierServices();
 builder.Services.AddSupplierOrderServices();
 
 // Register your services
-builder.Services.AddScoped<IPackageService, PackageService>();
-builder.Services.AddScoped<PackagesDomain>();
+builder.Services.AddScoped<API.Implementations.Domain.CustomerDomain>();
+builder.Services.AddScoped<API.Services.Interfaces.ICustomerService, API.Services.CustomerService>();
+
 builder.Services.AddScoped<IWarehouse, Warehouse>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IBranch, Branch>();
@@ -58,8 +60,11 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<UserDomain>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISupplierOrderService, SupplierOrderService>();
-//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddAutoMapper(typeof(LogisticsMapping));
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<LogisticsMapping>();
+    cfg.AddProfile<CustomerMapping>();
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -89,7 +94,6 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    //dbContext.Database.Migrate();
 }
 
 app.Run();
