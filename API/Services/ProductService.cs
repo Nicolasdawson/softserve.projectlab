@@ -92,9 +92,9 @@ namespace API.Services
             if (existingProduct != null)
             {
                 existingProduct.Name = updatedProduct.Name;
-                existingProduct.CategoryId = updatedProduct.CategoryId;
+                existingProduct.IdCategory = updatedProduct.IdCategory;
                 existingProduct.Description = updatedProduct.Description;
-                existingProduct.ImageUrl = updatedProduct.ImageUrl;
+                //existingProduct.ImageUrl = updatedProduct.ImageUrl;
                 existingProduct.Price = updatedProduct.Price;
                 return true;
             }
@@ -108,7 +108,7 @@ namespace API.Services
         /// <returns>A collection of products in the specified category.</returns>
         public IEnumerable<Product> GetProductsByCategory(Guid category)
         {
-            var products = _context.Products.Where(p => p.CategoryId == category);
+            var products = _context.Products.Where(p => p.IdCategory == category);
             return products;
         }
     }
