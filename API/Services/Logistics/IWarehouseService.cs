@@ -10,13 +10,14 @@ namespace API.Services.Interfaces
 {
     public interface IWarehouseService
     {
-        Task<Result<IWarehouse>> AddItemToWarehouseAsync(int warehouseId, Item item);
-        Result<IWarehouse> RemoveItemFromWarehouse(int warehouseId, Item item);
-        Result<int> CheckWarehouseStock(int warehouseId, int sku);
-        Result<bool> TransferItem(int warehouseId, int sku, int quantity, int targetWarehouseId);
-        Result<List<Item>> GetLowStockItems(int warehouseId, int threshold);
-        Result<decimal> CalculateTotalInventoryValue(int warehouseId);
-        Result<string> GenerateInventoryReport(int warehouseId);
         Task<List<Warehouse>> GetWarehousesAsync();
+        Task<Result<Warehouse>> GetWarehouseByIdAsync(int warehouseId);
+        Task<Result<IWarehouse>> AddItemToWarehouseAsync(int warehouseId, Item item);
+        Task<Result<bool>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId);
+        Task<Result<int>> CheckWarehouseStockAsync(int warehouseId, int sku);
+        Task<Result<bool>> TransferItemAsync(int sourceWarehouseId, int sku, int quantity, int targetWarehouseId);
+        Task<Result<List<Item>>> GetLowStockItemsAsync(int warehouseId, int threshold);
+        Task<Result<decimal>> CalculateTotalInventoryValueAsync(int warehouseId);
+        Task<Result<string>> GenerateInventoryReportAsync(int warehouseId);
     }
 }

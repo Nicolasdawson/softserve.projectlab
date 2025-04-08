@@ -1,6 +1,7 @@
 ﻿using API.Data.Entities;
 using API.Models.IntAdmin;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Models.Logistics.Interfaces
 {
@@ -13,24 +14,28 @@ namespace API.Models.Logistics.Interfaces
         List<Item> Items { get; set; }
 
         // Stock Management
-        Result<IWarehouse> AddItem(Item item);
-        Result<IWarehouse> RemoveItem(Item item);
-        Result<IWarehouse> GetAvailableStock(int sku);
-        Result<bool> UpdateItemStock(int sku, int quantity);
-        Result<int> CheckItemStock(int sku);
-        Result<bool> IsItemInStock(int sku, int requiredQuantity);
+        Task<Result<IWarehouse>> AddItemAsync(Item item);
+        Task<Result<IWarehouse>> RemoveItemAsync(Item item);
+        Task<Result<IWarehouse>> GetAvailableStockAsync(int sku);
+        Task<Result<bool>> UpdateItemStockAsync(int sku, int quantity);
+        Task<Result<int>> CheckItemStockAsync(int sku);
+        Task<Result<bool>> IsItemInStockAsync(int sku, int requiredQuantity);
 
         // Warehouse Operations
-        Result<bool> TransferItem(int sku, int quantity, IWarehouse targetWarehouse);
-        Result<List<Item>> GetLowStockItems(int threshold);
-        Result<List<Item>> GetOutOfStockItems();
+        Task<Result<bool>> TransferItemAsync(int sku, int quantity, IWarehouse targetWarehouse);
+        Task<Result<List<Item>>> GetLowStockItemsAsync(int threshold);
+        Task<Result<List<Item>>> GetOutOfStockItemsAsync();
 
         // Order Processing
-        Result<bool> ReserveStockForOrder(int sku, int quantity);
-        Result<bool> ReleaseReservedStock(int sku, int quantity);
-        Result<bool> ShipItems(List<Item> items);
+        Task<Result<bool>> ReserveStockForOrderAsync(int sku, int quantity);
+        Task<Result<bool>> ReleaseReservedStockAsync(int sku, int quantity);
+        Task<Result<bool>> ShipItemsAsync(List<Item> items);
 
         // Reporting
+        Task<Result<decimal>> GetTotalInventoryValueAsync();
+        Task<Result<string>> GenerateInventoryReportAsync();
+
+        // Optional: Keep sync versions if needed for backwards compatibility
         Result<decimal> GetTotalInventoryValue();
         Result<string> GenerateInventoryReport();
     }

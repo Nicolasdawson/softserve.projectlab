@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using API.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Data.Entities;
+namespace API.Data;
 
 public partial class ApplicationDbContext : DbContext
 {
@@ -65,26 +66,10 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<UserRoleEntity> UserRoleEntities { get; set; }
 
-    public virtual DbSet<VwBusinessCustomer> VwBusinessCustomers { get; set; }
-
-    public virtual DbSet<VwIndividualCustomer> VwIndividualCustomers { get; set; }
-
-    public virtual DbSet<VwPremiumCustomer> VwPremiumCustomers { get; set; }
-
     public virtual DbSet<WarehouseEntity> WarehouseEntities { get; set; }
 
     public virtual DbSet<WarehouseItemEntity> WarehouseItemEntities { get; set; }
-
-    public virtual DbSet<vw_BusinessCustomer> vw_BusinessCustomers { get; set; }
-
-    public virtual DbSet<vw_IndividualCustomer> vw_IndividualCustomers { get; set; }
-
-    public virtual DbSet<vw_PremiumCustomer> vw_PremiumCustomers { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=softserve-chile.database.windows.net;Initial Catalog=RanAwayDB;Persist Security Info=True;User ID=softserve;Password=Admin123;Trust Server Certificate=True");
-
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BranchEntity>(entity =>
@@ -661,174 +646,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_UserRole_User");
         });
 
-        modelBuilder.Entity<VwBusinessCustomer>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("vw_BusinessCustomers");
-
-            entity.Property(e => e.Address)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.AnnualRevenue).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.BusinessSize)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.City)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CompanyName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.ContactFirstName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.ContactLastName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CreditProvider)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditStatus)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditTerms)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CustomerType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Email)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.Industry)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LineOfCreditId)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
-            entity.Property(e => e.State)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.TaxId)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.VolumeDiscountRate).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.ZipCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<VwIndividualCustomer>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("vw_IndividualCustomers");
-
-            entity.Property(e => e.Address)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.City)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CommunicationPreference)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CreditProvider)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditStatus)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CustomerType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Email)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LastName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LastPurchaseDate).HasColumnType("datetime");
-            entity.Property(e => e.LineOfCreditId)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
-            entity.Property(e => e.State)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.ZipCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<VwPremiumCustomer>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("vw_PremiumCustomers");
-
-            entity.Property(e => e.Address)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.City)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CreditProvider)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditStatus)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CustomerType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.DiscountRate).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.Email)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LastName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LineOfCreditId)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.MembershipExpiryDate).HasColumnType("datetime");
-            entity.Property(e => e.MembershipStartDate).HasColumnType("datetime");
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
-            entity.Property(e => e.State)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.TierLevel)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.ZipCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-        });
-
         modelBuilder.Entity<WarehouseEntity>(entity =>
         {
             entity.HasKey(e => e.WarehouseId).HasName("PK__Warehous__2608AFF9605E2A9B");
@@ -851,7 +668,8 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("WarehouseItemEntity");
 
-            entity.HasOne(d => d.SkuNavigation).WithMany(p => p.WarehouseItemEntities)
+            entity.HasOne(d => d.SkuNavigation)
+                .WithMany(p => p.WarehouseItemEntities)
                 .HasForeignKey(d => d.Sku)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_WarehouseItem_Item");
@@ -862,173 +680,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_WarehouseItem_Warehouse");
         });
 
-        modelBuilder.Entity<vw_BusinessCustomer>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("vw_BusinessCustomers");
-
-            entity.Property(e => e.Address)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.AnnualRevenue).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.BusinessSize)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.City)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CompanyName)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.ContactFirstName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.ContactLastName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CreditProvider)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditStatus)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditTerms)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CustomerType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Email)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.Industry)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LineOfCreditId)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
-            entity.Property(e => e.State)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.TaxId)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.VolumeDiscountRate).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.ZipCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<vw_IndividualCustomer>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("vw_IndividualCustomers");
-
-            entity.Property(e => e.Address)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.City)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CommunicationPreference)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CreditProvider)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditStatus)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CustomerType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Email)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LastName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LastPurchaseDate).HasColumnType("datetime");
-            entity.Property(e => e.LineOfCreditId)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
-            entity.Property(e => e.State)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.ZipCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<vw_PremiumCustomer>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("vw_PremiumCustomers");
-
-            entity.Property(e => e.Address)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.City)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CreditProvider)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.CreditStatus)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.CustomerType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.DiscountRate).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.Email)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LastName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LineOfCreditId)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.MembershipExpiryDate).HasColumnType("datetime");
-            entity.Property(e => e.MembershipStartDate).HasColumnType("datetime");
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
-            entity.Property(e => e.State)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.TierLevel)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-            entity.Property(e => e.ZipCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-        });
 
         OnModelCreatingPartial(modelBuilder);
     }

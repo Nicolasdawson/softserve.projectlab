@@ -7,12 +7,12 @@ using Logistics.Models;
 using API.Services.Interfaces;
 using API.Services.IntAdmin;
 using API.Implementations.Domain;
-using API.implementations.Domain;
 using API.Domain.Logistics;
 using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
 using API.Data.Entities;
 using API.Data.Mapping;
+using API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
