@@ -45,6 +45,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.ClearDatabase(); // Borra los datos sin eliminar la base de datos
+
     // Verifica si ya existen categorías para evitar duplicados
     if (!dbContext.Categories.Any())
     {
@@ -107,17 +109,17 @@ using (var scope = app.Services.CreateScope())
                 UpdatedAt = DateTime.UtcNow
             }
         );
-        dbContext.SaveChanges(); // Guardar los productos
-                                 //dbContext.ClearDatabase(); // Borra los datos sin eliminar la base de datos
+    }
+    dbContext.SaveChanges(); // Guardar los productos
+        /*
+                                 //
                                  //dbContext.Database.Migrate(); // Aplica las migraciones si es necesario
                                  //dbContext.Database.EnsureCreated();// Si quieres asegurarte de que se creen las tablas antes de poblar datos
-
-
-        /*
+        
+     
         dbContext.Database.EnsureDeleted(); // Elimina la base de datos
         dbContext.Database.EnsureCreated();  // Esto crear� las tablas si no existen
          */
-    }
 }
 
 // Habilitar el uso de Swagger en la API
