@@ -10,7 +10,6 @@ using API.Implementations.Domain;
 using API.Domain.Logistics;
 using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
-using API.Data.Entities;
 using API.Data.Mapping;
 using API.Data;
 
@@ -20,7 +19,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+       .AddJsonOptions(options =>
+       {
+           options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+           options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+       });
 
 // Add services to the container using the extension method
 //builder.Services.AddCustomerServices();
@@ -30,7 +34,7 @@ builder.Services.AddOrderServices();
 builder.Services.AddSupplierServices();
 builder.Services.AddSupplierOrderServices();
 
-// Register your services
+//// Register your services
 builder.Services.AddScoped<API.Implementations.Domain.CustomerDomain>();
 builder.Services.AddScoped<API.Services.Interfaces.ICustomerService, API.Services.CustomerService>();
 
@@ -66,6 +70,16 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<CustomerMapping>();
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("https://localhost:7153") // Replace with your Blazor WebAssembly frontend URL
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
     sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
@@ -87,6 +101,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();

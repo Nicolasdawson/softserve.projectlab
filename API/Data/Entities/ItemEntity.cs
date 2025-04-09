@@ -5,6 +5,8 @@ namespace API.Data.Entities;
 
 public partial class ItemEntity
 {
+    public int ItemId { get; set; }
+
     public int Sku { get; set; }
 
     public string ItemName { get; set; } = null!;

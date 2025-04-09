@@ -45,7 +45,5 @@ public partial class CustomerEntity
 
     public virtual ICollection<OrderEntity> OrderEntities { get; set; } = new List<OrderEntity>();
 
-    public virtual ICollection<PackageEntity> PackageEntities { get; set; } = new List<PackageEntity>();
-
     public virtual PremiumCustomerEntity? PremiumCustomerEntity { get; set; }
 }

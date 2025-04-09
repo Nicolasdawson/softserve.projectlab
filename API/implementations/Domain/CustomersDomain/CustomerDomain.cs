@@ -295,7 +295,7 @@ namespace API.Implementations.Domain
             try
             {
                 var customers = new List<Customer>();
-                
+
                 // Obtener todos los clientes básicos
                 var customerEntities = await _context.CustomerEntities.ToListAsync();
 

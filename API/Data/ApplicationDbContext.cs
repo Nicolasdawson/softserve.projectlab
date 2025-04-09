@@ -69,12 +69,16 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<WarehouseEntity> WarehouseEntities { get; set; }
 
     public virtual DbSet<WarehouseItemEntity> WarehouseItemEntities { get; set; }
-   
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=softserve-chile.database.windows.net;Initial Catalog=RanAwayDB;Persist Security Info=True;User ID=softserve;Password=Admin123;Trust Server Certificate=True");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BranchEntity>(entity =>
         {
-            entity.HasKey(e => e.BranchId).HasName("PK__BranchEn__A1682FC58484C951");
+            entity.HasKey(e => e.BranchId).HasName("PK__BranchEn__A1682FC537736E89");
 
             entity.ToTable("BranchEntity");
 
@@ -100,7 +104,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<BusinessCustomerEntity>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Business__A4AE64D839A2D50F");
+            entity.HasKey(e => e.CustomerId).HasName("PK__Business__A4AE64D8E889AE86");
 
             entity.ToTable("BusinessCustomerEntity");
 
@@ -108,16 +112,13 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.AnnualRevenue).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.BusinessSize)
                 .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasDefaultValue("Small");
+                .IsUnicode(false);
             entity.Property(e => e.CompanyName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.CreditTerms)
                 .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasDefaultValue("Net30");
-            entity.Property(e => e.EmployeeCount).HasDefaultValue(1);
+                .IsUnicode(false);
             entity.Property(e => e.Industry)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -128,12 +129,13 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasOne(d => d.Customer).WithOne(p => p.BusinessCustomerEntity)
                 .HasForeignKey<BusinessCustomerEntity>(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BusinessCustomer_Customer");
         });
 
         modelBuilder.Entity<CartEntity>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__CartEnti__51BCD7B7CBC36ABD");
+            entity.HasKey(e => e.CartId).HasName("PK__CartEnti__51BCD7B76F01C0EB");
 
             entity.ToTable("CartEntity");
 
@@ -145,7 +147,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CartItemEntity>(entity =>
         {
-            entity.HasKey(e => new { e.CartId, e.Sku }).HasName("PK__CartItem__0D1D2A8B42057555");
+            entity.HasKey(e => new { e.CartId, e.Sku }).HasName("PK__CartItem__0D1D2A8B91C26FE3");
 
             entity.ToTable("CartItemEntity");
 
@@ -162,7 +164,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CatalogCategoryEntity>(entity =>
         {
-            entity.HasKey(e => new { e.CatalogId, e.CategoryId }).HasName("PK__CatalogC__63C1A8C85DE2537E");
+            entity.HasKey(e => new { e.CatalogId, e.CategoryId }).HasName("PK__CatalogC__63C1A8C81F8F745E");
 
             entity.ToTable("CatalogCategoryEntity");
 
@@ -183,7 +185,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CatalogEntity>(entity =>
         {
-            entity.HasKey(e => e.CatalogId).HasName("PK__CatalogE__C2513B68D69550A0");
+            entity.HasKey(e => e.CatalogId).HasName("PK__CatalogE__C2513B68A6A00FEC");
 
             entity.ToTable("CatalogEntity");
 
@@ -195,7 +197,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CategoryEntity>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B3ABCC7A9");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B9038E09D");
 
             entity.ToTable("CategoryEntity");
 
@@ -206,7 +208,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CreditTransactionEntity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CreditTr__3214EC07E3DD6E74");
+            entity.HasKey(e => e.Id).HasName("PK__CreditTr__3214EC0788C92FE1");
 
             entity.ToTable("CreditTransactionEntity");
 
@@ -233,7 +235,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CustomerEntity>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D88FE47D79");
+            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D84D21D6A3");
 
             entity.ToTable("CustomerEntity");
 
@@ -267,9 +269,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.RegistrationDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
             entity.Property(e => e.State)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -280,35 +280,36 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<IndividualCustomerEntity>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Individu__A4AE64D8A2FE7E5C");
+            entity.HasKey(e => e.CustomerId).HasName("PK__Individu__A4AE64D83554DD45");
 
             entity.ToTable("IndividualCustomerEntity");
 
             entity.Property(e => e.CustomerId).ValueGeneratedNever();
             entity.Property(e => e.CommunicationPreference)
                 .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasDefaultValue("Email");
-            entity.Property(e => e.IsEligibleForPromotions).HasDefaultValue(true);
+                .IsUnicode(false);
             entity.Property(e => e.LastPurchaseDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Customer).WithOne(p => p.IndividualCustomerEntity)
                 .HasForeignKey<IndividualCustomerEntity>(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_IndividualCustomer_Customer");
         });
 
         modelBuilder.Entity<ItemEntity>(entity =>
         {
-            entity.HasKey(e => e.Sku).HasName("PK__ItemEnti__CA1FD3C40606FE5D");
+            entity.HasKey(e => e.Sku);
 
             entity.ToTable("ItemEntity");
 
+            entity.Property(e => e.Sku).ValueGeneratedNever();
             entity.Property(e => e.ItemAdditionalTax).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.ItemCurrency)
                 .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.ItemDescription).IsUnicode(false);
             entity.Property(e => e.ItemDiscount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ItemId).ValueGeneratedOnAdd();
             entity.Property(e => e.ItemImage).IsUnicode(false);
             entity.Property(e => e.ItemMarginGain).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.ItemName)
@@ -325,36 +326,13 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<LineOfCreditEntity>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__LineOfCr__A4AE64D826D2049E");
+            entity.HasKey(e => e.CustomerId).HasName("PK__LineOfCr__A4AE64D83F512867");
 
             entity.ToTable("LineOfCreditEntity");
 
             entity.Property(e => e.CustomerId).ValueGeneratedNever();
-            entity.Property(e => e.AnnualInterestRate).HasColumnType("decimal(10, 5)");
             entity.Property(e => e.CreditLimit).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.CurrentBalance).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Id)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasDefaultValueSql("(newid())");
-            entity.Property(e => e.LastReviewDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.MinimumPaymentAmount).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.NextPaymentDueDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.OpenDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.Provider)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasDefaultValue("");
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasDefaultValue("Active");
 
             entity.HasOne(d => d.Customer).WithOne(p => p.LineOfCreditEntity)
                 .HasForeignKey<LineOfCreditEntity>(d => d.CustomerId)
@@ -364,7 +342,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<OrderEntity>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__OrderEnt__C3905BCFBCD952C4");
+            entity.HasKey(e => e.OrderId).HasName("PK__OrderEnt__C3905BCF14FA4597");
 
             entity.ToTable("OrderEntity");
 
@@ -382,7 +360,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<OrderItemEntity>(entity =>
         {
-            entity.HasKey(e => new { e.OrderId, e.Sku }).HasName("PK__OrderIte__9F31A6F31ABD3C13");
+            entity.HasKey(e => new { e.OrderId, e.Sku }).HasName("PK__OrderIte__9F31A6F35C343D70");
 
             entity.ToTable("OrderItemEntity");
 
@@ -399,59 +377,20 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PackageEntity>(entity =>
         {
-            entity.HasKey(e => e.PackageId).HasName("PK__PackageE__322035CC1BB5401A");
+            entity.HasKey(e => e.PackageId).HasName("PK__PackageE__322035CC9E035EDA");
 
             entity.ToTable("PackageEntity");
 
-            entity.Property(e => e.ActualDeliveryDate).HasColumnType("datetime");
-            entity.Property(e => e.ContractId)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.ContractStartDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.Description).IsUnicode(false);
-            entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.EstimatedDeliveryDate).HasColumnType("datetime");
-            entity.Property(e => e.MonthlyFee).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PackageName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.PaymentMethod)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasDefaultValue("Credit Card");
-            entity.Property(e => e.SaleDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.SetupFee).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.ShippingAddress)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Status)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasDefaultValue("Processing");
-            entity.Property(e => e.TrackingNumber)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.Customer).WithMany(p => p.PackageEntities)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Package_Customer");
         });
 
         modelBuilder.Entity<PackageItemEntity>(entity =>
         {
-            entity.HasKey(e => new { e.PackageId, e.Sku }).HasName("PK__PackageI__6E81C8F064A5F7FB");
+            entity.HasKey(e => new { e.PackageId, e.Sku }).HasName("PK__PackageI__6E81C8F03023FBE6");
 
             entity.ToTable("PackageItemEntity");
-
-            entity.Property(e => e.Notes).IsUnicode(false);
-            entity.Property(e => e.SerialNumber)
-                .HasMaxLength(100)
-                .IsUnicode(false);
 
             entity.HasOne(d => d.Package).WithMany(p => p.PackageItemEntities)
                 .HasForeignKey(d => d.PackageId)
@@ -466,7 +405,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PackageNoteEntity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PackageN__3214EC07352B8039");
+            entity.HasKey(e => e.Id).HasName("PK__PackageN__3214EC07559F1224");
 
             entity.ToTable("PackageNoteEntity");
 
@@ -492,7 +431,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PermissionEntity>(entity =>
         {
-            entity.HasKey(e => e.PermissionId).HasName("PK__Permissi__EFA6FB2FBF68546A");
+            entity.HasKey(e => e.PermissionId).HasName("PK__Permissi__EFA6FB2FA117D5E3");
 
             entity.ToTable("PermissionEntity");
 
@@ -504,29 +443,27 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PremiumCustomerEntity>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__PremiumC__A4AE64D889B381F9");
+            entity.HasKey(e => e.CustomerId).HasName("PK__PremiumC__A4AE64D8E35B69BA");
 
             entity.ToTable("PremiumCustomerEntity");
 
             entity.Property(e => e.CustomerId).ValueGeneratedNever();
             entity.Property(e => e.DiscountRate).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.MembershipExpiryDate).HasColumnType("datetime");
-            entity.Property(e => e.MembershipStartDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.MembershipStartDate).HasColumnType("datetime");
             entity.Property(e => e.TierLevel)
                 .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasDefaultValue("Silver");
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Customer).WithOne(p => p.PremiumCustomerEntity)
                 .HasForeignKey<PremiumCustomerEntity>(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PremiumCustomer_Customer");
         });
 
         modelBuilder.Entity<RoleEntity>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__RoleEnti__8AFACE1AD581C032");
+            entity.HasKey(e => e.RoleId).HasName("PK__RoleEnti__8AFACE1A0C97E185");
 
             entity.ToTable("RoleEntity");
 
@@ -562,7 +499,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<SupplierEntity>(entity =>
         {
-            entity.HasKey(e => e.SupplierId).HasName("PK__Supplier__4BE666B46C388760");
+            entity.HasKey(e => e.SupplierId).HasName("PK__Supplier__4BE666B449AD8C01");
 
             entity.ToTable("SupplierEntity");
 
@@ -580,7 +517,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<SupplierItemEntity>(entity =>
         {
-            entity.HasKey(e => new { e.SupplierId, e.Sku }).HasName("PK__Supplier__17479B88CE0EE97D");
+            entity.HasKey(e => new { e.SupplierId, e.Sku }).HasName("PK__Supplier__17479B882E3574A6");
 
             entity.ToTable("SupplierItemEntity");
 
@@ -597,11 +534,13 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<UserEntity>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__UserEnti__1788CC4CFF04D267");
+            entity.HasKey(e => e.UserId).HasName("PK__UserEnti__1788CC4C359AD1C5");
 
             entity.ToTable("UserEntity");
 
-            entity.HasIndex(e => e.UserContactEmail, "UQ__UserEnti__BFDC65102290B2FB").IsUnique();
+            entity.HasIndex(e => e.UserContactEmail, "UQ__UserEnti__BFDC651017406FCE").IsUnique();
+
+            entity.HasIndex(e => e.UserContactEmail, "UQ__UserEnti__BFDC6510B6601CF3").IsUnique();
 
             entity.Property(e => e.UserContactEmail)
                 .HasMaxLength(255)
@@ -648,7 +587,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<WarehouseEntity>(entity =>
         {
-            entity.HasKey(e => e.WarehouseId).HasName("PK__Warehous__2608AFF9605E2A9B");
+            entity.HasKey(e => e.WarehouseId).HasName("PK__Warehous__2608AFF9A05D7C5A");
 
             entity.ToTable("WarehouseEntity");
 
@@ -664,12 +603,11 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<WarehouseItemEntity>(entity =>
         {
-            entity.HasKey(e => new { e.WarehouseId, e.Sku }).HasName("PK__Warehous__7AA952C51D8D7163");
+            entity.HasKey(e => new { e.WarehouseId, e.Sku }).HasName("PK__Warehous__7AA952C5D169DD67");
 
             entity.ToTable("WarehouseItemEntity");
 
-            entity.HasOne(d => d.SkuNavigation)
-                .WithMany(p => p.WarehouseItemEntities)
+            entity.HasOne(d => d.SkuNavigation).WithMany(p => p.WarehouseItemEntities)
                 .HasForeignKey(d => d.Sku)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_WarehouseItem_Item");
@@ -679,7 +617,6 @@ public partial class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_WarehouseItem_Warehouse");
         });
-
 
         OnModelCreatingPartial(modelBuilder);
     }

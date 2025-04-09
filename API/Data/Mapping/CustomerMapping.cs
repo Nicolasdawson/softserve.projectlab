@@ -1,6 +1,6 @@
-using AutoMapper;
-using API.Models.Customers;
 using API.Data.Entities;
+using API.Models.Customers;
+using AutoMapper;
 
 namespace API.Data.Mapping
 {
@@ -35,22 +35,22 @@ namespace API.Data.Mapping
             CreateMap<PremiumCustomer, CustomerEntity>()
                 .IncludeBase<Customer, CustomerEntity>();
 
-            // Map LineOfCredit to LineOfCreditEntity
-            CreateMap<LineOfCredit, LineOfCreditEntity>()
-                .ForMember(dest => dest.CreditLimit, opt => opt.MapFrom(src => src.CreditLimit))
-                .ForMember(dest => dest.AnnualInterestRate, opt => opt.MapFrom(src => src.AnnualInterestRate))
-                .ForMember(dest => dest.OpenDate, opt => opt.MapFrom(src => src.OpenDate))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            //// Map LineOfCredit to LineOfCreditEntity
+            //CreateMap<LineOfCredit, LineOfCreditEntity>()
+            //    .ForMember(dest => dest.CreditLimit, opt => opt.MapFrom(src => src.CreditLimit))
+            //    .ForMember(dest => dest.AnnualInterestRate, opt => opt.MapFrom(src => src.AnnualInterestRate))
+            //    .ForMember(dest => dest.OpenDate, opt => opt.MapFrom(src => src.OpenDate))
+            //    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
-            // Map Cart to CartEntity
-            CreateMap<Cart, CartEntity>(); 
+            //// Map Cart to CartEntity
+            //CreateMap<Cart, CartEntity>();
 
-            // Map Package to PackageEntity
-            CreateMap<Package, PackageEntity>()
-                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Name)) // Adjusted to use PackageName
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.SaleDate, opt => opt.MapFrom(src => src.SaleDate))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            //// Map Package to PackageEntity
+            //CreateMap<Package, PackageEntity>()
+            //    .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Name)) // Adjusted to use PackageName
+            //    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            //    .ForMember(dest => dest.SaleDate, opt => opt.MapFrom(src => src.SaleDate))
+            //    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
         }
     }
 }

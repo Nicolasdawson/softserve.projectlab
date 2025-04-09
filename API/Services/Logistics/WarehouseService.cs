@@ -42,25 +42,32 @@ public class WarehouseService : IWarehouseService
         return await strategy.ExecuteAsync(async () =>
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
+            bool transactionCommitted = false; // Track transaction state
+
             try
             {
-                var warehouseResult = await GetWarehouseByIdAsync(warehouseId);
-                if (!warehouseResult.IsSuccess)
-                    return Result<IWarehouse>.Failure(warehouseResult.ErrorMessage, warehouseResult.ErrorCode);
+                // Validate WarehouseId
+                var warehouseExists = await _context.WarehouseEntities.AnyAsync(w => w.WarehouseId == warehouseId);
+                if (!warehouseExists)
+                    return Result<IWarehouse>.Failure($"WarehouseId {warehouseId} does not exist.", 400);
 
                 if (item == null)
                     return Result<IWarehouse>.Failure("Item cannot be null", 400);
 
                 // Check if item exists in system
-                var itemEntity = await _context.ItemEntities
-                    .FirstOrDefaultAsync(i => i.Sku == item.Sku)
-                    ?? _mapper.Map<ItemEntity>(item);
-
-                if (itemEntity.Sku == 0) // New item
+                var itemEntity = await _context.ItemEntities.FirstOrDefaultAsync(i => i.Sku == item.Sku);
+                if (itemEntity == null) // New item
                 {
+                    itemEntity = _mapper.Map<ItemEntity>(item);
                     await _context.ItemEntities.AddAsync(itemEntity);
                     await _context.SaveChangesAsync();
                 }
+
+                // Check for duplicate entry in WarehouseItemEntity
+                var duplicateExists = await _context.WarehouseItemEntities
+                    .AnyAsync(wi => wi.WarehouseId == warehouseId && wi.Sku == itemEntity.Sku);
+                if (duplicateExists)
+                    return Result<IWarehouse>.Failure($"Item with SKU {itemEntity.Sku} already exists in WarehouseId {warehouseId}.", 400);
 
                 // Add warehouse-item relationship
                 var warehouseItem = new WarehouseItemEntity
@@ -72,22 +79,34 @@ public class WarehouseService : IWarehouseService
 
                 await _context.WarehouseItemEntities.AddAsync(warehouseItem);
                 await _context.SaveChangesAsync();
+
                 await transaction.CommitAsync();
+                transactionCommitted = true; // Mark transaction as committed
 
                 // Map the result to IWarehouse
+                var warehouseResult = await GetWarehouseByIdAsync(warehouseId);
+                if (!warehouseResult.IsSuccess)
+                    return Result<IWarehouse>.Failure(warehouseResult.ErrorMessage, warehouseResult.ErrorCode);
+
                 var warehouse = _mapper.Map<IWarehouse>(warehouseResult.Data);
                 return Result<IWarehouse>.Success(warehouse);
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+                if (!transactionCommitted) // Only roll back if the transaction was not committed
+                {
+                    await transaction.RollbackAsync();
+                }
+
                 return Result<IWarehouse>.Failure(
-                    $"Failed to add item: {ex.Message}",
+                    $"Failed to add item: {ex.Message}. Inner Exception: {ex.InnerException?.Message}",
                     500,
                     ex.StackTrace);
             }
         });
     }
+
+
 
 
 
