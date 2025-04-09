@@ -1,4 +1,5 @@
-﻿using API.Abstractions;
+﻿using System.Text.Json.Serialization;
+using API.Abstractions;
 
 namespace API.Models
 {
@@ -10,6 +11,7 @@ namespace API.Models
         public Guid IdProduct { get; set; }
 
         //Navigation Property
-        public Product Product { get; set; } = default!;
+
+        public Product? Product { get; set; } = default!;
     }
 }

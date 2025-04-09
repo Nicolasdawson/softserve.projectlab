@@ -25,9 +25,20 @@ namespace API.Services
         /// </summary>
         /// <param name="product">The product to create.</param>
         /// <returns>The created product.</returns>
-        public async Task<Product> CreateProduct(Product product)
+        public async Task<Product> CreateProductAsync(Product product)
         {
-            product.Id = Guid.NewGuid();
+            try
+            {
+                product.Id = Guid.NewGuid();
+                
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex) 
+            {
+                throw new ApplicationException("An error happen during createProductAsync.", ex);
+            }
             // Log para verificar si se agrega
             Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}");
             return await Task.FromResult(product);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using API.Models;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace API.implementations.Infrastructure.Data
 {
@@ -23,6 +24,7 @@ namespace API.implementations.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //modelBuilder.SeedProducts(); // Para insertar datos
             base.OnModelCreating(modelBuilder);
 
             //Entity User configuration
@@ -113,7 +115,8 @@ namespace API.implementations.Infrastructure.Data
                 entity.HasOne(e => e.Category)              // Relation with Category
                     .WithMany(c => c.Products)              // One Category has many Products
                     .HasForeignKey(e => e.IdCategory)       // ForeignKey
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
 
                 entity.HasMany(e => e.Images)               // Relation with Images
                     .WithOne(pi => pi.Product)              
@@ -168,7 +171,8 @@ namespace API.implementations.Infrastructure.Data
                 entity.HasOne(e => e.Product)               // Relation with Product
                     .WithMany(p => p.Images)                // One Product has many Images
                     .HasForeignKey(e => e.IdProduct)        // ForeignKey
-                    .OnDelete(DeleteBehavior.Cascade);      // Delete Images if the product is deleted
+                    .OnDelete(DeleteBehavior.Cascade)      // Delete Images if the product is deleted
+                    .IsRequired(false);
             });
 
             //Entity Order configuration
@@ -316,6 +320,16 @@ namespace API.implementations.Infrastructure.Data
                     .HasForeignKey(r => r.IdCountry)
                     .OnDelete(DeleteBehavior.Cascade); // Define la acción de eliminación en cascada
             });
+
+            //Insert Data
+            modelBuilder.SeedProducts();
+        }
+
+        public void ClearDatabase()
+        {
+            Products.RemoveRange(Products);
+            Categories.RemoveRange(Categories);
+            SaveChanges();
         }
     }
 }

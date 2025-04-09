@@ -25,9 +25,19 @@ namespace API.Controllers;
         /// <param name="product">The product to create.</param>
         /// <returns>The created product.</returns>
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(Product product)
+        public async Task<ActionResult<Product>> CreateProduct([FromBody] Product product)
         {
-            var createdProduct = await _productService.CreateProduct(product);
+            Console.WriteLine(product);
+
+            if (product == null)
+                return BadRequest("The product can't be null");
+
+        //var categoryExists = await _context.Categories.AnyAsync(categoryExists => categoryExists.Id == product.IdCategory);
+        //if (!categoryExists)
+        //    return BadRequest("The selected category doesn't exist");
+
+            // Save in DB
+            var createdProduct = await _productService.CreateProductAsync(product);
             return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
 

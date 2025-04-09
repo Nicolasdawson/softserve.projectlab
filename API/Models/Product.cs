@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using API.Abstractions;
 
 namespace API.Models;
@@ -18,8 +19,10 @@ namespace API.Models;
 
 
         //Navigation Properties
-        public Category Category { get; set; } = default!;
+        [JsonIgnore] //Para evitar la referencia ciclica
+        public Category? Category { get; set; } = default!;
         // One Product has many Images
+        [JsonIgnore] //Para evitar la referencia ciclica
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
 
 
