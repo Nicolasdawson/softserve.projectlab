@@ -8,8 +8,9 @@ using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Controllers
 {
+
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Warehouse")]
     public class WarehouseController : ControllerBase
     {
         private readonly IWarehouseService _warehouseService;
@@ -30,11 +31,30 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllWarehouses()
+        [HttpGet("")]
+        [ProducesResponseType(typeof(List<WarehouseResponseDto>), 200)]
+        public async Task<ActionResult<List<WarehouseResponseDto>>> GetAllWarehouses()
         {
             var warehouses = await _warehouseService.GetWarehousesAsync();
-            return Ok(warehouses);
+
+            var result = warehouses.Select(w => new WarehouseResponseDto
+            {
+                WarehouseId = w.WarehouseId,
+                Name = w.Name,
+                Location = w.Location,
+                Capacity = w.Capacity,
+                Items = w.Items.Select(i => new ItemDto
+                {
+                    Sku = i.Sku,
+                    Name = i.Name,
+                    Description = i.Description,
+                    ItemPrice = i.ItemPrice,
+                    CurrentStock = i.CurrentStock
+                }).ToList(),
+                BranchId = w.BranchId
+            }).ToList();
+
+            return Ok(result);
         }
 
         [HttpPost("{warehouseId}/items")]

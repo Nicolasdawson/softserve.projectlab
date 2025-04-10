@@ -6,7 +6,7 @@
         public string Name { get; set; }
         public string Location { get; set; }
         public int Capacity { get; set; }
-        public List<AddItemToWarehouseDTO> Items { get; set; } // Reuse AddItemToWarehouseDTO
+        public List<ItemDto> Items { get; set; } = new();
         public int BranchId { get; set; }
     }
 }
