@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using Frontend.Layout;
+
+@inherits LayoutComponentBase
 <!--
 <div class="page">
 <div class="sidebar">
@@ -16,6 +18,28 @@
 </main>
 </div>
 -->
+<style>
+    .mud-layout {
+        min-width : 400px;
+
+    }
+    .mud-main-content {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        height: 372px;
+    }
+    .mud-container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: initial !important;
+        height: 190%;
+    }
+
+    .mud-container-maxwidth-lg {
+        max-width: 100% !important;
+    }
+
+</style>
 
 @* Required *@
 <MudThemeProvider />
@@ -27,28 +51,16 @@
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 
-
-
-<MudAppBar>
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-    My Application
-</MudAppBar>
+<Header />
 <MudLayout>
-
     <MudMainContent>
-        <MudDrawer @bind-Open="@_drawerOpen">
-            <NavMenu />
-        </MudDrawer>
-        <MudContainer MaxWidth="MaxWidth.Medium">
+
+        <MudContainer>
             @Body
         </MudContainer>
     </MudMainContent>
 </MudLayout>
 
 @code {
-    bool _drawerOpen = true;
 
-    void DrawerToggle(){
-        _drawerOpen = !_drawerOpen;
-    }
 }

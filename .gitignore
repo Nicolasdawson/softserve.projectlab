@@ -12,6 +12,9 @@
 .idea/**/dictionaries
 .idea/**/shelf
 
+# Configuración sensible
+**/appsettings.json
+
 # AWS User-specific
 .idea/**/aws.xml
 

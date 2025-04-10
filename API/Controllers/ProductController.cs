@@ -1,4 +1,3 @@
-// Controllers/ProductController.cs
 using Microsoft.AspNetCore.Mvc;
 using API.Models;
 using API.Services;
@@ -11,25 +10,53 @@ namespace API.Controllers;
     {
         private readonly ProductService _productService;
 
-        // Inyección del servicio ProductService
+        /// <summary>
+        /// Injects the ProductService dependency.
+        /// </summary>
+        /// <param name="productService">The product service.</param>
         public ProductController(ProductService productService)
         {
             _productService = productService;
         }
 
+        /// <summary>
+        /// Creates a new product.
+        /// </summary>
+        /// <param name="product">The product to create.</param>
+        /// <returns>The created product.</returns>
         [HttpPost]
-        public ActionResult<Product> CreateProduct(Product product)
+        public async Task<ActionResult<Product>> CreateProduct([FromBody] Product product)
         {
-            var createdProduct = _productService.CreateProduct(product);
+            Console.WriteLine(product);
+
+            if (product == null)
+                return BadRequest("The product can't be null");
+
+        //var categoryExists = await _context.Categories.AnyAsync(categoryExists => categoryExists.Id == product.IdCategory);
+        //if (!categoryExists)
+        //    return BadRequest("The selected category doesn't exist");
+
+            // Save in DB
+            var createdProduct = await _productService.CreateProductAsync(product);
             return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
 
+        /// <summary>
+        /// Retrieves all products.
+        /// </summary>
+        /// <returns>A list of all products.</returns>
         [HttpGet]
         public ActionResult<IEnumerable<Product>> GetProducts()
         {
-            return Ok(_productService.GetAllProducts());
+            var products = _productService.GetAllProducts();
+            return Ok(products.Result);
         }
 
+        /// <summary>
+        /// Retrieves a product by its ID.
+        /// </summary>
+        /// <param name="id">The product ID.</param>
+        /// <returns>The requested product if found; otherwise, NotFound.</returns>
         [HttpGet("{id}")]
         public ActionResult<Product> GetProductById(Guid id)
         {
@@ -41,6 +68,12 @@ namespace API.Controllers;
             return Ok(product);
         }
 
+        /// <summary>
+        /// Updates an existing product.
+        /// </summary>
+        /// <param name="id">The ID of the product to update.</param>
+        /// <param name="updatedProduct">The updated product details.</param>
+        /// <returns>NoContent if successful; otherwise, NotFound.</returns>
         [HttpPut("{id}")]
         public IActionResult UpdateProduct(Guid id, Product updatedProduct)
         {
@@ -48,9 +81,14 @@ namespace API.Controllers;
             {
                 return NotFound();
             }
-            return NoContent();
+            return Ok();
         }
 
+        /// <summary>
+        /// Deletes a product by its ID.
+        /// </summary>
+        /// <param name="id">The product ID.</param>
+        /// <returns>NoContent if successful; otherwise, NotFound.</returns>
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(Guid id)
         {
@@ -61,7 +99,12 @@ namespace API.Controllers;
             return NoContent();
         }
 
-        // Filters
+
+        /// <summary>
+        /// Retrieves products filtered by category.
+        /// </summary>
+        /// <param name="category">The category ID.</param>
+        /// <returns>A list of products that belong to the specified category.</returns>
         [HttpGet("filter/{category}")] 
         public ActionResult<IEnumerable<Product>> GetProductsByCategory(Guid category)
         {

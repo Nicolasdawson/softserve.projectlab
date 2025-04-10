@@ -7,72 +7,111 @@ namespace API.implementations.Infrastructure.Data
     {
         public static void SeedProducts(this ModelBuilder modelBuilder)
         {
-            /*
-            modelBuilder.Entity<Product>().HasData( 
-                new Product[]
-            {
-                new Product
+            // Crear las categorías primero
+            var category1 = Guid.NewGuid();
+            var category2 = Guid.NewGuid();
+            var category3 = Guid.NewGuid();
+
+            modelBuilder.Entity<Category>().HasData(
+                new Category
                 {
-                    Id = Guid.NewGuid(),
-                    Name = "Cámara de Seguridad IP 1080p",
-                    Category = "Cámaras de Seguridad",
-                    Description = "Cámara de seguridad de alta definición con visión nocturna y grabación en 1080p. Conectividad Wi-Fi y detección de movimiento.",
-                    ImageUrl = "https://example.com/images/camara-ip-1080p.jpg",
-                    Price = 120.99m,
-                    Stock = "Disponible"
+                    Id = category1,
+                    Name = "Cámaras de Seguridad",                    
                 },
-                new Product
+                new Category
                 {
-                    Id = Guid.NewGuid(),
-                    Name = "Alarma Inalámbrica 4 Zonas",
-                    Category = "Alarmas",
-                    Description = "Sistema de alarma inalámbrico con 4 zonas, ideal para viviendas. Compatible con sensores de puertas y ventanas.",
-                    ImageUrl = "https://example.com/images/alarma-inalambrica.jpg",
-                    Price = 150.50m,
-                    Stock = "Disponible"
+                    Id = category2,
+                    Name = "Alarmas",
                 },
-                new Product
+                new Category
                 {
-                    Id = Guid.NewGuid(),
-                    Name = "Sensor de Movimiento PIR",
-                    Category = "Sensores",
-                    Description = "Sensor de movimiento PIR (infrarrojo pasivo) para sistemas de alarma. Detecta movimiento en un rango de hasta 10 metros.",
-                    ImageUrl = "https://example.com/images/sensor-movimiento-pir.jpg",
-                    Price = 45.30m,
-                    Stock = "Agotado"
-                },
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Cámara de Seguridad Dome 4K",
-                    Category = "Cámaras de Seguridad",
-                    Description = "Cámara dome 4K con visión panorámica y grabación en calidad ultra HD. Resistente a condiciones climáticas extremas.",
-                    ImageUrl = "https://example.com/images/camara-dome-4k.jpg",
-                    Price = 299.99m,
-                    Stock = "Disponible"
-                },
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Alarma para Puerta/ ventana",
-                    Category = "Alarmas",
-                    Description = "Alarma de seguridad para puertas y ventanas. Ideal para prevenir accesos no autorizados en el hogar o negocio.",
-                    ImageUrl = "https://example.com/images/alarma-puerta-ventana.jpg",
-                    Price = 32.99m,
-                    Stock = "Disponible"
-                },
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Cámara de Seguridad para Exteriores",
-                    Category = "Cámaras de Seguridad",
-                    Description = "Cámara de seguridad para exteriores, resistente al agua y con visión nocturna. Se conecta a través de Wi-Fi.",
-                    ImageUrl = "https://example.com/images/camara-para-exteriores.jpg",
-                    Price = 180.75m,
-                    Stock = "Disponible"
+                    Id = category3,
+                    Name = "Sensores",
                 }
-            });
-             */
+            );
+
+            modelBuilder.Entity<Product>().HasData(
+    new Product[]
+    {
+        new Product
+        {
+            Id = Guid.NewGuid(),
+            Name = "Cámara de Seguridad IP 1080p",
+            Description = "Cámara de seguridad de alta definición con visión nocturna y grabación en 1080p. Conectividad Wi-Fi y detección de movimiento.",
+            Price = 120.99m,
+            Weight = 0.5m,
+            Height = 10m,
+            Width = 15m,
+            Length = 20m,
+            Stock = 50,
+            IdCategory = category1 // Reutilizando el Id de la categoría "Cámaras de Seguridad"
+        },
+        new Product
+        {
+            Id = Guid.NewGuid(),
+            Name = "Alarma Inalámbrica 4 Zonas",
+            Description = "Sistema de alarma inalámbrico con 4 zonas, ideal para viviendas. Compatible con sensores de puertas y ventanas.",
+            Price = 150.50m,
+            Weight = 1.2m,
+            Height = 8m,
+            Width = 20m,
+            Length = 25m,
+            Stock = 100,
+            IdCategory = category2 // Reutilizando el Id de la categoría "Alarmas"
+        },
+        new Product
+        {
+            Id = Guid.NewGuid(),
+            Name = "Sensor de Movimiento PIR",
+            Description = "Sensor de movimiento PIR (infrarrojo pasivo) para sistemas de alarma. Detecta movimiento en un rango de hasta 10 metros.",
+            Price = 45.30m,
+            Weight = 0.3m,
+            Height = 6m,
+            Width = 8m,
+            Length = 12m,
+            Stock = 0,
+            IdCategory = category3 // Reutilizando el Id de la categoría "Sensores"
+        },
+        new Product
+        {
+            Id = Guid.NewGuid(),
+            Name = "Cámara de Seguridad Dome 4K",
+            Description = "Cámara dome 4K con visión panorámica y grabación en calidad ultra HD. Resistente a condiciones climáticas extremas.",
+            Price = 299.99m,
+            Weight = 0.8m,
+            Height = 12m,
+            Width = 15m,
+            Length = 18m,
+            Stock = 50,
+            IdCategory = category1 // Reutilizando el Id de la categoría "Cámaras de Seguridad"
+        },
+        new Product
+        {
+            Id = Guid.NewGuid(),
+            Name = "Alarma para Puerta/ ventana",
+            Description = "Alarma de seguridad para puertas y ventanas. Ideal para prevenir accesos no autorizados en el hogar o negocio.",
+            Price = 32.99m,
+            Weight = 0.5m,
+            Height = 5m,
+            Width = 10m,
+            Length = 15m,
+            Stock = 200,
+            IdCategory = category2 // Reutilizando el Id de la categoría "Alarmas"
+        },
+        new Product
+        {
+            Id = Guid.NewGuid(),
+            Name = "Cámara de Seguridad para Exteriores",
+            Description = "Cámara de seguridad para exteriores, resistente al agua y con visión nocturna. Se conecta a través de Wi-Fi.",
+            Price = 180.75m,
+            Weight = 1.0m,
+            Height = 10m,
+            Width = 20m,
+            Length = 25m,
+            Stock = 30,
+            IdCategory = category1 // Reutilizando el Id de la categoría "Cámaras de Seguridad"
+        }
+    });
         }
     }
 }

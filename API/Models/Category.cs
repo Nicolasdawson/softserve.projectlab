@@ -1,8 +1,13 @@
+using API.Abstractions;
+
 namespace API.Models;
 
-public class Category
+public class Category : Base
 {
-    public string Name { get; set; }
-    
-    public List<Item> Items { get; set; } = new List<Item>();
+    public string Name { get; set; } = default!;
+
+    // One Category has many Products
+    public ICollection<Product> Products { get; set; } = new List<Product>();
+
+
 }
