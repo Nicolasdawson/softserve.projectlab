@@ -38,7 +38,7 @@ builder.Services.AddControllers()
 //-------------------------------------------------------------------------------
 // CORS Configuration
 //-------------------------------------------------------------------------------
-var frontendOrigin = "https://localhost:7035";
+var frontendOrigin = "https://localhost:7135";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -155,8 +155,8 @@ app.Use(async (context, next) =>
 // Middleware configuration in correct order
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseCookiePolicy();
 app.UseCors("AllowFrontend");
+app.UseCookiePolicy();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
