@@ -1,8 +1,7 @@
-﻿using API.Data.Entities;
-using API.Implementations.Domain;
+﻿using API.Implementations.Domain;
 using API.Models;
+using API.Models.DTOs;
 using API.Models.IntAdmin;
-using API.Models.IntAdmin.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.Utilities;
@@ -24,39 +23,39 @@ namespace API.Services.IntAdmin
             _roleDomain = roleDomain;
         }
 
-        public async Task<Result<Role>> AddRoleAsync(Role role)
+        public async Task<Result<Role>> CreateRoleAsync(RoleDto roleDto)
         {
-            return await _roleDomain.CreateRole(role);
+            return await _roleDomain.CreateRoleAsync(roleDto);
         }
 
-        public async Task<Result<Role>> UpdateRoleAsync(Role role)
+        public async Task<Result<Role>> UpdateRoleAsync(int roleId, RoleDto roleDto)
         {
-            return await _roleDomain.UpdateRole(role);
+            return await _roleDomain.UpdateRoleAsync(roleId, roleDto);
         }
 
         public async Task<Result<Role>> GetRoleByIdAsync(int roleId)
         {
-            return await _roleDomain.GetRoleById(roleId);
+            return await _roleDomain.GetRoleByIdAsync(roleId);
         }
 
         public async Task<Result<List<Role>>> GetAllRolesAsync()
         {
-            return await _roleDomain.GetAllRoles();
+            return await _roleDomain.GetAllRolesAsync();
         }
 
-        public async Task<Result<bool>> RemoveRoleAsync(int roleId)
+        public async Task<Result<bool>> DeleteRoleAsync(int roleId)
         {
-            return await _roleDomain.RemoveRole(roleId);
+            return await _roleDomain.DeleteRoleAsync(roleId);
         }
 
-        public async Task<Result<bool>> AddPermissionToRoleAsync(int roleId, IPermission permission)
+        public async Task<Result<bool>> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds)
         {
-            return await _roleDomain.AddPermissionToRole(roleId, permission);
+            return await _roleDomain.AddPermissionsToRoleAsync(roleId, permissionIds);
         }
 
         public async Task<Result<bool>> RemovePermissionFromRoleAsync(int roleId, int permissionId)
         {
-            return await _roleDomain.RemovePermissionFromRole(roleId, permissionId);
+            return await _roleDomain.RemovePermissionFromRoleAsync(roleId, permissionId);
         }
     }
 }
