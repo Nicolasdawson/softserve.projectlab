@@ -50,7 +50,6 @@ public class StripeWebhookController : ControllerBase
                         TransactionId = session.PaymentIntentId ?? "unknown",
                         Status = "paid",
                         ResponseCode = "200",
-                        WebpayToken = session.Id,
                         PaymentMethod = "card",
                         CardType = "unknown",
                         CardLastFour = "****",

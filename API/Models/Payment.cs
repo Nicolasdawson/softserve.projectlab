@@ -15,10 +15,7 @@ namespace API.Models;
 
         [MaxLength(10)]
         public string ResponseCode { get; set; } = default!;
-
-        [MaxLength(100)]
-        public string WebpayToken { get; set; } = default!;
-
+        
         [MaxLength(20)]
         public string PaymentMethod { get; set; } = default!;
 

@@ -22,6 +22,14 @@ namespace API.implementations.Infrastructure.Data
         public DbSet<Region> Regions { get; set; }
         public DbSet<Country> Countries { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.ConfigureWarnings(warnings =>
+                warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+
+            base.OnConfiguring(optionsBuilder);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //modelBuilder.SeedProducts(); // Para insertar datos
@@ -226,10 +234,6 @@ namespace API.implementations.Infrastructure.Data
                 entity.Property(p => p.ResponseCode)
                     .IsRequired()
                     .HasMaxLength(10);
-
-                entity.Property(p => p.WebpayToken)
-                    .IsRequired()
-                    .HasMaxLength(100);
 
                 entity.Property(p => p.PaymentMethod)
                     .IsRequired()

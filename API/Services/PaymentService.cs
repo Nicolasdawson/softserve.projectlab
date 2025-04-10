@@ -53,7 +53,6 @@ namespace API.Services;
                 existing.TransactionId = updatedPayment.TransactionId;
                 existing.Status = updatedPayment.Status;
                 existing.ResponseCode = updatedPayment.ResponseCode;
-                existing.WebpayToken = updatedPayment.WebpayToken;
                 existing.PaymentMethod = updatedPayment.PaymentMethod;
                 existing.CardType = updatedPayment.CardType;
                 existing.CardLastFour = updatedPayment.CardLastFour;
