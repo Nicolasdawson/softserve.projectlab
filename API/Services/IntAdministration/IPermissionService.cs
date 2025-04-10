@@ -11,10 +11,10 @@ namespace API.Services.IntAdmin
     /// </summary>
     public interface IPermissionService
     {
-        Task<Result<Permission>> AddPermissionAsync(Permission permission);
+        Task<Result<Permission>> CreatePermissionAsync(Permission permission);
         Task<Result<Permission>> UpdatePermissionAsync(Permission permission);
         Task<Result<Permission>> GetPermissionByIdAsync(int permissionId);
         Task<Result<List<Permission>>> GetAllPermissionsAsync();
-        Task<Result<bool>> RemovePermissionAsync(int permissionId);
+        Task<Result<bool>> DeletePermissionAsync(int permissionId);
     }
 }

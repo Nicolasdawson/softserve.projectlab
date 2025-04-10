@@ -22,29 +22,29 @@ namespace API.Services.IntAdmin
             _permissionDomain = permissionDomain;
         }
 
-        public async Task<Result<Permission>> AddPermissionAsync(Permission permission)
+        public async Task<Result<Permission>> CreatePermissionAsync(Permission permission)
         {
-            return await _permissionDomain.CreatePermission(permission);
+            return await _permissionDomain.CreatePermissionAsync(permission);
         }
 
         public async Task<Result<Permission>> UpdatePermissionAsync(Permission permission)
         {
-            return await _permissionDomain.UpdatePermission(permission);
+            return await _permissionDomain.UpdatePermissionAsync(permission);
         }
 
         public async Task<Result<Permission>> GetPermissionByIdAsync(int permissionId)
         {
-            return await _permissionDomain.GetPermissionById(permissionId);
+            return await _permissionDomain.GetPermissionByIdAsync(permissionId);
         }
 
         public async Task<Result<List<Permission>>> GetAllPermissionsAsync()
         {
-            return await _permissionDomain.GetAllPermissions();
+            return await _permissionDomain.GetAllPermissionsAsync();
         }
 
-        public async Task<Result<bool>> RemovePermissionAsync(int permissionId)
+        public async Task<Result<bool>> DeletePermissionAsync(int permissionId)
         {
-            return await _permissionDomain.RemovePermission(permissionId);
+            return await _permissionDomain.DeletePermissionAsync(permissionId);
         }
     }
 }

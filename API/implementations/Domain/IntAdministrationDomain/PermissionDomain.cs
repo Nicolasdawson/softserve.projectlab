@@ -1,127 +1,177 @@
-﻿using API.Data.Entities;
+﻿using API.Data;
+using API.Data.Entities;
 using API.Models;
 using API.Models.IntAdmin;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace API.Implementations.Domain
 {
-    /// <summary>
-    /// Domain class for handling Permission operations.
-    /// Uses in-memory storage for permissions.
-    /// </summary>
     public class PermissionDomain
     {
-        // In-memory storage for permissions
-        private readonly List<Permission> _permissions = new List<Permission>();
+        private readonly ApplicationDbContext _context;
+
+        public PermissionDomain(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         /// <summary>
-        /// Creates a new permission and adds it to the in-memory list.
+        /// Creates a new permission in the database.
         /// </summary>
-        /// <param name="permission">Permission object to be created</param>
-        /// <returns>Result object containing the created permission</returns>
-        public async Task<Result<Permission>> CreatePermission(Permission permission)
+        /// <param name="permission">Permission model to create</param>
+        /// <returns>Result containing the created permission or an error message</returns>
+        public async Task<Result<Permission>> CreatePermissionAsync(Permission permission)
         {
             try
             {
-                _permissions.Add(permission);
+                // Create the base Permission entity
+                var permissionEntity = new PermissionEntity
+                {
+                    PermissionName = permission.PermissionName,
+                    PermissionDescription = permission.PermissionDescription
+                };
+
+                // Save the basic Permission entity first
+                _context.PermissionEntities.Add(permissionEntity);
+                await _context.SaveChangesAsync();
+
+                // Assign the generated ID to the model
+                permission.PermissionId = permissionEntity.PermissionId;
+
                 return Result<Permission>.Success(permission);
             }
             catch (Exception ex)
             {
-                return Result<Permission>.Failure($"Failed to create permission: {ex.Message}");
+                return Result<Permission>.Failure($"Error creating permission: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Updates an existing permission if found.
+        /// Updates an existing permission in the database.
         /// </summary>
-        /// <param name="permission">Permission object with updated information</param>
-        /// <returns>Result object containing the updated permission</returns>
-        public async Task<Result<Permission>> UpdatePermission(Permission permission)
+        /// <param name="permission">Permission model with updated data</param>
+        /// <returns>Result containing the updated permission or an error message</returns>
+        public async Task<Result<Permission>> UpdatePermissionAsync(Permission permission)
         {
             try
             {
-                var existingPermission = _permissions.FirstOrDefault(p => p.PermissionId == permission.PermissionId);
-                if (existingPermission != null)
-                {
-                    existingPermission.PermissionName = permission.PermissionName;
-                    existingPermission.PermissionDescription = permission.PermissionDescription;
-                    return Result<Permission>.Success(existingPermission);
-                }
-                else
+                var permissionEntity = await _context.PermissionEntities
+                    .FirstOrDefaultAsync(p => p.PermissionId == permission.PermissionId);
+
+                if (permissionEntity == null)
                 {
                     return Result<Permission>.Failure("Permission not found.");
                 }
+
+                // Update the permission fields
+                permissionEntity.PermissionName = permission.PermissionName;
+                permissionEntity.PermissionDescription = permission.PermissionDescription;
+
+                await _context.SaveChangesAsync();
+                return Result<Permission>.Success(permission);
             }
             catch (Exception ex)
             {
-                return Result<Permission>.Failure($"Failed to update permission: {ex.Message}");
+                return Result<Permission>.Failure($"Error updating permission: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Retrieves a permission by its unique ID.
+        /// Retrieves a permission by its unique ID from the database.
         /// </summary>
         /// <param name="permissionId">Unique identifier of the permission</param>
-        /// <returns>Result object containing the permission if found, otherwise an error</returns>
-        public async Task<Result<Permission>> GetPermissionById(int permissionId)
+        /// <returns>Result containing the permission or an error message</returns>
+        public async Task<Result<Permission>> GetPermissionByIdAsync(int permissionId)
         {
             try
             {
-                var permission = _permissions.FirstOrDefault(p => p.PermissionId == permissionId);
-                return permission != null
-                    ? Result<Permission>.Success(permission)
-                    : Result<Permission>.Failure("Permission not found.");
+                // Get the basic Permission entity
+                var permissionEntity = await _context.PermissionEntities
+                    .FirstOrDefaultAsync(p => p.PermissionId == permissionId);
+
+                if (permissionEntity == null)
+                {
+                    return Result<Permission>.Failure("Permission not found.");
+                }
+
+                // Map the entity to the Permission model
+                var permission = MapToPermission(permissionEntity);
+                return Result<Permission>.Success(permission);
             }
             catch (Exception ex)
             {
-                return Result<Permission>.Failure($"Failed to get permission: {ex.Message}");
+                return Result<Permission>.Failure($"Error retrieving permission: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Retrieves all permissions stored in memory.
+        /// Retrieves all permissions stored in the database.
         /// </summary>
-        /// <returns>Result object containing a list of permissions</returns>
-        public async Task<Result<List<Permission>>> GetAllPermissions()
+        /// <returns>Result containing a list of permissions or an error message</returns>
+        public async Task<Result<List<Permission>>> GetAllPermissionsAsync()
         {
             try
             {
-                return Result<List<Permission>>.Success(_permissions);
+                var permissionEntities = await _context.PermissionEntities.ToListAsync();
+                var permissions = new List<Permission>();
+
+                // For each permission entity, map it to the model
+                foreach (var entity in permissionEntities)
+                {
+                    permissions.Add(MapToPermission(entity));
+                }
+
+                return Result<List<Permission>>.Success(permissions);
             }
             catch (Exception ex)
             {
-                return Result<List<Permission>>.Failure($"Failed to retrieve permissions: {ex.Message}");
+                return Result<List<Permission>>.Failure($"Error retrieving permissions: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Removes a permission by its unique ID.
+        /// Removes a permission from the database by its unique ID.
         /// </summary>
         /// <param name="permissionId">Unique identifier of the permission to remove</param>
-        /// <returns>Result object indicating success or failure</returns>
-        public async Task<Result<bool>> RemovePermission(int permissionId)
+        /// <returns>Result indicating success or failure</returns>
+        public async Task<Result<bool>> DeletePermissionAsync(int permissionId)
         {
             try
             {
-                var permissionToRemove = _permissions.FirstOrDefault(p => p.PermissionId == permissionId);
-                if (permissionToRemove != null)
-                {
-                    _permissions.Remove(permissionToRemove);
-                    return Result<bool>.Success(true);
-                }
-                else
+                var permissionEntity = await _context.PermissionEntities
+                    .FirstOrDefaultAsync(p => p.PermissionId == permissionId);
+
+                if (permissionEntity == null)
                 {
                     return Result<bool>.Failure("Permission not found.");
                 }
+
+                _context.PermissionEntities.Remove(permissionEntity);
+                await _context.SaveChangesAsync();
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Failed to remove permission: {ex.Message}");
+                return Result<bool>.Failure($"Error removing permission: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Maps a PermissionEntity to the Permission model.
+        /// </summary>
+        /// <param name="entity">Instance of PermissionEntity</param>
+        /// <returns>An instance of the Permission model</returns>
+        private Permission MapToPermission(PermissionEntity entity)
+        {
+            return new Permission
+            {
+                PermissionId = entity.PermissionId,
+                PermissionName = entity.PermissionName,
+                PermissionDescription = entity.PermissionDescription
+            };
         }
     }
 }
