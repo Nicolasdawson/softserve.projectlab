@@ -12,6 +12,9 @@ using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
 using API.Data.Mapping;
 using API.Data;
+using softserve.projectlabs.Shared.Interfaces;
+using AutoMapper;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,6 +72,12 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<LogisticsMapping>();
     cfg.AddProfile<CustomerMapping>();
 });
+var mapperConfig = new MapperConfiguration(cfg =>
+{
+    cfg.AddProfile<LogisticsMapping>();
+    cfg.AddProfile<CustomerMapping>();
+});
+mapperConfig.AssertConfigurationIsValid();
 
 builder.Services.AddCors(options =>
 {

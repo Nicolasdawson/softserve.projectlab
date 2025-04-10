@@ -3,6 +3,8 @@ using Logistics.Models;
 using Microsoft.AspNetCore.Mvc;
 using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
+using softserve.projectlabs.Shared.DTOs;
+using AutoMapper; // Add this for mapping
 
 namespace API.Controllers.Logistics
 {
@@ -11,32 +13,25 @@ namespace API.Controllers.Logistics
     public class SupplierController : ControllerBase
     {
         private readonly ISupplierService _supplierService;
+        private readonly IMapper _mapper; // Add IMapper for DTO mapping
 
-        public SupplierController(ISupplierService supplierService)
+        public SupplierController(ISupplierService supplierService, IMapper mapper)
         {
             _supplierService = supplierService;
+            _mapper = mapper;
         }
 
-        /// <summary>
-        /// Creates a new supplier.
-        /// </summary>
-        /// <param name="supplier">The supplier to create.</param>
-        /// <returns>An IActionResult containing the result of the creation operation.</returns>
         [HttpPost]
         public async Task<IActionResult> CreateSupplier([FromBody] Supplier supplier)
         {
-            var result = await _supplierService.CreateSupplierAsync(supplier);
+            var supplierDto = _mapper.Map<SupplierDto>(supplier); // Map Supplier to SupplierDto
+            var result = await _supplierService.CreateSupplierAsync(supplierDto);
             if (!result.IsSuccess)
                 return BadRequest(result.ErrorMessage);
 
-            return CreatedAtAction(nameof(GetSupplierById), new { supplierId = supplier.SupplierId }, supplier);
+            return CreatedAtAction(nameof(GetSupplierById), new { supplierId = result.Data.SupplierId }, result.Data);
         }
 
-        /// <summary>
-        /// Gets a supplier by its ID.
-        /// </summary>
-        /// <param name="supplierId">The ID of the supplier to retrieve.</param>
-        /// <returns>An IActionResult containing the supplier data or an error message.</returns>
         [HttpGet("{supplierId}")]
         public async Task<IActionResult> GetSupplierById(int supplierId)
         {
@@ -44,10 +39,6 @@ namespace API.Controllers.Logistics
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Gets all suppliers.
-        /// </summary>
-        /// <returns>An IActionResult containing the list of all suppliers or an error message.</returns>
         [HttpGet]
         public async Task<IActionResult> GetAllSuppliers()
         {
@@ -55,34 +46,25 @@ namespace API.Controllers.Logistics
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Updates an existing supplier.
-        /// </summary>
-        /// <param name="supplierId">The ID of the supplier to update.</param>
-        /// <param name="supplier">The updated supplier data.</param>
-        /// <returns>An IActionResult containing the result of the update operation.</returns>
         [HttpPut("{supplierId}")]
         public async Task<IActionResult> UpdateSupplier(int supplierId, [FromBody] Supplier supplier)
         {
-            var result = await _supplierService.UpdateSupplierAsync(supplier);
+            var supplierDto = _mapper.Map<SupplierDto>(supplier); // Map Supplier to SupplierDto
+            supplierDto.SupplierId = supplierId; // Ensure the ID is set correctly
+            var result = await _supplierService.UpdateSupplierAsync(supplierDto);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Deletes a supplier by its ID.
-        /// </summary>
-        /// <param name="supplierId">The ID of the supplier to delete.</param>
-        /// <returns>An IActionResult containing the result of the deletion operation.</returns>
         [HttpDelete("{supplierId}")]
         public async Task<IActionResult> DeleteSupplier(int supplierId)
         {
             var result = await _supplierService.DeleteSupplierAsync(supplierId);
-            //return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
             if (result.IsNoContent)
             {
-                return NoContent();  // Returns HTTP 204 No Content
+                return NoContent(); // Returns HTTP 204 No Content
             }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
     }
 }
+

@@ -12,7 +12,7 @@ namespace API.Services.Logistics
     public class BranchService : IBranchService
     {
         private readonly BranchDomain _branchDomain;
-        private readonly IMapper _mapper; // Add IMapper for DTO mapping
+        private readonly IMapper _mapper; 
 
         public BranchService(BranchDomain branchDomain, IMapper mapper)
         {
@@ -22,16 +22,16 @@ namespace API.Services.Logistics
 
         public async Task<Result<BranchDto>> AddBranchAsync(BranchDto branchDto)
         {
-            var branch = _mapper.Map<Branch>(branchDto); // Map DTO to entity
+            var branch = _mapper.Map<Branch>(branchDto); 
             var result = await _branchDomain.CreateBranch(branch);
             return result.IsSuccess
-                ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data)) // Map entity back to DTO
+                ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data)) 
                 : Result<BranchDto>.Failure(result.ErrorMessage);
         }
 
         public async Task<Result<BranchDto>> UpdateBranchAsync(BranchDto branchDto)
         {
-            var branch = _mapper.Map<Branch>(branchDto); // Map DTO to entity
+            var branch = _mapper.Map<Branch>(branchDto); 
             var result = await _branchDomain.UpdateBranch(branch);
             return result.IsSuccess
                 ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data)) // Map entity back to DTO

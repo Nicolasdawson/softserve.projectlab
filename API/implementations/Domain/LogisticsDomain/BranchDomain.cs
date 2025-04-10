@@ -8,11 +8,7 @@ namespace API.Implementations.Domain
     {
         private readonly List<Branch> _branches = new List<Branch>(); // Example: In-memory storage for branches
 
-        /// <summary>
-        /// Creates a new branch.
-        /// </summary>
-        /// <param name="branch">The branch to create.</param>
-        /// <returns>A result containing the created branch.</returns>
+       
         public async Task<Result<Branch>> CreateBranch(Branch branch)
         {
             try
@@ -26,11 +22,6 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Updates an existing branch.
-        /// </summary>
-        /// <param name="branch">The branch to update.</param>
-        /// <returns>A result containing the updated branch.</returns>
         public async Task<Result<Branch>> UpdateBranch(Branch branch)
         {
             try
@@ -52,11 +43,7 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Retrieves a branch by its identifier.
-        /// </summary>
-        /// <param name="branchId">The branch identifier.</param>
-        /// <returns>A result containing the branch with the specified identifier.</returns>
+    
         public async Task<Result<Branch>> GetBranchById(int branchId)
         {
             try
@@ -70,10 +57,6 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Retrieves all branches.
-        /// </summary>
-        /// <returns>A result containing a list of all branches.</returns>
         public async Task<Result<List<Branch>>> GetAllBranches()
         {
             try
@@ -86,11 +69,7 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Removes a branch by its identifier.
-        /// </summary>
-        /// <param name="branchId">The branch identifier.</param>
-        /// <returns>A result indicating whether the branch was successfully removed.</returns>
+       
         public async Task<Result<bool>> RemoveBranch(int branchId)
         {
             try

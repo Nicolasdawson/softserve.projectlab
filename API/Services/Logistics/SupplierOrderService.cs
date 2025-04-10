@@ -4,35 +4,44 @@ using API.Models.Logistics.Interfaces;
 using API.Domain.Logistics;
 using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
+using softserve.projectlabs.Shared.DTOs;
+using AutoMapper;
 
 namespace API.Services.Logistics
 {
     public class SupplierOrderService : ISupplierOrderService
     {
         private readonly SupplierOrderDomain _domain;
+        private readonly IMapper _mapper;
 
-        public SupplierOrderService(SupplierOrderDomain domain)
+        public SupplierOrderService(SupplierOrderDomain domain, IMapper mapper)
         {
             _domain = domain;
+            _mapper = mapper;
         }
 
-        public async Task<List<ISupplierOrder>> GetAllSupplierOrdersAsync()
+        public async Task<List<SupplierOrderDto>> GetAllSupplierOrdersAsync()
         {
-            return await _domain.GetAllSupplierOrdersAsync();
+            var orders = await _domain.GetAllSupplierOrdersAsync();
+            return _mapper.Map<List<SupplierOrderDto>>(orders);
         }
 
-        public async Task<ISupplierOrder> GetSupplierOrderByIdAsync(int orderId)
+        public async Task<SupplierOrderDto> GetSupplierOrderByIdAsync(int orderId)
         {
-            return await _domain.GetSupplierOrderByIdAsync(orderId);
+            var order = await _domain.GetSupplierOrderByIdAsync(orderId);
+            return _mapper.Map<SupplierOrderDto>(order);
         }
 
-        public async Task<ISupplierOrder> AddSupplierOrderAsync(ISupplierOrder order)
+        public async Task<SupplierOrderDto> AddSupplierOrderAsync(SupplierOrderDto orderDto)
         {
-            return await _domain.AddSupplierOrderAsync(order);
+            var order = _mapper.Map<ISupplierOrder>(orderDto);
+            var createdOrder = await _domain.AddSupplierOrderAsync(order);
+            return _mapper.Map<SupplierOrderDto>(createdOrder);
         }
 
-        public async Task<bool> UpdateSupplierOrderAsync(ISupplierOrder order)
+        public async Task<bool> UpdateSupplierOrderAsync(SupplierOrderDto orderDto)
         {
+            var order = _mapper.Map<ISupplierOrder>(orderDto);
             return await _domain.UpdateSupplierOrderAsync(order);
         }
 
@@ -42,3 +51,4 @@ namespace API.Services.Logistics
         }
     }
 }
+

@@ -7,6 +7,7 @@ using API.Services.Interfaces;
 using API.Services.Logistics;
 using API.Services.OrderService;
 using Logistics.Models;
+using softserve.projectlabs.Shared.Interfaces;
 
 namespace API.Utils.Extensions;
 

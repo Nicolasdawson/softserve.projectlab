@@ -8,6 +8,7 @@ using API.Data.Entities;
 using API.Data;
 using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
+using softserve.projectlabs.Shared.DTOs;
 
 public class WarehouseService : IWarehouseService
 {
@@ -22,108 +23,63 @@ public class WarehouseService : IWarehouseService
         _mapper = mapper;
     }
 
-    public async Task<List<Warehouse>> GetWarehousesAsync()
+    public async Task<List<WarehouseResponseDto>> GetWarehousesAsync()
     {
         var result = await _warehouseDomain.GetAllWarehousesAsync();
-        return result.IsSuccess ? result.Data : new List<Warehouse>();
+        return result.IsSuccess
+            ? _mapper.Map<List<WarehouseResponseDto>>(result.Data)
+            : new List<WarehouseResponseDto>();
     }
 
-    public async Task<Result<Warehouse>> GetWarehouseByIdAsync(int warehouseId)
+    public async Task<Result<WarehouseResponseDto>> GetWarehouseByIdAsync(int warehouseId)
     {
-        return await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
+        var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
+        return result.IsSuccess
+            ? Result<WarehouseResponseDto>.Success(_mapper.Map<WarehouseResponseDto>(result.Data))
+            : Result<WarehouseResponseDto>.Failure(result.ErrorMessage, result.ErrorCode);
     }
 
-    public async Task<Result<IWarehouse>> AddItemToWarehouseAsync(int warehouseId, Item item)
+    public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto)
     {
-        var strategy = _context.Database.CreateExecutionStrategy();
-
-        return await strategy.ExecuteAsync(async () =>
-        {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            bool transactionCommitted = false; // Track transaction state
-
-            try
-            {
-                // Validate WarehouseId
-                var warehouseExists = await _context.WarehouseEntities.AnyAsync(w => w.WarehouseId == warehouseId);
-                if (!warehouseExists)
-                    return Result<IWarehouse>.Failure($"WarehouseId {warehouseId} does not exist.", 400);
-
-                if (item == null)
-                    return Result<IWarehouse>.Failure("Item cannot be null", 400);
-
-                // Check if item exists in system
-                var itemEntity = await _context.ItemEntities.FirstOrDefaultAsync(i => i.Sku == item.Sku);
-                if (itemEntity == null) // New item
-                {
-                    itemEntity = _mapper.Map<ItemEntity>(item);
-                    await _context.ItemEntities.AddAsync(itemEntity);
-                    await _context.SaveChangesAsync();
-                }
-
-                // Check for duplicate entry in WarehouseItemEntity
-                var duplicateExists = await _context.WarehouseItemEntities
-                    .AnyAsync(wi => wi.WarehouseId == warehouseId && wi.Sku == itemEntity.Sku);
-                if (duplicateExists)
-                    return Result<IWarehouse>.Failure($"Item with SKU {itemEntity.Sku} already exists in WarehouseId {warehouseId}.", 400);
-
-                // Add warehouse-item relationship
-                var warehouseItem = new WarehouseItemEntity
-                {
-                    WarehouseId = warehouseId,
-                    Sku = itemEntity.Sku,
-                    ItemQuantity = item.CurrentStock
-                };
-
-                await _context.WarehouseItemEntities.AddAsync(warehouseItem);
-                await _context.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-                transactionCommitted = true; // Mark transaction as committed
-
-                // Map the result to IWarehouse
-                var warehouseResult = await GetWarehouseByIdAsync(warehouseId);
-                if (!warehouseResult.IsSuccess)
-                    return Result<IWarehouse>.Failure(warehouseResult.ErrorMessage, warehouseResult.ErrorCode);
-
-                var warehouse = _mapper.Map<IWarehouse>(warehouseResult.Data);
-                return Result<IWarehouse>.Success(warehouse);
-            }
-            catch (Exception ex)
-            {
-                if (!transactionCommitted) // Only roll back if the transaction was not committed
-                {
-                    await transaction.RollbackAsync();
-                }
-
-                return Result<IWarehouse>.Failure(
-                    $"Failed to add item: {ex.Message}. Inner Exception: {ex.InnerException?.Message}",
-                    500,
-                    ex.StackTrace);
-            }
-        });
+        var item = _mapper.Map<Item>(itemDto);
+        var result = await _warehouseDomain.AddItemToWarehouseAsync(warehouseId, item);
+        return result.IsSuccess
+            ? Result<bool>.Success(true)
+            : Result<bool>.Failure(result.ErrorMessage, result.ErrorCode);
     }
 
+    public async Task<Result<List<ItemDto>>> GetLowStockItemsAsync(int warehouseId, int threshold)
+    {
+        var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
+        if (!result.IsSuccess)
+            return Result<List<ItemDto>>.Failure(result.ErrorMessage, result.ErrorCode);
 
-
-
+        var lowStockResult = await result.Data.GetLowStockItemsAsync(threshold);
+        return lowStockResult.IsSuccess
+            ? Result<List<ItemDto>>.Success(_mapper.Map<List<ItemDto>>(lowStockResult.Data))
+            : Result<List<ItemDto>>.Failure(lowStockResult.ErrorMessage, lowStockResult.ErrorCode);
+    }
 
     public async Task<Result<bool>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId)
     {
         var result = await _warehouseDomain.RemoveItemFromWarehouseAsync(warehouseId, itemId);
-        if (result.IsNoContent)
-            return Result<bool>.NoContent();
 
-        return result.IsSuccess
-            ? Result<bool>.Success(true)
-            : Result<bool>.Failure(result.ErrorMessage, result.ErrorCode, result.StackTrace);
+        if (!result.IsSuccess)
+        {
+            return Result<bool>.Failure(result.ErrorMessage, result.ErrorCode, result.StackTrace);
+        }
+
+        // If the operation is successful, return a Result<bool> with true
+        return Result<bool>.Success(true);
     }
+
+
 
     public async Task<Result<int>> CheckWarehouseStockAsync(int warehouseId, int sku)
     {
         var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
         if (!result.IsSuccess)
-            return Result<int>.Failure(result.ErrorMessage, result.ErrorCode, result.StackTrace);
+            return Result<int>.Failure(result.ErrorMessage, result.ErrorCode);
 
         var stockResult = await result.Data.CheckItemStockAsync(sku);
         return stockResult;
@@ -147,16 +103,6 @@ public class WarehouseService : IWarehouseService
             targetResult.Data);
 
         return transferResult;
-    }
-
-    public async Task<Result<List<Item>>> GetLowStockItemsAsync(int warehouseId, int threshold)
-    {
-        var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
-        if (!result.IsSuccess)
-            return Result<List<Item>>.Failure(result.ErrorMessage, result.ErrorCode, result.StackTrace);
-
-        var lowStockResult = await result.Data.GetLowStockItemsAsync(threshold);
-        return lowStockResult;
     }
 
     public async Task<Result<decimal>> CalculateTotalInventoryValueAsync(int warehouseId)

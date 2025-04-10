@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
+using softserve.projectlabs.Shared.DTOs;
+using AutoMapper; // Add this for mapping
 
 namespace API.Controllers.Logistics
 {
@@ -12,16 +14,19 @@ namespace API.Controllers.Logistics
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IMapper _mapper; // Add IMapper for DTO mapping
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, IMapper mapper)
         {
             _orderService = orderService;
+            _mapper = mapper;
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] OrderItemRequest orderRequest)
         {
-            var result = await _orderService.CreateOrderAsync(orderRequest);
+            var orderRequestDto = _mapper.Map<OrderItemRequestDto>(orderRequest); // Map OrderItemRequest to OrderItemRequestDto
+            var result = await _orderService.CreateOrderAsync(orderRequestDto);
             return result.IsSuccess ? CreatedAtAction(nameof(GetOrderById), new { id = result.Data.OrderId }, result.Data)
                                     : BadRequest(result.ErrorMessage);
         }
@@ -43,7 +48,9 @@ namespace API.Controllers.Logistics
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
         {
-            var result = await _orderService.UpdateOrderAsync(order);
+            var orderDto = _mapper.Map<OrderDto>(order); // Map Order to OrderDto
+            orderDto.OrderId = id; // Ensure the ID is set correctly
+            var result = await _orderService.UpdateOrderAsync(orderDto);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
@@ -53,9 +60,11 @@ namespace API.Controllers.Logistics
             var result = await _orderService.DeleteOrderAsync(id);
             if (result.IsNoContent)
             {
-                return NoContent();  // Returns HTTP 204 No Content
+                return NoContent(); // Returns HTTP 204 No Content
             }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
     }
 }
+
+
