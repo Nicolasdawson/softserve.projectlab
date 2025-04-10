@@ -1,7 +1,5 @@
-﻿using API.Data.Entities;
-using API.Models.IntAdmin;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.Utilities; // Add this using directive at the top of the file
 
 namespace API.Models.Logistics.Interfaces
 {

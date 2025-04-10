@@ -1,6 +1,7 @@
 ﻿using API.Data.Entities;
 using API.Models.IntAdmin.Interfaces;
 using System.Collections.Generic;
+using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Models.IntAdmin
 {

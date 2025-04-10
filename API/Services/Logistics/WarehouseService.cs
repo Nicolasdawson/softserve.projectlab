@@ -2,14 +2,12 @@
 using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;
 using API.Models.Logistics;
-using API.Models;
-using API.Services.Interfaces;
 using AutoMapper;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using API.Data.Entities;
 using API.Data;
+using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.Interfaces;
 
 public class WarehouseService : IWarehouseService
 {

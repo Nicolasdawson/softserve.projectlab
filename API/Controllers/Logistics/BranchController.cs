@@ -3,50 +3,47 @@ using API.Services.Logistics;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using softserve.projectlabs.Shared.Interfaces;
+using softserve.projectlabs.Shared.DTOs;
+using AutoMapper;
 
 namespace API.Controllers.Logistics
 {
-    /// <summary>
-    /// Controller for managing branches.
-    /// </summary>
+    
     [ApiController]
-    [Route("api/branches")] // More explicit than [controller]
+    [Route("api/branches")] 
     public class BranchController : ControllerBase
     {
         private readonly IBranchService _branchService;
+        private readonly IMapper _mapper; 
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BranchController"/> class.
-        /// </summary>
-        /// <param name="branchService">The branch service.</param>
-        public BranchController(IBranchService branchService)
+        public BranchController(IBranchService branchService, IMapper mapper)
         {
             _branchService = branchService;
+            _mapper = new MapperConfiguration(cfg => cfg.CreateMap<Branch, BranchDto>()).CreateMapper(); 
         }
 
-        /// <summary>
-        /// Adds a new branch.
-        /// </summary>
-        /// <param name="branch">The branch to add.</param>
-        /// <returns>The result of the add operation.</returns>
-        [HttpPost] // No need for "add" in route, POST already implies creation
+
+        [HttpPost]
         public async Task<IActionResult> AddBranch([FromBody] Branch branch)
         {
-            var result = await _branchService.AddBranchAsync(branch);
+            // Map Branch to BranchDto
+            var branchDto = _mapper.Map<BranchDto>(branch);
+
+            var result = await _branchService.AddBranchAsync(branchDto);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Updates an existing branch.
-        /// </summary>
-        /// <param name="branchId">The ID of the branch.</param>
-        /// <param name="branch">The branch to update.</param>
-        /// <returns>The result of the update operation.</returns>
-        [HttpPut("{branchId}")] // RESTful: Use resource identifier in route
+
+        [HttpPut("{branchId}")]
         public async Task<IActionResult> UpdateBranch(int branchId, [FromBody] Branch branch)
         {
-            branch.BranchId = branchId; // Ensure the branch ID is set correctly
-            var result = await _branchService.UpdateBranchAsync(branch);
+            branch.BranchId = branchId; 
+
+            // Map Branch to BranchDto
+            var branchDto = _mapper.Map<BranchDto>(branch);
+
+            var result = await _branchService.UpdateBranchAsync(branchDto);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 

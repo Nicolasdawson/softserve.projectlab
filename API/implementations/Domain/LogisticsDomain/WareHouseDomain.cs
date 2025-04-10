@@ -7,6 +7,7 @@ using API.Models.Logistics;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Implementations.Domain
 {

@@ -2,6 +2,7 @@
 using API.Models.Logistics.Interfaces;
 using API.Models.Logistics;
 using API.Models;
+using softserve.projectlabs.Shared.Utilities;
 
 namespace Logistics.Models
 {

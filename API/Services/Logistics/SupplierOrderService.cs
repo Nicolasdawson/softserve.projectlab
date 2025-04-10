@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using API.Models.Logistics.Interfaces;
 using API.Domain.Logistics;
+using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.Interfaces;
 
 namespace API.Services.Logistics
 {

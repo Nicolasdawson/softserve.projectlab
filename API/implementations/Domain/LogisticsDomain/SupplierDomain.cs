@@ -1,6 +1,7 @@
 ﻿using API.Data.Entities;
 using API.Models;
 using Logistics.Models;
+using softserve.projectlabs.Shared.Utilities;
 
 
 namespace API.Implementations.Domain

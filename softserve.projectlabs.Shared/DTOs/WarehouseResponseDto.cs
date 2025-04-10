@@ -1,4 +1,4 @@
-﻿namespace API.Models.DTOs
+﻿namespace softserve.projectlabs.Shared.DTOs
 {
     public class WarehouseResponseDto
     {

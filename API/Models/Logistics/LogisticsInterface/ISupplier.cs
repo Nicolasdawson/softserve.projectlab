@@ -1,5 +1,6 @@
 ﻿using API.Data.Entities;
 using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Models.Logistics.Interfaces
 {

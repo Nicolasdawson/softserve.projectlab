@@ -3,6 +3,7 @@ using API.Models.Customers;
 using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
+using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Models.Logistics
 {

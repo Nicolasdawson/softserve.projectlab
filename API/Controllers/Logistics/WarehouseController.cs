@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using API.Models.IntAdmin;
-using API.Services.Interfaces;
-using System.Threading.Tasks;
-using API.Models.Logistics;
-using API.Models;
 using AutoMapper;
-using API.Models.DTOs;
-using Microsoft.Extensions.Logging;
-
+using API.Models;
+using softserve.projectlabs.Shared.DTOs;
+using softserve.projectlabs.Shared.Interfaces;
+using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Controllers
 {
@@ -64,29 +61,27 @@ namespace API.Controllers
                 return BadRequest("Unit cost must be positive");
             }
 
-            var item = _mapper.Map<Item>(itemDto);
-            _logger.LogInformation("Mapped AddItemToWarehouseDTO to Item. SKU: {Sku}, Name: {Name}", item.Sku, item.Name);
-
             // Calculate final price if not provided
             if (itemDto.ItemPrice == 0)
             {
-                item.ItemPrice = CalculateItemPrice(itemDto);
-                _logger.LogInformation("Calculated ItemPrice for SKU: {Sku}. Final Price: {ItemPrice}", item.Sku, item.ItemPrice);
+                itemDto.ItemPrice = CalculateItemPrice(itemDto);
+                _logger.LogInformation("Calculated ItemPrice for SKU: {Sku}. Final Price: {ItemPrice}", itemDto.Sku, itemDto.ItemPrice);
             }
 
-            var result = await _warehouseService.AddItemToWarehouseAsync(warehouseId, item);
+            var result = await _warehouseService.AddItemToWarehouseAsync(warehouseId, itemDto);
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Successfully added item to WarehouseId: {WarehouseId}, SKU: {Sku}", warehouseId, item.Sku);
+                _logger.LogInformation("Successfully added item to WarehouseId: {WarehouseId}, SKU: {Sku}", warehouseId, itemDto.Sku);
                 return Ok(new { Message = "Item successfully added to the database." });
             }
             else
             {
-                _logger.LogError("Failed to add item to WarehouseId: {WarehouseId}, SKU: {Sku}. Error: {ErrorMessage}", warehouseId, item.Sku, result.ErrorMessage);
+                _logger.LogError("Failed to add item to WarehouseId: {WarehouseId}, SKU: {Sku}. Error: {ErrorMessage}", warehouseId, itemDto.Sku, result.ErrorMessage);
                 return BadRequest(result.ErrorMessage);
             }
         }
+
 
 
         [HttpDelete("{warehouseId}/items/{itemId}")]

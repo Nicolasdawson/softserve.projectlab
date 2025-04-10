@@ -4,6 +4,8 @@ using API.Models.Customers;
 using API.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.Interfaces;
 
 namespace API.Services
 {

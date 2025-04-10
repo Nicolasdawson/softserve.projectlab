@@ -2,36 +2,56 @@
 using API.Models.Logistics;
 using API.Data.Entities;
 using API.Models;
+using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.Interfaces;
+using softserve.projectlabs.Shared.DTOs;
+using AutoMapper; 
 
 namespace API.Services.Logistics
 {
     public class BranchService : IBranchService
     {
         private readonly BranchDomain _branchDomain;
+        private readonly IMapper _mapper; // Add IMapper for DTO mapping
 
-        public BranchService(BranchDomain branchDomain)
+        public BranchService(BranchDomain branchDomain, IMapper mapper)
         {
             _branchDomain = branchDomain;
+            _mapper = mapper;
         }
 
-        public async Task<Result<Branch>> AddBranchAsync(Branch branch)
+        public async Task<Result<BranchDto>> AddBranchAsync(BranchDto branchDto)
         {
-            return await _branchDomain.CreateBranch(branch);
+            var branch = _mapper.Map<Branch>(branchDto); // Map DTO to entity
+            var result = await _branchDomain.CreateBranch(branch);
+            return result.IsSuccess
+                ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data)) // Map entity back to DTO
+                : Result<BranchDto>.Failure(result.ErrorMessage);
         }
 
-        public async Task<Result<Branch>> UpdateBranchAsync(Branch branch)
+        public async Task<Result<BranchDto>> UpdateBranchAsync(BranchDto branchDto)
         {
-            return await _branchDomain.UpdateBranch(branch);
+            var branch = _mapper.Map<Branch>(branchDto); // Map DTO to entity
+            var result = await _branchDomain.UpdateBranch(branch);
+            return result.IsSuccess
+                ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data)) // Map entity back to DTO
+                : Result<BranchDto>.Failure(result.ErrorMessage);
         }
 
-        public async Task<Result<Branch>> GetBranchByIdAsync(int branchId)
+        public async Task<Result<BranchDto>> GetBranchByIdAsync(int branchId)
         {
-            return await _branchDomain.GetBranchById(branchId);
+            var result = await _branchDomain.GetBranchById(branchId);
+            return result.IsSuccess
+                ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data)) // Map entity to DTO
+                : Result<BranchDto>.Failure(result.ErrorMessage);
         }
 
-        public async Task<Result<List<Branch>>> GetAllBranchesAsync()
+        public async Task<Result<List<BranchDto>>> GetAllBranchesAsync()
         {
-            return await _branchDomain.GetAllBranches();
+            var result = await _branchDomain.GetAllBranches();
+            return result.IsSuccess
+                ? Result<List<BranchDto>>.Success(_mapper.Map<List<BranchDto>>(result.Data)) // Map list of entities to DTOs
+                : Result<List<BranchDto>>.Failure(result.ErrorMessage);
         }
 
         public async Task<Result<bool>> RemoveBranchAsync(int branchId)

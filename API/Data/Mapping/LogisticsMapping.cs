@@ -4,6 +4,8 @@ using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;
 using API.Models.Logistics;
 using AutoMapper;
+using softserve.projectlabs.Shared.DTOs;
+using Logistics.Models;
 
 public class LogisticsMapping : Profile
 {
@@ -18,6 +20,19 @@ public class LogisticsMapping : Profile
 
         // Map from Warehouse to IWarehouse
         CreateMap<Warehouse, IWarehouse>().ConvertUsing(src => src); // Use Warehouse as the implementation
+
+        CreateMap<Warehouse, WarehouseResponseDto>();
+        CreateMap<Item, ItemDto>();
+        CreateMap<AddItemToWarehouseDTO, Item>();
+        CreateMap<Branch, BranchDto>().ReverseMap();
+        CreateMap<Order, OrderDto>().ReverseMap();
+        CreateMap<Supplier, SupplierDto>().ReverseMap();
+        CreateMap<SupplierOrder, SupplierOrderDto>().ReverseMap();
+        CreateMap<SupplierOrder, SupplierOrderDto>().ReverseMap();
+        CreateMap<OrderItemRequest, OrderItemRequestDto>();
+        CreateMap<Item, AddItemToWarehouseDTO>().ReverseMap();
+        CreateMap<Branch, BranchDto>().ReverseMap();
+        CreateMap<Item, AddItemToWarehouseDTO>().ReverseMap();
 
         // Map from ItemEntity to Item
         CreateMap<ItemEntity, Item>()

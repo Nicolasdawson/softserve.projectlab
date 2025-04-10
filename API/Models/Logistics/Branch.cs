@@ -1,5 +1,5 @@
 ﻿using API.Models.Logistics.Interfaces;
-
+using softserve.projectlabs.Shared.Utilities;
 namespace API.Models.Logistics
 {
     public class Branch : IBranch

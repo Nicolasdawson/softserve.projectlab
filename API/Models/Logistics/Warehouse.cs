@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using API.Models;
 using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;
+using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Models.Logistics
 {
