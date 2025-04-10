@@ -1,7 +1,10 @@
-﻿using API.Data.Entities;
+﻿using API.Data;
+using API.Data.Entities;
 using API.Models;
+using API.Models.DTOs;
 using API.Models.IntAdmin;
 using API.Models.IntAdmin.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,175 +12,299 @@ using System.Threading.Tasks;
 
 namespace API.Implementations.Domain
 {
-    /// <summary>
-    /// Domain class for handling Role operations.
-    /// Uses in-memory storage for roles.
-    /// </summary>
     public class RoleDomain
     {
-        // In-memory storage for roles
-        private readonly List<Role> _roles = new List<Role>();
+        private readonly ApplicationDbContext _context;
+
+        public RoleDomain(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         /// <summary>
-        /// Creates a new role and adds it to the in-memory list.
+        /// Creates a new role in the database.
+        /// First, it saves the RoleEntity; then, if permission IDs are provided, it creates RolePermissionEntity rows.
         /// </summary>
-        /// <param name="role">Role object to be created</param>
-        /// <returns>Result object containing the created role</returns>
-        public async Task<Result<Role>> CreateRole(Role role)
+        public async Task<Result<Role>> CreateRoleAsync(RoleDto roleDto)
         {
             try
             {
-                _roles.Add(role);
+                // Create and save the base RoleEntity from the DTO.
+                var roleEntity = new RoleEntity
+                {
+                    RoleName = roleDto.RoleName,
+                    RoleDescription = roleDto.RoleDescription,
+                    RoleStatus = roleDto.RoleStatus
+                };
+
+                _context.RoleEntities.Add(roleEntity);
+                await _context.SaveChangesAsync();
+
+                // If permission IDs are provided, add the corresponding RolePermissionEntities.
+                if (roleDto.PermissionIds != null && roleDto.PermissionIds.Any())
+                {
+                    foreach (var permId in roleDto.PermissionIds)
+                    {
+                        var permissionEntity = await _context.PermissionEntities
+                            .FirstOrDefaultAsync(p => p.PermissionId == permId);
+                        if (permissionEntity != null)
+                        {
+                            var rolePermissionEntity = new RolePermissionEntity
+                            {
+                                RoleId = roleEntity.RoleId,
+                                PermissionId = permId,
+                                RoleName = roleEntity.RoleName,
+                                PermissionName = permissionEntity.PermissionName
+                            };
+                            _context.RolePermissionEntities.Add(rolePermissionEntity);
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+                // Map the saved entity to the Role model.
+                var role = MapToRole(roleEntity);
                 return Result<Role>.Success(role);
             }
             catch (Exception ex)
             {
-                return Result<Role>.Failure($"Failed to create role: {ex.Message}");
+                return Result<Role>.Failure($"Error creating role: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Updates an existing role if found.
+        /// Updates an existing role in the database.
+        /// It updates the RoleEntity and syncs its permissions using RolePermissionEntities.
         /// </summary>
-        /// <param name="role">Role object with updated information</param>
-        /// <returns>Result object containing the updated role</returns>
-        public async Task<Result<Role>> UpdateRole(Role role)
+        public async Task<Result<Role>> UpdateRoleAsync(int roleId, RoleDto roleDto)
         {
             try
             {
-                var existingRole = _roles.FirstOrDefault(r => r.RoleId == role.RoleId);
-                if (existingRole != null)
-                {
-                    existingRole.RoleName = role.RoleName;
-                    existingRole.RoleDescription = role.RoleDescription;
-                    existingRole.RoleStatus = role.RoleStatus;
-                    existingRole.Permissions = role.Permissions; // update if needed
-                    return Result<Role>.Success(existingRole);
-                }
-                else
+                var roleEntity = await _context.RoleEntities
+                    .Include(r => r.RolePermissionEntities)
+                    .FirstOrDefaultAsync(r => r.RoleId == roleId);
+
+                if (roleEntity == null)
                 {
                     return Result<Role>.Failure("Role not found.");
                 }
-            }
-            catch (Exception ex)
-            {
-                return Result<Role>.Failure($"Failed to update role: {ex.Message}");
-            }
-        }
 
-        /// <summary>
-        /// Retrieves a role by its unique ID.
-        /// </summary>
-        /// <param name="roleId">Unique identifier of the role</param>
-        /// <returns>Result object containing the role if found, otherwise an error</returns>
-        public async Task<Result<Role>> GetRoleById(int roleId)
-        {
-            try
-            {
-                var role = _roles.FirstOrDefault(r => r.RoleId == roleId);
-                return role != null
-                    ? Result<Role>.Success(role)
-                    : Result<Role>.Failure("Role not found.");
-            }
-            catch (Exception ex)
-            {
-                return Result<Role>.Failure($"Failed to get role: {ex.Message}");
-            }
-        }
+                // Update basic properties.
+                roleEntity.RoleName = roleDto.RoleName;
+                roleEntity.RoleDescription = roleDto.RoleDescription;
+                roleEntity.RoleStatus = roleDto.RoleStatus;
 
-        /// <summary>
-        /// Retrieves all roles stored in memory.
-        /// </summary>
-        /// <returns>Result object containing a list of roles</returns>
-        public async Task<Result<List<Role>>> GetAllRoles()
-        {
-            try
-            {
-                return Result<List<Role>>.Success(_roles);
-            }
-            catch (Exception ex)
-            {
-                return Result<List<Role>>.Failure($"Failed to retrieve roles: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Removes a role by its unique ID.
-        /// </summary>
-        /// <param name="roleId">Unique identifier of the role to remove</param>
-        /// <returns>Result object indicating success or failure</returns>
-        public async Task<Result<bool>> RemoveRole(int roleId)
-        {
-            try
-            {
-                var roleToRemove = _roles.FirstOrDefault(r => r.RoleId == roleId);
-                if (roleToRemove != null)
+                // Sync permissions: Remove those not in the new list and add missing ones.
+                if (roleDto.PermissionIds != null)
                 {
-                    _roles.Remove(roleToRemove);
-                    return Result<bool>.Success(true);
+                    // Remove permissions that are no longer in the list.
+                    var toRemove = roleEntity.RolePermissionEntities
+                        .Where(rp => !roleDto.PermissionIds.Contains(rp.PermissionId))
+                        .ToList();
+                    _context.RolePermissionEntities.RemoveRange(toRemove);
+
+                    // Determine which permissions to add.
+                    var currentPermissionIds = roleEntity.RolePermissionEntities.Select(rp => rp.PermissionId).ToList();
+                    var toAdd = roleDto.PermissionIds.Except(currentPermissionIds).ToList();
+                    foreach (var permId in toAdd)
+                    {
+                        var permissionEntity = await _context.PermissionEntities
+                            .FirstOrDefaultAsync(p => p.PermissionId == permId);
+                        if (permissionEntity != null)
+                        {
+                            var newRolePermissionEntity = new RolePermissionEntity
+                            {
+                                RoleId = roleEntity.RoleId,
+                                PermissionId = permId,
+                                RoleName = roleEntity.RoleName,
+                                PermissionName = permissionEntity.PermissionName
+                            };
+                            _context.RolePermissionEntities.Add(newRolePermissionEntity);
+                        }
+                    }
                 }
-                else
+
+                await _context.SaveChangesAsync();
+                var updatedRole = MapToRole(roleEntity);
+                return Result<Role>.Success(updatedRole);
+            }
+            catch (Exception ex)
+            {
+                return Result<Role>.Failure($"Error updating role: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a role by its unique ID from the database.
+        /// </summary>
+        public async Task<Result<Role>> GetRoleByIdAsync(int roleId)
+        {
+            try
+            {
+                var roleEntity = await _context.RoleEntities
+                    .Include(r => r.RolePermissionEntities)
+                    .FirstOrDefaultAsync(r => r.RoleId == roleId);
+
+                if (roleEntity == null)
+                {
+                    return Result<Role>.Failure("Role not found.");
+                }
+
+                var role = MapToRole(roleEntity);
+                return Result<Role>.Success(role);
+            }
+            catch (Exception ex)
+            {
+                return Result<Role>.Failure($"Error retrieving role: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all roles from the database.
+        /// </summary>
+        public async Task<Result<List<Role>>> GetAllRolesAsync()
+        {
+            try
+            {
+                var roleEntities = await _context.RoleEntities
+                    .Include(r => r.RolePermissionEntities)
+                    .ToListAsync();
+                var roles = roleEntities.Select(r => MapToRole(r)).ToList();
+                return Result<List<Role>>.Success(roles);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<Role>>.Failure($"Error retrieving roles: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Deletes a role from the database by its unique ID.
+        /// </summary>
+        public async Task<Result<bool>> DeleteRoleAsync(int roleId)
+        {
+            try
+            {
+                var roleEntity = await _context.RoleEntities
+                    .FirstOrDefaultAsync(r => r.RoleId == roleId);
+                if (roleEntity == null)
                 {
                     return Result<bool>.Failure("Role not found.");
                 }
+
+                _context.RoleEntities.Remove(roleEntity);
+                await _context.SaveChangesAsync();
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Failed to remove role: {ex.Message}");
+                return Result<bool>.Failure($"Error deleting role: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Adds a permission to the role's Permissions list.
+        /// Adds a permission to a role by creating a RolePermissionEntity.
         /// </summary>
-        /// <param name="roleId">ID of the role</param>
-        /// <param name="permission">Permission object to add</param>
-        /// <returns>Result object indicating success or failure</returns>
-        public async Task<Result<bool>> AddPermissionToRole(int roleId, IPermission permission)
+        public async Task<Result<bool>> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds)
         {
             try
             {
-                var existingRole = _roles.FirstOrDefault(r => r.RoleId == roleId);
-                if (existingRole != null)
+                var roleEntity = await _context.RoleEntities
+                    .Include(r => r.RolePermissionEntities)
+                    .FirstOrDefaultAsync(r => r.RoleId == roleId);
+                if (roleEntity == null)
                 {
-                    existingRole.Permissions.Add(permission);
-                    return Result<bool>.Success(true);
+                    return Result<bool>.Failure("Role not found.");
                 }
-                return Result<bool>.Failure("Role not found.");
+
+                // Para cada ID en la lista, verifica si ya está asignado o no.
+                foreach (var permId in permissionIds)
+                {
+                    bool alreadyAssigned = roleEntity.RolePermissionEntities
+                        .Any(rp => rp.PermissionId == permId);
+
+                    if (!alreadyAssigned)
+                    {
+                        var permissionEntity = await _context.PermissionEntities
+                            .FirstOrDefaultAsync(p => p.PermissionId == permId);
+
+                        if (permissionEntity != null)
+                        {
+                            var newRolePermission = new RolePermissionEntity
+                            {
+                                RoleId = roleId,
+                                PermissionId = permId,
+                                RoleName = roleEntity.RoleName,
+                                PermissionName = permissionEntity.PermissionName
+                            };
+                            _context.RolePermissionEntities.Add(newRolePermission);
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Failed to add permission: {ex.Message}");
+                return Result<bool>.Failure($"Error adding permissions: {ex.Message}");
             }
         }
 
+
         /// <summary>
-        /// Removes a permission from the role's Permissions list by permission ID.
+        /// Removes a permission from a role by deleting the corresponding RolePermissionEntity.
         /// </summary>
-        /// <param name="roleId">ID of the role</param>
-        /// <param name="permissionId">ID of the permission to remove</param>
-        /// <returns>Result object indicating success or failure</returns>
-        public async Task<Result<bool>> RemovePermissionFromRole(int roleId, int permissionId)
+        public async Task<Result<bool>> RemovePermissionFromRoleAsync(int roleId, int permissionId)
         {
             try
             {
-                var existingRole = _roles.FirstOrDefault(r => r.RoleId == roleId);
-                if (existingRole != null)
+                var rolePermissionEntity = await _context.RolePermissionEntities
+                    .FirstOrDefaultAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
+                if (rolePermissionEntity == null)
                 {
-                    var permissionToRemove = existingRole.Permissions.FirstOrDefault(p => p.PermissionId == permissionId);
-                    if (permissionToRemove != null)
-                    {
-                        existingRole.Permissions.Remove(permissionToRemove);
-                        return Result<bool>.Success(true);
-                    }
                     return Result<bool>.Failure("Permission not found in role.");
                 }
-                return Result<bool>.Failure("Role not found.");
+
+                _context.RolePermissionEntities.Remove(rolePermissionEntity);
+                await _context.SaveChangesAsync();
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Failed to remove permission: {ex.Message}");
+                return Result<bool>.Failure($"Error removing permission: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Maps a RoleEntity to the Role model.
+        /// </summary>
+        private Role MapToRole(RoleEntity entity)
+        {
+            var role = new Role
+            {
+                RoleId = entity.RoleId,
+                RoleName = entity.RoleName,
+                RoleDescription = entity.RoleDescription,
+                RoleStatus = entity.RoleStatus,
+                // Initialize the list of permissions (using Permission which implements IPermission)
+                Permissions = new List<IPermission>()
+            };
+
+            if (entity.RolePermissionEntities != null && entity.RolePermissionEntities.Any())
+            {
+                foreach (var rp in entity.RolePermissionEntities)
+                {
+                    // Create a new Permission object for each RolePermissionEntity.
+                    var permission = new Permission
+                    {
+                        PermissionId = rp.PermissionId,
+                        PermissionName = rp.PermissionName
+                    };
+                    role.Permissions.Add(permission);
+                }
+            }
+            return role;
         }
     }
 }

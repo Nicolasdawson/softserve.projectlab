@@ -1,7 +1,6 @@
-﻿using API.Data.Entities;
-using API.Models;
+﻿using API.Models;
+using API.Models.DTOs;
 using API.Models.IntAdmin;
-using API.Models.IntAdmin.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,14 +11,14 @@ namespace API.Services.IntAdmin
     /// </summary>
     public interface IRoleService
     {
-        Task<Result<Role>> AddRoleAsync(Role role);
-        Task<Result<Role>> UpdateRoleAsync(Role role);
+        Task<Result<Role>> CreateRoleAsync(RoleDto roleDto);
+        Task<Result<Role>> UpdateRoleAsync(int roleId, RoleDto roleDto);
         Task<Result<Role>> GetRoleByIdAsync(int roleId);
         Task<Result<List<Role>>> GetAllRolesAsync();
-        Task<Result<bool>> RemoveRoleAsync(int roleId);
+        Task<Result<bool>> DeleteRoleAsync(int roleId);
 
         // Permission management
-        Task<Result<bool>> AddPermissionToRoleAsync(int roleId, IPermission permission);
+        Task<Result<bool>> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds);
         Task<Result<bool>> RemovePermissionFromRoleAsync(int roleId, int permissionId);
     }
 }
