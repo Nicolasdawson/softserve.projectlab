@@ -10,8 +10,8 @@ using API.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configurar Entity Framework con SQL Server
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddTransient<SeedDb>();//Se registra SeedDb como servicio transitorio para poder usarse
 
 // Configurar CORS
 builder.Services.AddCors(options =>
@@ -40,7 +40,18 @@ builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger e
 builder.Services.AddScoped<ProductService>();
 
 var app = builder.Build();
+SeedData(app);
 
+void SeedData(WebApplication App)
+{
+    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+    using var scope = scopedFactory!.CreateScope();
+    var service = scope.ServiceProvider.GetService<SeedDb>();
+    service!.SeedAsync().Wait();
+}
+
+/*
+ 
 // Aplicar las migraciones autom�ticamente al iniciar la aplicaci�n
 using (var scope = app.Services.CreateScope())
 {
@@ -111,16 +122,17 @@ using (var scope = app.Services.CreateScope())
         );
     }
     dbContext.SaveChanges(); // Guardar los productos
-        /*
+        
                                  //
                                  //dbContext.Database.Migrate(); // Aplica las migraciones si es necesario
                                  //dbContext.Database.EnsureCreated();// Si quieres asegurarte de que se creen las tablas antes de poblar datos
         
      
-        dbContext.Database.EnsureDeleted(); // Elimina la base de datos
-        dbContext.Database.EnsureCreated();  // Esto crear� las tablas si no existen
-         */
+                                 //dbContext.Database.EnsureDeleted(); // Elimina la base de datos
+                                 //dbContext.Database.EnsureCreated();  // Esto crear� las tablas si no existen
+        
 }
+*/
 
 // Habilitar el uso de Swagger en la API
 if (app.Environment.IsDevelopment())  // Solo habilitar Swagger en desarrollo
