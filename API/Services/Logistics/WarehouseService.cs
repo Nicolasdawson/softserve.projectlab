@@ -42,7 +42,7 @@ public class WarehouseService : IWarehouseService
     public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto)
     {
         var item = _mapper.Map<Item>(itemDto);
-        var result = await _warehouseDomain.AddItemToWarehouseAsync(warehouseId, item);
+        var result = await _warehouseDomain.AddItemToWarehouseAsync(warehouseId, itemDto);
         return result.IsSuccess
             ? Result<bool>.Success(true)
             : Result<bool>.Failure(result.ErrorMessage, result.ErrorCode);
@@ -124,4 +124,16 @@ public class WarehouseService : IWarehouseService
         var reportResult = await result.Data.GenerateInventoryReportAsync();
         return reportResult;
     }
+
+    public async Task<Result<bool>> DeleteWarehouseAsync(int warehouseId)
+    {
+        return await _warehouseDomain.SoftDeleteWarehouseAsync(warehouseId);
+    }
+
+    public async Task<Result<bool>> UndeleteWarehouseAsync(int warehouseId)
+    {
+        return await _warehouseDomain.UndeleteWarehouseAsync(warehouseId);
+    }
+
+
 }

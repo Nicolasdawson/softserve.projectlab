@@ -1,129 +1,159 @@
-﻿using API.Data.Entities;
-using API.Models;
+﻿using API.Data;
+using API.Data.Entities;
+using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
+using Microsoft.EntityFrameworkCore;
+using softserve.projectlabs.Shared.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Implementations.Domain
 {
-    /// <summary>
-    /// Domain class for handling Category operations.
-    /// Uses in-memory storage for categories.
-    /// </summary>
     public class CategoryDomain
     {
-        // In-memory storage for categories
-        private readonly List<Category> _categories = new List<Category>();
+        private readonly ApplicationDbContext _context;
+
+        public CategoryDomain(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         /// <summary>
-        /// Creates a new category and adds it to the in-memory list.
+        /// Creates a new category in the database.
         /// </summary>
-        /// <param name="category">Category object to be created</param>
-        /// <returns>Result object containing the created category</returns>
-        public async Task<Result<Category>> CreateCategory(Category category)
+        public async Task<Result<Category>> CreateCategoryAsync(CategoryDto categoryDto)
         {
             try
             {
-                _categories.Add(category);
+                var categoryEntity = new CategoryEntity
+                {
+                    CategoryName = categoryDto.CategoryName,
+                    CategoryStatus = categoryDto.CategoryStatus
+                };
+
+                _context.CategoryEntities.Add(categoryEntity);
+                await _context.SaveChangesAsync();
+
+                var category = await MapToCategory(categoryEntity.CategoryId);
                 return Result<Category>.Success(category);
             }
             catch (Exception ex)
             {
-                return Result<Category>.Failure($"Failed to create category: {ex.Message}");
+                return Result<Category>.Failure($"Error creating category: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Updates an existing category if found.
+        /// Updates an existing category.
         /// </summary>
-        /// <param name="category">Category object with updated information</param>
-        /// <returns>Result object containing the updated category</returns>
-        public async Task<Result<Category>> UpdateCategory(Category category)
+        public async Task<Result<Category>> UpdateCategoryAsync(int categoryId, CategoryDto categoryDto)
         {
             try
             {
-                var existingCategory = _categories.FirstOrDefault(c => c.CategoryId == category.CategoryId);
-                if (existingCategory != null)
-                {
-                    existingCategory.CategoryName = category.CategoryName;
-                    existingCategory.CategoryStatus = category.CategoryStatus;
-                    existingCategory.Items = category.Items;
-                    return Result<Category>.Success(existingCategory);
-                }
-                else
-                {
+                var categoryEntity = await _context.CategoryEntities
+                    .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
+                if (categoryEntity == null)
                     return Result<Category>.Failure("Category not found.");
-                }
+
+                categoryEntity.CategoryName = categoryDto.CategoryName;
+                categoryEntity.CategoryStatus = categoryDto.CategoryStatus;
+
+                await _context.SaveChangesAsync();
+
+                var category = await MapToCategory(categoryId);
+                return Result<Category>.Success(category);
             }
             catch (Exception ex)
             {
-                return Result<Category>.Failure($"Failed to update category: {ex.Message}");
+                return Result<Category>.Failure($"Error updating category: {ex.Message}");
             }
         }
 
         /// <summary>
         /// Retrieves a category by its unique ID.
         /// </summary>
-        /// <param name="categoryId">Unique identifier of the category</param>
-        /// <returns>Result object containing the category if found, otherwise an error</returns>
-        public async Task<Result<Category>> GetCategoryById(int categoryId)
+        public async Task<Result<Category>> GetCategoryByIdAsync(int categoryId)
         {
             try
             {
-                var category = _categories.FirstOrDefault(c => c.CategoryId == categoryId);
-                return category != null
-                    ? Result<Category>.Success(category)
-                    : Result<Category>.Failure("Category not found.");
+                var category = await MapToCategory(categoryId);
+                if (category == null)
+                    return Result<Category>.Failure("Category not found.");
+                return Result<Category>.Success(category);
             }
             catch (Exception ex)
             {
-                return Result<Category>.Failure($"Failed to get category: {ex.Message}");
+                return Result<Category>.Failure($"Error retrieving category: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Retrieves all categories stored in memory.
+        /// Retrieves all categories.
         /// </summary>
-        /// <returns>Result object containing a list of categories</returns>
-        public async Task<Result<List<Category>>> GetAllCategories()
+        public async Task<Result<List<Category>>> GetAllCategoriesAsync()
         {
             try
             {
-                return Result<List<Category>>.Success(_categories);
-            }
-            catch (Exception ex)
-            {
-                return Result<List<Category>>.Failure($"Failed to retrieve categories: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Removes a category by its unique ID.
-        /// </summary>
-        /// <param name="categoryId">Unique identifier of the category to remove</param>
-        /// <returns>Result object indicating success or failure</returns>
-        public async Task<Result<bool>> RemoveCategory(int categoryId)
-        {
-            try
-            {
-                var categoryToRemove = _categories.FirstOrDefault(c => c.CategoryId == categoryId);
-                if (categoryToRemove != null)
+                var categoryEntities = await _context.CategoryEntities.ToListAsync();
+                var categories = new List<Category>();
+                foreach (var entity in categoryEntities)
                 {
-                    _categories.Remove(categoryToRemove);
-                    return Result<bool>.Success(true);
+                    var category = await MapToCategory(entity.CategoryId);
+                    if (category != null)
+                        categories.Add(category);
                 }
-                else
-                {
+                return Result<List<Category>>.Success(categories);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<Category>>.Failure($"Error retrieving categories: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Deletes a category by its unique ID.
+        /// </summary>
+        public async Task<Result<bool>> DeleteCategoryAsync(int categoryId)
+        {
+            try
+            {
+                var categoryEntity = await _context.CategoryEntities
+                    .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
+                if (categoryEntity == null)
                     return Result<bool>.Failure("Category not found.");
-                }
+
+                _context.CategoryEntities.Remove(categoryEntity);
+                await _context.SaveChangesAsync();
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Failed to remove category: {ex.Message}");
+                return Result<bool>.Failure($"Error deleting category: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Maps a CategoryEntity to the domain model Category.
+        /// Includes mapping of items associated to the category.
+        /// </summary>
+        private async Task<Category> MapToCategory(int categoryId)
+        {
+            var categoryEntity = await _context.CategoryEntities
+                .Include(c => c.ItemEntities)  // Incluye los items asociados.
+                .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
+            if (categoryEntity == null)
+                return null;
+
+            var category = new Category
+            {
+                CategoryId = categoryEntity.CategoryId,
+                CategoryName = categoryEntity.CategoryName,
+                CategoryStatus = categoryEntity.CategoryStatus,
+                Items = new List<Item>()
+            };
+            return category;
         }
     }
 }

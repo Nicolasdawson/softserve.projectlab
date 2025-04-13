@@ -12,51 +12,112 @@ namespace API.Services.Logistics
     public class BranchService : IBranchService
     {
         private readonly BranchDomain _branchDomain;
-        private readonly IMapper _mapper; 
+        private readonly IMapper _mapper;
+        private readonly ILogger<BranchService> _logger;
 
-        public BranchService(BranchDomain branchDomain, IMapper mapper)
+        public BranchService(BranchDomain branchDomain, IMapper mapper, ILogger<BranchService> logger)
         {
-            _branchDomain = branchDomain;
-            _mapper = mapper;
+            _branchDomain = branchDomain ?? throw new ArgumentNullException(nameof(branchDomain));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Result<BranchDto>> AddBranchAsync(BranchDto branchDto)
         {
-            var branch = _mapper.Map<Branch>(branchDto); 
-            var result = await _branchDomain.CreateBranch(branch);
+            // Validate duplicate branch
+            var existingBranch = await _branchDomain.GetBranchByNameAndCityAsync(branchDto.Name, branchDto.City);
+            if (existingBranch != null)
+            {
+                return Result<BranchDto>.Failure($"A branch with the name '{branchDto.Name}' already exists in the city '{branchDto.City}'.");
+            }
+
+            // Map BranchDto to BranchEntity
+            var branchEntity = _mapper.Map<BranchEntity>(branchDto);
+            branchEntity.IsDeleted = false; // Set IsDeleted to false by default
+
+            var result = await _branchDomain.AddBranchAsync(branchEntity);
+
             return result.IsSuccess
-                ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data)) 
-                : Result<BranchDto>.Failure(result.ErrorMessage);
+                ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data))
+                : Result<BranchDto>.Failure(result.ErrorMessage, result.ErrorCode);
         }
+
 
         public async Task<Result<BranchDto>> UpdateBranchAsync(BranchDto branchDto)
         {
-            var branch = _mapper.Map<Branch>(branchDto); 
+            _logger.LogInformation("Starting UpdateBranch for BranchId: {BranchId}", branchDto.BranchId);
+
+            var branch = _mapper.Map<Branch>(branchDto);
             var result = await _branchDomain.UpdateBranch(branch);
-            return result.IsSuccess
-                ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data)) // Map entity back to DTO
-                : Result<BranchDto>.Failure(result.ErrorMessage);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully updated BranchId: {BranchId}", branchDto.BranchId);
+                return Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data));
+            }
+            else
+            {
+                _logger.LogError("Failed to update BranchId: {BranchId}. Error: {ErrorMessage}", branchDto.BranchId, result.ErrorMessage);
+                return Result<BranchDto>.Failure(result.ErrorMessage);
+            }
         }
+
 
         public async Task<Result<BranchDto>> GetBranchByIdAsync(int branchId)
         {
+            _logger.LogInformation("Fetching BranchId: {BranchId}", branchId);
+
             var result = await _branchDomain.GetBranchById(branchId);
-            return result.IsSuccess
-                ? Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data)) // Map entity to DTO
-                : Result<BranchDto>.Failure(result.ErrorMessage);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully fetched BranchId: {BranchId}", branchId);
+                return Result<BranchDto>.Success(_mapper.Map<BranchDto>(result.Data));
+            }
+            else
+            {
+                _logger.LogError("Failed to fetch BranchId: {BranchId}. Error: {ErrorMessage}", branchId, result.ErrorMessage);
+                return Result<BranchDto>.Failure(result.ErrorMessage);
+            }
         }
+
 
         public async Task<Result<List<BranchDto>>> GetAllBranchesAsync()
         {
+            _logger.LogInformation("Fetching all branches.");
+
             var result = await _branchDomain.GetAllBranches();
-            return result.IsSuccess
-                ? Result<List<BranchDto>>.Success(_mapper.Map<List<BranchDto>>(result.Data)) // Map list of entities to DTOs
-                : Result<List<BranchDto>>.Failure(result.ErrorMessage);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully fetched all branches.");
+                return Result<List<BranchDto>>.Success(_mapper.Map<List<BranchDto>>(result.Data));
+            }
+            else
+            {
+                _logger.LogError("Failed to fetch branches. Error: {ErrorMessage}", result.ErrorMessage);
+                return Result<List<BranchDto>>.Failure(result.ErrorMessage);
+            }
         }
+
 
         public async Task<Result<bool>> RemoveBranchAsync(int branchId)
         {
-            return await _branchDomain.RemoveBranch(branchId);
+            _logger.LogInformation("Removing BranchId: {BranchId}", branchId);
+
+            var result = await _branchDomain.RemoveBranch(branchId);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully removed BranchId: {BranchId}", branchId);
+            }
+            else
+            {
+                _logger.LogError("Failed to remove BranchId: {BranchId}. Error: {ErrorMessage}", branchId, result.ErrorMessage);
+            }
+
+            return result;
         }
+
     }
 }

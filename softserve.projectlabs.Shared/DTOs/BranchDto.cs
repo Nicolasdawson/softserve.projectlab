@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace softserve.projectlabs.Shared.DTOs
+﻿namespace softserve.projectlabs.Shared.DTOs
 {
-    public class BranchDto
+    public class BranchDto : BaseDto
     {
         public int BranchId { get; set; }
-        public string Name { get; set; }
-        public string City { get; set; }
-        public string Region { get; set; }
-        public string ContactNumber { get; set; }
-        public string ContactEmail { get; set; }
-        public string Address { get; set; }
+        public string BranchName { get; set; } = string.Empty;
+        public string BranchCity { get; set; } = string.Empty;
+        public string BranchAddress { get; set; } = string.Empty;
+        public string BranchRegion { get; set; } = string.Empty;
+        public string BranchContactNumber { get; set; } = string.Empty;
+        public string BranchContactEmail { get; set; } = string.Empty;
     }
 }

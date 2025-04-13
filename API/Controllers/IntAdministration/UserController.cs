@@ -1,4 +1,5 @@
-﻿using API.Models.IntAdmin;
+﻿using softserve.projectlabs.Shared.DTOs;
+using API.Models.IntAdmin;
 using API.Services.IntAdmin;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -6,47 +7,30 @@ using System.Threading.Tasks;
 
 namespace API.Controllers.IntAdmin
 {
-    /// <summary>
-    /// API Controller for managing User operations.
-    /// </summary>
     [ApiController]
     [Route("api/users")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-
-        /// <summary>
-        /// Constructor with dependency injection for IUserService.
-        /// </summary>
         public UserController(IUserService userService)
         {
             _userService = userService;
         }
 
-        /// <summary>
-        /// Adds a new user.
-        /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] UserDto userDto)
         {
-            var result = await _userService.AddUserAsync(user);
+            var result = await _userService.CreateUserAsync(userDto);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Updates an existing user.
-        /// </summary>
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUser(int userId, [FromBody] User user)
+        public async Task<IActionResult> UpdateUser(int userId, [FromBody] UserDto userDto)
         {
-            user.UserId = userId;
-            var result = await _userService.UpdateUserAsync(user);
+            var result = await _userService.UpdateUserAsync(userId, userDto);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Retrieves a user by its unique ID.
-        /// </summary>
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(int userId)
         {
@@ -54,9 +38,6 @@ namespace API.Controllers.IntAdmin
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Retrieves all users.
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -64,29 +45,32 @@ namespace API.Controllers.IntAdmin
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Removes a user by its unique ID.
-        /// </summary>
         [HttpDelete("{userId}")]
-        public async Task<IActionResult> RemoveUser(int userId)
+        public async Task<IActionResult> DeleteUser(int userId)
         {
-            var result = await _userService.RemoveUserAsync(userId);
-            if (result.IsNoContent)
-            {
-                return NoContent();
-            }
+            var result = await _userService.DeleteUserAsync(userId);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
-        /// <summary>
-        /// Assigns a role to a user.
-        /// </summary>
-        [HttpPut("assign-role/{userId}/{roleId}")]
-        public async Task<IActionResult> AssignRole(int userId, int roleId)
+        [HttpPut("assign-roles/{userId}")]
+        public async Task<IActionResult> AssignRoles(int userId, [FromBody] List<int> roleIds)
         {
-            var result = await _userService.AssignRoleAsync(userId, roleId);
-            return result.IsSuccess ? Ok("Role assigned successfully") : NotFound(result.ErrorMessage);
+            var result = await _userService.AssignRolesAsync(userId, roleIds);
+            return result.IsSuccess ? Ok("Roles assigned successfully.") : BadRequest(result.ErrorMessage);
         }
 
+        [HttpPost("authenticate")]
+        public async Task<IActionResult> Authenticate([FromBody] UserDto userDto)
+        {
+            var result = await _userService.AuthenticateAsync(userDto.UserEmail, userDto.UserPassword);
+            return result.IsSuccess ? Ok("Authenticated") : Unauthorized(result.ErrorMessage);
+        }
+
+        [HttpPut("update-password/{userId}")]
+        public async Task<IActionResult> UpdatePassword(int userId, [FromBody] string newPassword)
+        {
+            var result = await _userService.UpdatePasswordAsync(userId, newPassword);
+            return result.IsSuccess ? Ok("Password updated") : BadRequest(result.ErrorMessage);
+        }
     }
 }

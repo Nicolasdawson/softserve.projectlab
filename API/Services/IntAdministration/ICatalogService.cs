@@ -1,40 +1,22 @@
-﻿using API.Data.Entities;
-using API.Models;
+﻿using API.Models;
 using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Services.IntAdmin
 {
-    /// <summary>
-    /// Service interface for catalog operations.
-    /// </summary>
     public interface ICatalogService
     {
-        /// <summary>
-        /// Asynchronously adds a new catalog.
-        /// </summary>
-        Task<Result<Catalog>> AddCatalogAsync(Catalog catalog);
-
-        /// <summary>
-        /// Asynchronously updates an existing catalog.
-        /// </summary>
-        Task<Result<Catalog>> UpdateCatalogAsync(Catalog catalog);
-
-        /// <summary>
-        /// Asynchronously retrieves a catalog by its unique ID.
-        /// </summary>
+        Task<Result<Catalog>> CreateCatalogAsync(CatalogDto catalogDto);
+        Task<Result<Catalog>> UpdateCatalogAsync(int catalogId, CatalogDto catalogDto);
         Task<Result<Catalog>> GetCatalogByIdAsync(int catalogId);
-
-        /// <summary>
-        /// Asynchronously retrieves all catalogs.
-        /// </summary>
         Task<Result<List<Catalog>>> GetAllCatalogsAsync();
+        Task<Result<bool>> DeleteCatalogAsync(int catalogId);
 
-        /// <summary>
-        /// Asynchronously removes a catalog by its unique ID.
-        /// </summary>
-        Task<Result<bool>> RemoveCatalogAsync(int catalogId);
+        // Category management
+        Task<Result<bool>> AddCategoriesToCatalogAsync(int catalogId, List<int> categoryIds);
+        Task<Result<bool>> RemoveCategoryFromCatalogAsync(int catalogId, int categoryId);
     }
 }

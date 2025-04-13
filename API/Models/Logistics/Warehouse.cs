@@ -32,7 +32,7 @@ namespace API.Models.Logistics
 
         public async Task<Result<IWarehouse>> AddItemAsync(Item item)
         {
-            await Task.CompletedTask; // Actual async work would go here
+            await Task.CompletedTask; 
             Items.Add(item);
             return Result<IWarehouse>.Success(this);
         }
@@ -150,7 +150,7 @@ namespace API.Models.Logistics
             {
                 var warehouseItem = Items.FirstOrDefault(i => i.Sku == item.Sku);
                 if (warehouseItem == null || warehouseItem.CurrentStock < item.CurrentStock)
-                    return Result<bool>.Failure($"Not enough stock for item: {item.Name}");
+                    return Result<bool>.Failure($"Not enough stock for item: {item.ItemName}");
 
                 warehouseItem.CurrentStock -= item.CurrentStock;
             }
