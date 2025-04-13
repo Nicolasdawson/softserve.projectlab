@@ -22,11 +22,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Basic configuration and API documentation
 //-------------------------------------------------------------------------------
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(options =>
 {
-    c.CustomSchemaIds(type => type.FullName);
+    // Include XML comments for API documentation
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
 });
 builder.Services.AddRazorPages();
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 //-------------------------------------------------------------------------------
 // Controller configuration and JSON serialization (unified)

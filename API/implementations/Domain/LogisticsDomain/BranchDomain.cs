@@ -2,19 +2,42 @@
 using API.Data.Entities;
 using API.Models;
 using softserve.projectlabs.Shared.Utilities;
+using Microsoft.EntityFrameworkCore;
+using API.Data;
+using AutoMapper;
+using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.DTOs;
+
 namespace API.Implementations.Domain
+
 {
     public class BranchDomain
     {
-        private readonly List<Branch> _branches = new List<Branch>(); // Example: In-memory storage for branches
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-       
+        public BranchDomain(ApplicationDbContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
+
+
         public async Task<Result<Branch>> CreateBranch(Branch branch)
         {
             try
             {
-                _branches.Add(branch);
-                return Result<Branch>.Success(branch);
+                // Map Branch to BranchEntity
+                var branchEntity = _mapper.Map<BranchEntity>(branch);
+                branchEntity.IsDeleted = false; // Ensure IsDeleted is set to false by default
+
+                // Add to the database
+                _context.BranchEntities.Add(branchEntity);
+                await _context.SaveChangesAsync();
+
+                // Map back to Branch and return
+                var createdBranch = _mapper.Map<Branch>(branchEntity);
+                return Result<Branch>.Success(createdBranch);
             }
             catch (Exception ex)
             {
@@ -22,20 +45,57 @@ namespace API.Implementations.Domain
             }
         }
 
+
+        public async Task<Result<BranchEntity>> AddBranchAsync(BranchEntity branchEntity)
+        {
+            try
+            {
+                _context.BranchEntities.Add(branchEntity);
+                await _context.SaveChangesAsync();
+
+                return Result<BranchEntity>.Success(branchEntity);
+            }
+            catch (Exception ex)
+            {
+                return Result<BranchEntity>.Failure($"Failed to add branch: {ex.Message}", 500, ex.StackTrace);
+            }
+        }
+
+        public async Task<BranchEntity?> GetBranchByNameAndCityAsync(string name, string city)
+        {
+            return await _context.BranchEntities
+                .FirstOrDefaultAsync(b => b.BranchName == name && b.BranchCity == city && !b.IsDeleted);
+        }
+
+
         public async Task<Result<Branch>> UpdateBranch(Branch branch)
         {
             try
             {
-                var existingBranch = _branches.FirstOrDefault(b => b.BranchId == branch.BranchId);
-                if (existingBranch != null)
-                {
-                    existingBranch.Name = branch.Name;
-                    return Result<Branch>.Success(existingBranch);
-                }
-                else
+                // Retrieve the existing branch from the database
+                var existingBranchEntity = await _context.BranchEntities
+                    .FirstOrDefaultAsync(b => b.BranchId == branch.BranchId && !b.IsDeleted);
+
+                if (existingBranchEntity == null)
                 {
                     return Result<Branch>.Failure("Branch not found.");
                 }
+
+                // Update the properties of the existing branch
+                existingBranchEntity.BranchName = branch.Name;
+                existingBranchEntity.BranchCity = branch.City;
+                existingBranchEntity.BranchRegion = branch.Region;
+                existingBranchEntity.BranchContactNumber = branch.ContactNumber;
+                existingBranchEntity.BranchContactEmail = branch.ContactEmail;
+                existingBranchEntity.BranchAddress = branch.Address;
+
+                // Save changes to the database
+                _context.BranchEntities.Update(existingBranchEntity);
+                await _context.SaveChangesAsync();
+
+                // Map the updated entity back to the Branch model
+                var updatedBranch = _mapper.Map<Branch>(existingBranchEntity);
+                return Result<Branch>.Success(updatedBranch);
             }
             catch (Exception ex)
             {
@@ -43,13 +103,20 @@ namespace API.Implementations.Domain
             }
         }
 
-    
+
+
         public async Task<Result<Branch>> GetBranchById(int branchId)
         {
             try
             {
-                var branch = _branches.FirstOrDefault(b => b.BranchId == branchId);
-                return branch != null ? Result<Branch>.Success(branch) : Result<Branch>.Failure("Branch not found.");
+                var branchEntity = await _context.BranchEntities
+                    .FirstOrDefaultAsync(b => b.BranchId == branchId && !b.IsDeleted);
+
+                if (branchEntity == null)
+                    return Result<Branch>.Failure("Branch not found.");
+
+                var branch = _mapper.Map<Branch>(branchEntity);
+                return Result<Branch>.Success(branch);
             }
             catch (Exception ex)
             {
@@ -57,11 +124,18 @@ namespace API.Implementations.Domain
             }
         }
 
+
+
         public async Task<Result<List<Branch>>> GetAllBranches()
         {
             try
             {
-                return Result<List<Branch>>.Success(_branches);
+                var branchEntities = await _context.BranchEntities
+                    .Where(b => !b.IsDeleted)
+                    .ToListAsync();
+
+                var branches = _mapper.Map<List<Branch>>(branchEntities);
+                return Result<List<Branch>>.Success(branches);
             }
             catch (Exception ex)
             {
@@ -69,26 +143,29 @@ namespace API.Implementations.Domain
             }
         }
 
-       
+
         public async Task<Result<bool>> RemoveBranch(int branchId)
         {
             try
             {
-                var branchToRemove = _branches.FirstOrDefault(b => b.BranchId == branchId);
-                if (branchToRemove != null)
-                {
-                    _branches.Remove(branchToRemove);
-                    return Result<bool>.Success(true);
-                }
-                else
-                {
+                var branchEntity = await _context.BranchEntities
+                    .FirstOrDefaultAsync(b => b.BranchId == branchId);
+
+                if (branchEntity == null)
                     return Result<bool>.Failure("Branch not found.");
-                }
+
+                branchEntity.IsDeleted = true; 
+                _context.BranchEntities.Update(branchEntity);
+                await _context.SaveChangesAsync();
+
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
                 return Result<bool>.Failure($"Failed to remove branch: {ex.Message}");
             }
         }
+
+
     }
 }

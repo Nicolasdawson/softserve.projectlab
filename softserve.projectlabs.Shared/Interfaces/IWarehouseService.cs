@@ -16,5 +16,7 @@ namespace softserve.projectlabs.Shared.Interfaces
         Task<Result<List<ItemDto>>> GetLowStockItemsAsync(int warehouseId, int threshold);
         Task<Result<decimal>> CalculateTotalInventoryValueAsync(int warehouseId);
         Task<Result<string>> GenerateInventoryReportAsync(int warehouseId);
+        Task<Result<bool>> DeleteWarehouseAsync(int warehouseId);
+        Task<Result<bool>> UndeleteWarehouseAsync(int warehouseId);
     }
 }
