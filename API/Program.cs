@@ -14,6 +14,7 @@ using API.Data;
 using softserve.projectlabs.Shared.Interfaces;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using API.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Basic configuration and API documentation
 //-------------------------------------------------------------------------------
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.CustomSchemaIds(type => type.FullName);
+});
 builder.Services.AddRazorPages();
 
 //-------------------------------------------------------------------------------
@@ -110,6 +114,8 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<LogisticsMapping>();
     cfg.AddProfile<CustomerMapping>();
+    cfg.AddProfile<IntAdminMapping>();
+    cfg.AddProfile<BaseMapping>();
 });
 
 //-------------------------------------------------------------------------------
