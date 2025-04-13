@@ -21,6 +21,12 @@ public partial class UserEntity
 
     public int BranchId { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public virtual BranchEntity Branch { get; set; } = null!;
 
     public virtual ICollection<UserRoleEntity> UserRoleEntities { get; set; } = new List<UserRoleEntity>();

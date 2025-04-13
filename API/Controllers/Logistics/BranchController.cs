@@ -42,11 +42,11 @@ namespace API.Controllers.Logistics
         [HttpPost]
         public async Task<IActionResult> AddBranch([FromBody] BranchDto branchDto)
         {
-            _logger.LogInformation("Starting AddBranch for Branch: {BranchName}", branchDto.Name);
+            _logger.LogInformation("Starting AddBranch for Branch: {BranchName}", branchDto.BranchName);
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Invalid model state for Branch: {BranchName}", branchDto.Name);
+                _logger.LogWarning("Invalid model state for Branch: {BranchName}", branchDto.BranchName);
                 return BadRequest(ModelState);
             }
 
@@ -54,12 +54,12 @@ namespace API.Controllers.Logistics
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Successfully added Branch: {BranchName}", branchDto.Name);
+                _logger.LogInformation("Successfully added Branch: {BranchName}", branchDto.BranchName);
                 return Ok(new { Message = "Branch successfully added.", Branch = result.Data });
             }
             else
             {
-                _logger.LogError("Failed to add Branch: {BranchName}. Error: {ErrorMessage}", branchDto.Name, result.ErrorMessage);
+                _logger.LogError("Failed to add Branch: {BranchName}. Error: {ErrorMessage}", branchDto.BranchName, result.ErrorMessage);
                 return BadRequest(result.ErrorMessage);
             }
         }

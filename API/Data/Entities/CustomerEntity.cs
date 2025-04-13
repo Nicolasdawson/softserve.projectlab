@@ -35,6 +35,12 @@ public partial class CustomerEntity
 
     public DateTime RegistrationDate { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public virtual BusinessCustomerEntity? BusinessCustomerEntity { get; set; }
 
     public virtual ICollection<CartEntity> CartEntities { get; set; } = new List<CartEntity>();

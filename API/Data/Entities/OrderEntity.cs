@@ -15,6 +15,12 @@ public partial class OrderEntity
 
     public DateTime OrderDate { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public virtual CustomerEntity Customer { get; set; } = null!;
 
     public virtual ICollection<OrderItemEntity> OrderItemEntities { get; set; } = new List<OrderItemEntity>();

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace softserve.projectlabs.Shared.DTOs
+﻿namespace softserve.projectlabs.Shared.DTOs
 {
-    public class SupplierDto
+    public class SupplierDto : BaseDto
     {
         public int SupplierId { get; set; }
         public string Name { get; set; }

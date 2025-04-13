@@ -11,5 +11,11 @@ public partial class PermissionEntity
 
     public string PermissionDescription { get; set; } = null!;
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public virtual ICollection<RolePermissionEntity> RolePermissionEntities { get; set; } = new List<RolePermissionEntity>();
 }

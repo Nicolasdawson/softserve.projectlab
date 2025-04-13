@@ -25,10 +25,10 @@ namespace API.Services.Logistics
         public async Task<Result<BranchDto>> AddBranchAsync(BranchDto branchDto)
         {
             // Validate duplicate branch
-            var existingBranch = await _branchDomain.GetBranchByNameAndCityAsync(branchDto.Name, branchDto.City);
+            var existingBranch = await _branchDomain.GetBranchByNameAndCityAsync(branchDto.BranchName, branchDto.BranchCity);
             if (existingBranch != null)
             {
-                return Result<BranchDto>.Failure($"A branch with the name '{branchDto.Name}' already exists in the city '{branchDto.City}'.");
+                return Result<BranchDto>.Failure($"A branch with the name '{branchDto.BranchName}' already exists in the city '{branchDto.BranchCity}'.");
             }
 
             // Map BranchDto to BranchEntity

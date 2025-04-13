@@ -11,6 +11,12 @@ public partial class LineOfCreditEntity
 
     public decimal CurrentBalance { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public virtual ICollection<CreditTransactionEntity> CreditTransactionEntities { get; set; } = new List<CreditTransactionEntity>();
 
     public virtual CustomerEntity Customer { get; set; } = null!;

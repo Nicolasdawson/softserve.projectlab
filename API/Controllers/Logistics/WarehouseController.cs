@@ -64,8 +64,8 @@ namespace API.Controllers
                 Items = w.Items.Select(i => new ItemDto
                 {
                     Sku = i.Sku,
-                    Name = i.Name,
-                    Description = i.Description,
+                    ItemName = i.ItemName,
+                    ItemDescription = i.ItemDescription,
                     ItemPrice = i.ItemPrice,
                     CurrentStock = i.CurrentStock
                 }).ToList(),

@@ -17,5 +17,11 @@ public partial class CreditTransactionEntity
 
     public int LineOfCreditId { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public virtual LineOfCreditEntity LineOfCredit { get; set; } = null!;
 }

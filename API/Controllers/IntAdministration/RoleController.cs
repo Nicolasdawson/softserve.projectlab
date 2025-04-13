@@ -1,8 +1,7 @@
-﻿using API.Models.IntAdmin;
-using API.Models.IntAdmin.Interfaces;
+﻿using softserve.projectlabs.Shared.DTOs;
+using API.Models.IntAdmin;
 using API.Services.IntAdmin;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace API.Controllers.IntAdmin
@@ -28,27 +27,27 @@ namespace API.Controllers.IntAdmin
         /// Adds a new role.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CreateRole([FromBody] Role role)
+        public async Task<IActionResult> CreateRole([FromBody] RoleDto roleDto)
         {
-            var result = await _roleService.AddRoleAsync(role);
+            // Llamas directamente a CreateRoleAsync(roleDto)
+            var result = await _roleService.CreateRoleAsync(roleDto);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
         /// <summary>
         /// Updates an existing role.
         /// </summary>
-        [HttpPut("{RoleId}")]
-        public async Task<IActionResult> UpdateRole(int RoleId, [FromBody] Role role)
+        [HttpPut("{roleId}")]
+        public async Task<IActionResult> UpdateRole(int roleId, [FromBody] RoleDto roleDto)
         {
-            role.RoleId = RoleId;
-            var result = await _roleService.UpdateRoleAsync(role);
+            var result = await _roleService.UpdateRoleAsync(roleId, roleDto);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
         /// <summary>
         /// Retrieves a role by its unique ID.
         /// </summary>
-        [HttpGet("{RoleId}")]
+        [HttpGet("{roleId}")]
         public async Task<IActionResult> GetRoleById(int roleId)
         {
             var result = await _roleService.GetRoleByIdAsync(roleId);
@@ -68,10 +67,10 @@ namespace API.Controllers.IntAdmin
         /// <summary>
         /// Removes a role by its unique ID.
         /// </summary>
-        [HttpDelete("{RoleId}")]
-        public async Task<IActionResult> RemoveRole(int RoleId)
+        [HttpDelete("{roleId}")]
+        public async Task<IActionResult> RemoveRole(int roleId)
         {
-            var result = await _roleService.RemoveRoleAsync(RoleId);
+            var result = await _roleService.DeleteRoleAsync(roleId);
             if (result.IsNoContent)
             {
                 return NoContent();
@@ -80,17 +79,18 @@ namespace API.Controllers.IntAdmin
         }
 
         /// <summary>
-        /// Adds a permission to the role's Permissions list.
+        /// Adds a permission to a role.
         /// </summary>
-        [HttpPost("{roleId}/add-permission")]
-        public async Task<IActionResult> AddPermissionToRole(int roleId, [FromBody] Permission permission)
+        [HttpPost("{roleId}/add-permissions")]
+        public async Task<IActionResult> AddPermissionsToRole(int roleId, [FromBody] List<int> permissionIds)
         {
-            var result = await _roleService.AddPermissionToRoleAsync(roleId, permission);
-            return result.IsSuccess ? Ok("Permission added successfully.") : BadRequest(result.ErrorMessage);
+            var result = await _roleService.AddPermissionsToRoleAsync(roleId, permissionIds);
+            return result.IsSuccess ? Ok("Permissions added successfully.") : BadRequest(result.ErrorMessage);
         }
 
+
         /// <summary>
-        /// Removes a permission from the role's Permissions list by permission ID.
+        /// Removes a permission from a role by its permission ID.
         /// </summary>
         [HttpDelete("{roleId}/remove-permission/{permissionId}")]
         public async Task<IActionResult> RemovePermissionFromRole(int roleId, int permissionId)
