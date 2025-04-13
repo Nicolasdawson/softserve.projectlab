@@ -1,6 +1,6 @@
 ﻿namespace softserve.projectlabs.Shared.DTOs
 {
-    public class ItemDto
+    public class ItemDto : BaseDto
     {
         // The ItemId is only used when updating an existing item.
         public int? ItemId { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace softserve.projectlabs.Shared.DTOs
 {
-    public class UserDto
+    public class UserDto : BaseDto
     {
         public int? UserId { get; set; }
         public string UserEmail { get; set; } = string.Empty;

@@ -1,6 +1,6 @@
 ﻿namespace softserve.projectlabs.Shared.DTOs
 {
-    public class RoleDto
+    public class RoleDto : BaseDto
     {
         public string RoleName { get; set; } = string.Empty;
         public string RoleDescription { get; set; } = string.Empty;
