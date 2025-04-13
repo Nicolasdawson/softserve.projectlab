@@ -1,4 +1,4 @@
-﻿using API.Models.DTOs;
+﻿using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
 using API.Services.IntAdmin;
 using Microsoft.AspNetCore.Mvc;

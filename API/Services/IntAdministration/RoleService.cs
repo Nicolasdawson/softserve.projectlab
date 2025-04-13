@@ -1,6 +1,6 @@
 ﻿using API.Implementations.Domain;
 using API.Models;
-using API.Models.DTOs;
+using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
 using System.Collections.Generic;
 using System.Threading.Tasks;

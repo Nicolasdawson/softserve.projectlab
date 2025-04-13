@@ -1,189 +1,323 @@
-﻿using API.Data.Entities;
+﻿using API.Data;
+using API.Data.Entities;
 using API.Models;
+using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
+using API.Models.IntAdmin.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using softserve.projectlabs.Shared.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Implementations.Domain
 {
-    /// <summary>
-    /// Domain class for handling User operations.
-    /// Uses in-memory storage for users.
-    /// </summary>
     public class UserDomain
     {
-        // In-memory storage for users
-        private readonly List<User> _users = new List<User>();
+        private readonly ApplicationDbContext _context;
+        public UserDomain(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         /// <summary>
-        /// Creates a new user and adds it to the in-memory list.
+        /// Creates a new user in the database.
+        /// Inserts a UserEntity and, if RoleIds are provided, creates UserRoleEntity entries.
         /// </summary>
-        public async Task<Result<User>> CreateUser(User user)
+        public async Task<Result<User>> CreateUserAsync(UserDto userDto)
         {
             try
             {
-                _users.Add(user);
+                // Create the base UserEntity from the DTO.
+                var userEntity = new UserEntity
+                {
+                    UserFirstName = userDto.UserFirstName,
+                    UserLastName = userDto.UserLastName,
+                    UserContactEmail = userDto.UserEmail,
+                    UserContactNumber = userDto.UserPhone,
+                    UserPassword = userDto.UserPassword,
+                    UserStatus = userDto.UserStatus,
+                    BranchId = userDto.BranchId
+                };
+                _context.UserEntities.Add(userEntity);
+                await _context.SaveChangesAsync();
+
+                // If RoleIds are provided, add UserRoleEntity rows.
+                if (userDto.RoleIds != null && userDto.RoleIds.Any())
+                {
+                    foreach (var roleId in userDto.RoleIds)
+                    {
+                        var roleEntity = await _context.RoleEntities.FirstOrDefaultAsync(r => r.RoleId == roleId);
+                        if (roleEntity != null)
+                        {
+                            var userRole = new UserRoleEntity
+                            {
+                                UserId = userEntity.UserId,
+                                RoleId = roleId
+                            };
+                            _context.UserRoleEntities.Add(userRole);
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+                // Map the inserted user to the domain model.
+                var user = await MapToUser(userEntity.UserId);
                 return Result<User>.Success(user);
             }
             catch (Exception ex)
             {
-                return Result<User>.Failure($"Failed to create user: {ex.Message}");
+                return Result<User>.Failure($"Error creating user: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Updates an existing user if found.
+        /// Updates an existing user, including synchronizing the assigned roles.
         /// </summary>
-        public async Task<Result<User>> UpdateUser(User user)
+        public async Task<Result<User>> UpdateUserAsync(int userId, UserDto userDto)
         {
             try
             {
-                var existingUser = _users.FirstOrDefault(u => u.UserId == user.UserId);
-                if (existingUser != null)
-                {
-                    // Update properties
-                    existingUser.UserEmail = user.UserEmail;
-                    existingUser.UserFirstName = user.UserFirstName;
-                    existingUser.UserLastName = user.UserLastName;
-                    existingUser.UserPhone = user.UserPhone;
-                    existingUser.UserPassword = user.UserPassword;
-                    existingUser.UserStatus = user.UserStatus;
-                    existingUser.UserImage = user.UserImage;
-                    existingUser.RoleId = user.RoleId;
-                    existingUser.BranchId = user.BranchId;
-
-                    return Result<User>.Success(existingUser);
-                }
-                else
-                {
+                var userEntity = await _context.UserEntities
+                    .Include(u => u.UserRoleEntities)
+                    .FirstOrDefaultAsync(u => u.UserId == userId);
+                if (userEntity == null)
                     return Result<User>.Failure("User not found.");
-                }
-            }
-            catch (Exception ex)
-            {
-                return Result<User>.Failure($"Failed to update user: {ex.Message}");
-            }
-        }
 
-        /// <summary>
-        /// Retrieves a user by its unique ID.
-        /// </summary>
-        public async Task<Result<User>> GetUserById(int userId)
-        {
-            try
-            {
-                var user = _users.FirstOrDefault(u => u.UserId == userId);
-                return user != null
-                    ? Result<User>.Success(user)
-                    : Result<User>.Failure("User not found.");
-            }
-            catch (Exception ex)
-            {
-                return Result<User>.Failure($"Failed to get user: {ex.Message}");
-            }
-        }
+                // Update basic properties.
+                userEntity.UserFirstName = userDto.UserFirstName;
+                userEntity.UserLastName = userDto.UserLastName;
+                userEntity.UserContactEmail = userDto.UserEmail;
+                userEntity.UserContactNumber = userDto.UserPhone;
+                userEntity.UserPassword = userDto.UserPassword;
+                userEntity.UserStatus = userDto.UserStatus;
+                userEntity.BranchId = userDto.BranchId;
 
-        /// <summary>
-        /// Retrieves all users stored in memory.
-        /// </summary>
-        public async Task<Result<List<User>>> GetAllUsers()
-        {
-            try
-            {
-                return Result<List<User>>.Success(_users);
-            }
-            catch (Exception ex)
-            {
-                return Result<List<User>>.Failure($"Failed to retrieve users: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Removes a user by its unique ID.
-        /// </summary>
-        public async Task<Result<bool>> RemoveUser(int userId)
-        {
-            try
-            {
-                var userToRemove = _users.FirstOrDefault(u => u.UserId == userId);
-                if (userToRemove != null)
+                // Synchronize roles if provided.
+                if (userDto.RoleIds != null)
                 {
-                    _users.Remove(userToRemove);
-                    return Result<bool>.Success(true);
+                    // Remove roles not in the new list.
+                    var toRemove = userEntity.UserRoleEntities
+                        .Where(ur => !userDto.RoleIds.Contains(ur.RoleId))
+                        .ToList();
+                    _context.UserRoleEntities.RemoveRange(toRemove);
+
+                    // Determine which roles to add.
+                    var currentRoleIds = userEntity.UserRoleEntities.Select(ur => ur.RoleId).ToList();
+                    var toAdd = userDto.RoleIds.Except(currentRoleIds).ToList();
+                    foreach (var roleId in toAdd)
+                    {
+                        var roleEntity = await _context.RoleEntities.FirstOrDefaultAsync(r => r.RoleId == roleId);
+                        if (roleEntity != null)
+                        {
+                            var newUserRole = new UserRoleEntity
+                            {
+                                UserId = userEntity.UserId,
+                                RoleId = roleId
+                            };
+                            _context.UserRoleEntities.Add(newUserRole);
+                        }
+                    }
                 }
-                else
+
+                await _context.SaveChangesAsync();
+                var updatedUser = await MapToUser(userEntity.UserId);
+                return Result<User>.Success(updatedUser);
+            }
+            catch (Exception ex)
+            {
+                return Result<User>.Failure($"Error updating user: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a user by ID, including its assigned roles.
+        /// </summary>
+        public async Task<Result<User>> GetUserByIdAsync(int userId)
+        {
+            try
+            {
+                var user = await MapToUser(userId);
+                if (user == null)
+                    return Result<User>.Failure("User not found.");
+                return Result<User>.Success(user);
+            }
+            catch (Exception ex)
+            {
+                return Result<User>.Failure($"Error retrieving user: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all users.
+        /// </summary>
+        public async Task<Result<List<User>>> GetAllUsersAsync()
+        {
+            try
+            {
+                var users = new List<User>();
+                var userEntities = await _context.UserEntities.ToListAsync();
+                foreach (var ue in userEntities)
                 {
+                    var user = await MapToUser(ue.UserId);
+                    if (user != null)
+                        users.Add(user);
+                }
+                return Result<List<User>>.Success(users);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<User>>.Failure($"Error retrieving users: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Deletes a user.
+        /// </summary>
+        public async Task<Result<bool>> DeleteUserAsync(int userId)
+        {
+            try
+            {
+                var userEntity = await _context.UserEntities.FirstOrDefaultAsync(u => u.UserId == userId);
+                if (userEntity == null)
                     return Result<bool>.Failure("User not found.");
-                }
+                _context.UserEntities.Remove(userEntity);
+                await _context.SaveChangesAsync();
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Failed to remove user: {ex.Message}");
+                return Result<bool>.Failure($"Error deleting user: {ex.Message}");
             }
         }
 
         /// <summary>
         /// Authenticates a user by email and password.
         /// </summary>
-        public async Task<Result<bool>> Authenticate(string email, string password)
+        public async Task<Result<bool>> AuthenticateAsync(string email, string password)
         {
             try
             {
-                var user = _users.FirstOrDefault(u => u.UserEmail == email && u.UserPassword == password);
-                if (user != null)
+                var userEntity = await _context.UserEntities
+                    .FirstOrDefaultAsync(u => u.UserContactEmail == email && u.UserPassword == password);
+                if (userEntity != null)
                     return Result<bool>.Success(true);
-
                 return Result<bool>.Failure("Invalid credentials");
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Failed to authenticate user: {ex.Message}");
+                return Result<bool>.Failure($"Error authenticating user: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Assigns a role to a user if found.
+        /// Updates the user's password.
         /// </summary>
-        public async Task<Result<bool>> AssignRole(int userId, int roleId)
+        public async Task<Result<bool>> UpdatePasswordAsync(int userId, string newPassword)
         {
             try
             {
-                var user = _users.FirstOrDefault(u => u.UserId == userId);
-                if (user != null)
-                {
-                    user.RoleId = roleId;
-                    return Result<bool>.Success(true);
-                }
-                return Result<bool>.Failure("User not found.");
+                var userEntity = await _context.UserEntities.FirstOrDefaultAsync(u => u.UserId == userId);
+                if (userEntity == null)
+                    return Result<bool>.Failure("User not found.");
+                userEntity.UserPassword = newPassword;
+                await _context.SaveChangesAsync();
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Failed to assign role: {ex.Message}");
+                return Result<bool>.Failure($"Error updating password: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Updates the password of a user if found.
+        /// Assigns roles to a user by synchronizing the UserRoleEntity table.
         /// </summary>
-        public async Task<Result<bool>> UpdatePassword(int userId, string newPassword)
+        public async Task<Result<bool>> AssignRolesAsync(int userId, List<int> roleIds)
         {
             try
             {
-                var user = _users.FirstOrDefault(u => u.UserId == userId);
-                if (user != null)
+                var userEntity = await _context.UserEntities
+                    .Include(u => u.UserRoleEntities)
+                    .FirstOrDefaultAsync(u => u.UserId == userId);
+                if (userEntity == null)
+                    return Result<bool>.Failure("User not found.");
+
+                // Remove roles not in the new list.
+                var toRemove = userEntity.UserRoleEntities
+                    .Where(ur => !roleIds.Contains(ur.RoleId))
+                    .ToList();
+                _context.UserRoleEntities.RemoveRange(toRemove);
+
+                // Determine roles to add.
+                var currentRoleIds = userEntity.UserRoleEntities.Select(ur => ur.RoleId).ToList();
+                var toAdd = roleIds.Except(currentRoleIds).ToList();
+                foreach (var roleId in toAdd)
                 {
-                    user.UserPassword = newPassword;
-                    return Result<bool>.Success(true);
+                    var roleEntity = await _context.RoleEntities.FirstOrDefaultAsync(r => r.RoleId == roleId);
+                    if (roleEntity != null)
+                    {
+                        var newUserRole = new UserRoleEntity
+                        {
+                            UserId = userEntity.UserId,
+                            RoleId = roleId
+                        };
+                        _context.UserRoleEntities.Add(newUserRole);
+                    }
                 }
-                return Result<bool>.Failure("User not found.");
+                await _context.SaveChangesAsync();
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Failed to update password: {ex.Message}");
+                return Result<bool>.Failure($"Error assigning roles: {ex.Message}");
             }
+        }
+
+        // Helper: Map UserEntity (including roles) to the domain model User.
+        private async Task<User> MapToUser(int userId)
+        {
+            var userEntity = await _context.UserEntities
+                .Include(u => u.UserRoleEntities)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+            if (userEntity == null)
+                return null;
+
+            var user = new User
+            {
+                UserId = userEntity.UserId,
+                UserEmail = userEntity.UserContactEmail,
+                UserFirstName = userEntity.UserFirstName,
+                UserLastName = userEntity.UserLastName ?? string.Empty,
+                UserPhone = userEntity.UserContactNumber,
+                UserPassword = userEntity.UserPassword,
+                UserStatus = userEntity.UserStatus,
+                BranchId = userEntity.BranchId,
+                UserImage = string.Empty, // Ajusta según los datos de la entidad, si existen
+                Roles = new List<IRole>()
+            };
+
+            // Map roles assigned to the user.
+            var userRoles = await _context.UserRoleEntities
+                .Where(ur => ur.UserId == userId)
+                .ToListAsync();
+            foreach (var ur in userRoles)
+            {
+                var roleEntity = await _context.RoleEntities.FirstOrDefaultAsync(r => r.RoleId == ur.RoleId);
+                if (roleEntity != null)
+                {
+                    var role = new Role
+                    {
+                        RoleId = roleEntity.RoleId,
+                        RoleName = roleEntity.RoleName,
+                        RoleDescription = roleEntity.RoleDescription,
+                        RoleStatus = roleEntity.RoleStatus
+                    };
+                    user.Roles.Add(role);
+                }
+            }
+            return user;
         }
     }
 }

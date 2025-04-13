@@ -1,7 +1,7 @@
 ﻿using API.Data;
 using API.Data.Entities;
 using API.Models;
-using API.Models.DTOs;
+using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
 using API.Models.IntAdmin.Interfaces;
 using Microsoft.EntityFrameworkCore;
