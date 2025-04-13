@@ -32,7 +32,7 @@ namespace API.Models.Logistics
 
         public async Task<Result<IWarehouse>> AddItemAsync(Item item)
         {
-            await Task.CompletedTask; // Actual async work would go here
+            await Task.CompletedTask; 
             Items.Add(item);
             return Result<IWarehouse>.Success(this);
         }

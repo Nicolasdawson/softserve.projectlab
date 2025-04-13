@@ -8,6 +8,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.DTOs;
 
 namespace API.Implementations.Domain
 {
@@ -27,6 +28,7 @@ namespace API.Implementations.Domain
             try
             {
                 var entity = await _context.WarehouseEntities
+                  .Where(w => !w.IsDeleted)
                   .Include(w => w.WarehouseItemEntities)
                   .ThenInclude(wi => wi.SkuNavigation) // Include the navigation property
                   .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
@@ -52,9 +54,10 @@ namespace API.Implementations.Domain
             try
             {
                 var entities = await _context.WarehouseEntities
+                    .Where(w => !w.IsDeleted) 
                     .Include(w => w.Branch)
                     .Include(w => w.WarehouseItemEntities)
-                    .ThenInclude(wi => wi.SkuNavigation) // Include the navigation property
+                    .ThenInclude(wi => wi.SkuNavigation)
                     .ToListAsync();
 
                 return Result<List<Warehouse>>.Success(_mapper.Map<List<Warehouse>>(entities));
@@ -68,53 +71,53 @@ namespace API.Implementations.Domain
             }
         }
 
-        public async Task<Result<Warehouse>> AddItemToWarehouseAsync(int warehouseId, Item item)
+
+        public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            // Check if the item exists in the system
+            var existingItem = await _context.ItemEntities
+                .FirstOrDefaultAsync(i => i.Sku == itemDto.Sku);
+
+            if (existingItem == null)
             {
-                var warehouseResult = await GetWarehouseByIdAsync(warehouseId);
-                if (!warehouseResult.IsSuccess)
-                    return warehouseResult;
-
-                if (item == null)
-                    return Result<Warehouse>.Failure("Item cannot be null", 400);
-
-                // Check if item exists in system
-                var itemEntity = await _context.ItemEntities
-                    .FirstOrDefaultAsync(i => i.Sku == item.Sku)
-                    ?? _mapper.Map<ItemEntity>(item);
-
-                if (itemEntity.Sku == 0) // New item
-                {
-                    await _context.ItemEntities.AddAsync(itemEntity);
-                    await _context.SaveChangesAsync();
-                }
-
-                // Add warehouse-item relationship
-                var warehouseItem = new WarehouseItemEntity
-                {
-                    WarehouseId = warehouseId,
-                    Sku = itemEntity.Sku,
-                    ItemQuantity = item.CurrentStock
-                };
-
-                await _context.WarehouseItemEntities.AddAsync(warehouseItem);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                warehouseResult.Data.AddItemAsync(item);
-                return warehouseResult;
+                return Result<bool>.Failure($"Item with SKU {itemDto.Sku} does not exist in the system. Please create the item first.");
             }
-            catch (Exception ex)
+
+            // Check if the warehouse exists
+            var warehouse = await _context.WarehouseEntities
+                .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
+
+            if (warehouse == null)
             {
-                await transaction.RollbackAsync();
-                return Result<Warehouse>.Failure(
-                    $"Failed to add item: {ex.Message}",
-                    500,
-                    ex.StackTrace);
+                return Result<bool>.Failure($"Warehouse with ID {warehouseId} does not exist.");
             }
+
+            // Check if the item is already linked to the warehouse
+            var warehouseItem = await _context.WarehouseItemEntities
+                .FirstOrDefaultAsync(wi => wi.WarehouseId == warehouseId && wi.Sku == itemDto.Sku);
+
+            if (warehouseItem != null)
+            {
+                return Result<bool>.Failure($"Item with SKU {itemDto.Sku} is already linked to Warehouse ID {warehouseId}.");
+            }
+
+            // Link the item to the warehouse
+            var newWarehouseItem = new WarehouseItemEntity
+            {
+                WarehouseId = warehouseId,
+                Sku = existingItem.Sku,
+                ItemQuantity = 0 // Default quantity to 0
+            };
+
+            _context.WarehouseItemEntities.Add(newWarehouseItem);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return Result<bool>.Success(true);
         }
+
+
 
         public async Task<Result<Warehouse>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId)
         {
@@ -220,5 +223,60 @@ namespace API.Implementations.Domain
                     ex.StackTrace);
             }
         }
+
+        public async Task<Result<bool>> SoftDeleteWarehouseAsync(int warehouseId)
+        {
+            try
+            {
+                var warehouse = await _context.WarehouseEntities
+                    .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
+
+                if (warehouse == null)
+                {
+                    return Result<bool>.Failure("Warehouse not found.");
+                }
+
+                warehouse.IsDeleted = true; // Mark as deleted
+                _context.WarehouseEntities.Update(warehouse);
+                await _context.SaveChangesAsync();
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure($"Failed to delete warehouse: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<bool>> UndeleteWarehouseAsync(int warehouseId)
+        {
+            try
+            {
+                var warehouse = await _context.WarehouseEntities
+                    .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
+
+                if (warehouse == null)
+                {
+                    return Result<bool>.Failure("Warehouse not found.");
+                }
+
+                if (!warehouse.IsDeleted)
+                {
+                    return Result<bool>.Failure("Warehouse is already active.");
+                }
+
+                warehouse.IsDeleted = false; // Restore the warehouse
+                _context.WarehouseEntities.Update(warehouse);
+                await _context.SaveChangesAsync();
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure($"Failed to restore warehouse: {ex.Message}");
+            }
+        }
+
+
     }
 }

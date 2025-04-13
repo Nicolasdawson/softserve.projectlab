@@ -19,6 +19,8 @@ public partial class BranchEntity
 
     public string BranchContactEmail { get; set; } = null!;
 
+    public bool IsDeleted { get; set; } = false;
+
     public virtual ICollection<UserEntity> UserEntities { get; set; } = new List<UserEntity>();
 
     public virtual ICollection<WarehouseEntity> WarehouseEntities { get; set; } = new List<WarehouseEntity>();

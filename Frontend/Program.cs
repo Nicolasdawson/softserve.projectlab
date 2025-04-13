@@ -9,7 +9,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddHttpClient("API", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7153/"); // Note trailing slash
+    client.BaseAddress = new Uri("https://localhost:7153"); 
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
