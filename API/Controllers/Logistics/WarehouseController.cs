@@ -76,6 +76,37 @@ namespace API.Controllers
         }
 
         /// <summary>
+        /// Creates a new warehouse.
+        /// </summary>
+        /// <param name="warehouseDto">The details of the warehouse to create.</param>
+        /// <returns>The created warehouse details if successful, otherwise a BadRequest result.</returns>
+        [HttpPost]
+        public async Task<IActionResult> CreateWarehouse([FromBody] WarehouseDto warehouseDto)
+        {
+            _logger.LogInformation("Starting CreateWarehouse for Warehouse: {WarehouseName}", warehouseDto.Name);
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model state for Warehouse: {WarehouseName}", warehouseDto.Name);
+                return BadRequest(ModelState);
+            }
+
+            var result = await _warehouseService.CreateWarehouseAsync(warehouseDto);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully created Warehouse: {WarehouseName}", warehouseDto.Name);
+                return Ok(new { Message = "Warehouse successfully created.", Warehouse = result.Data });
+            }
+            else
+            {
+                _logger.LogError("Failed to create Warehouse: {WarehouseName}. Error: {ErrorMessage}", warehouseDto.Name, result.ErrorMessage);
+                return BadRequest(result.ErrorMessage);
+            }
+        }
+
+
+        /// <summary>
         /// Adds an item to a warehouse.
         /// </summary>
         /// <param name="warehouseId">The ID of the warehouse.</param>

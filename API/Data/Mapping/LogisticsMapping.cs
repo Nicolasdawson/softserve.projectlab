@@ -34,6 +34,7 @@ public class LogisticsMapping : Profile
         CreateMap<Item, AddItemToWarehouseDTO>().ReverseMap();
         CreateMap<BranchEntity, BranchDto>().ReverseMap();
         CreateMap<BranchEntity, Branch>().ReverseMap();
+        CreateMap<WarehouseDto, WarehouseEntity>().ReverseMap();
 
 
 

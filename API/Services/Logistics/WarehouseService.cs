@@ -1,14 +1,11 @@
 ﻿using API.Implementations.Domain;
 using API.Models.IntAdmin;
-using API.Models.Logistics.Interfaces;
-using API.Models.Logistics;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using API.Data.Entities;
 using API.Data;
 using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.DTOs;
+using API.Data.Entities;
 
 public class WarehouseService : IWarehouseService
 {
@@ -134,6 +131,28 @@ public class WarehouseService : IWarehouseService
     {
         return await _warehouseDomain.UndeleteWarehouseAsync(warehouseId);
     }
+
+    public async Task<Result<bool>> CreateWarehouseAsync(WarehouseDto warehouseDto)
+    {
+        // Validate duplicate warehouse
+        var existingWarehouse = await _warehouseDomain.GetWarehouseByNameAsync(warehouseDto.Name);
+        if (existingWarehouse != null)
+        {
+            return Result<bool>.Failure($"A warehouse with the name '{warehouseDto.Name}' already exists.");
+        }
+
+        // Map WarehouseDto to WarehouseEntity
+        var warehouseEntity = _mapper.Map<WarehouseEntity>(warehouseDto);
+        warehouseEntity.IsDeleted = false; // Set IsDeleted to false by default
+
+        var result = await _warehouseDomain.CreateWarehouseAsync(warehouseEntity);
+
+        return result.IsSuccess
+            ? Result<bool>.Success(true)
+            : Result<bool>.Failure(result.ErrorMessage, result.ErrorCode);
+    }
+
+
 
 
 }
