@@ -35,7 +35,7 @@ namespace API.Models.Customers
         /// <returns>The sum of all item prices multiplied by their quantities.</returns>
         public decimal GetTotalPrice()
         {
-            return Items.Sum(item => item.Item.UnitCost * item.Quantity);
+            return Items.Sum(item => item.Item.ItemUnitCost * item.Quantity);
         }
 
         /// <summary>

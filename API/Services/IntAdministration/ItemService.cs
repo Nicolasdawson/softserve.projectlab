@@ -1,10 +1,9 @@
-﻿using API.Data.Entities;
-using API.Implementations.Domain;
-using API.Models;
+﻿using API.Implementations.Domain;
+using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Services.IntAdmin
 {
@@ -15,51 +14,44 @@ namespace API.Services.IntAdmin
     {
         private readonly ItemDomain _itemDomain;
 
-        /// <summary>
-        /// Constructor with dependency injection for ItemDomain.
-        /// </summary>
         public ItemService(ItemDomain itemDomain)
         {
             _itemDomain = itemDomain;
         }
 
-        public async Task<Result<Item>> AddItemAsync(Item item)
+        public async Task<Result<Item>> CreateItemAsync(ItemDto itemDto)
         {
-            return await _itemDomain.CreateItem(item);
+            return await _itemDomain.CreateItemAsync(itemDto);
         }
 
-        public async Task<Result<Item>> UpdateItemAsync(Item item)
+        public async Task<Result<Item>> UpdateItemAsync(int itemId, ItemDto itemDto)
         {
-            return await _itemDomain.UpdateItem(item);
+            return await _itemDomain.UpdateItemAsync(itemId, itemDto);
         }
 
-        public async Task<Result<Item>> GetItemBySkuAsync(int sku)
+        public async Task<Result<Item>> GetItemByIdAsync(int itemId)
         {
-            return await _itemDomain.GetItemBySku(sku);
+            return await _itemDomain.GetItemByIdAsync(itemId);
         }
 
         public async Task<Result<List<Item>>> GetAllItemsAsync()
         {
-            return await _itemDomain.GetAllItems();
+            return await _itemDomain.GetAllItemsAsync();
         }
 
-        public async Task<Result<bool>> RemoveItemAsync(int sku)
+        public async Task<Result<bool>> DeleteItemAsync(int itemId)
         {
-            return await _itemDomain.RemoveItem(sku);
+            return await _itemDomain.DeleteItemAsync(itemId);
         }
 
-        public async Task<Result<bool>> UpdatePriceAsync(int sku)
+        public async Task<Result<bool>> UpdatePriceAsync(int itemId, decimal newPrice)
         {
-            // TODO: Implement logic to update the price of the item with the given SKU.
-            // For now, simply return success.
-            return Result<bool>.Success(true);
+            return await _itemDomain.UpdatePriceAsync(itemId, newPrice);
         }
 
-        public async Task<Result<bool>> UpdateDiscountAsync(int sku)
+        public async Task<Result<bool>> UpdateDiscountAsync(int itemId, decimal? newDiscount)
         {
-            // TODO: Implement logic to update the discount of the item with the given SKU.
-            // For now, simply return success.
-            return Result<bool>.Success(true);
+            return await _itemDomain.UpdateDiscountAsync(itemId, newDiscount);
         }
     }
 }

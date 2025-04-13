@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace softserve.projectlabs.Shared.DTOs
+﻿namespace softserve.projectlabs.Shared.DTOs
 {
     public class SupplierOrderDto
     {

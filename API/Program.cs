@@ -14,6 +14,7 @@ using API.Data;
 using softserve.projectlabs.Shared.Interfaces;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using API.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -118,6 +119,8 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<LogisticsMapping>();
     cfg.AddProfile<CustomerMapping>();
+    cfg.AddProfile<IntAdminMapping>();
+    cfg.AddProfile<BaseMapping>();
 });
 
 //-------------------------------------------------------------------------------

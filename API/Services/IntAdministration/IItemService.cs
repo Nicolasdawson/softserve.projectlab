@@ -1,9 +1,8 @@
-﻿using API.Data.Entities;
-using API.Models;
+﻿using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Services.IntAdmin
 {
@@ -12,12 +11,14 @@ namespace API.Services.IntAdmin
     /// </summary>
     public interface IItemService
     {
-        Task<Result<Item>> AddItemAsync(Item item);
-        Task<Result<Item>> UpdateItemAsync(Item item);
-        Task<Result<Item>> GetItemBySkuAsync(int sku);
+        Task<Result<Item>> CreateItemAsync(ItemDto itemDto);
+        Task<Result<Item>> UpdateItemAsync(int itemId, ItemDto itemDto);
+        Task<Result<Item>> GetItemByIdAsync(int itemId);
         Task<Result<List<Item>>> GetAllItemsAsync();
-        Task<Result<bool>> RemoveItemAsync(int sku);
-        Task<Result<bool>> UpdatePriceAsync(int sku);
-        Task<Result<bool>> UpdateDiscountAsync(int sku);
+        Task<Result<bool>> DeleteItemAsync(int itemId);
+
+        // Optional methods for updating price and discount.
+        Task<Result<bool>> UpdatePriceAsync(int itemId, decimal newPrice);
+        Task<Result<bool>> UpdateDiscountAsync(int itemId, decimal? newDiscount);
     }
 }

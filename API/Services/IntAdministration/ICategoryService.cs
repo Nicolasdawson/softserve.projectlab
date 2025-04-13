@@ -4,6 +4,7 @@ using API.Models.IntAdmin;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.DTOs;
 
 namespace API.Services.IntAdmin
 {
@@ -12,10 +13,10 @@ namespace API.Services.IntAdmin
     /// </summary>
     public interface ICategoryService
     {
-        Task<Result<Category>> AddCategoryAsync(Category category);
-        Task<Result<Category>> UpdateCategoryAsync(Category category);
+        Task<Result<Category>> CreateCategoryAsync(CategoryDto categoryDto);
+        Task<Result<Category>> UpdateCategoryAsync(int categoryId, CategoryDto categoryDto);
         Task<Result<Category>> GetCategoryByIdAsync(int categoryId);
         Task<Result<List<Category>>> GetAllCategoriesAsync();
-        Task<Result<bool>> RemoveCategoryAsync(int categoryId);
+        Task<Result<bool>> DeleteCategoryAsync(int categoryId);
     }
 }

@@ -5,6 +5,7 @@ using API.Models.IntAdmin;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.DTOs;
 
 namespace API.Services.IntAdmin
 {
@@ -14,39 +15,29 @@ namespace API.Services.IntAdmin
     public class CategoryService : ICategoryService
     {
         private readonly CategoryDomain _categoryDomain;
-
-        /// <summary>
-        /// Constructor with dependency injection for CategoryDomain.
-        /// </summary>
-        /// <param name="categoryDomain">Injected CategoryDomain instance</param>
         public CategoryService(CategoryDomain categoryDomain)
         {
             _categoryDomain = categoryDomain;
         }
-
-        public async Task<Result<Category>> AddCategoryAsync(Category category)
+        public async Task<Result<Category>> CreateCategoryAsync(CategoryDto categoryDto)
         {
-            return await _categoryDomain.CreateCategory(category);
+            return await _categoryDomain.CreateCategoryAsync(categoryDto);
         }
-
-        public async Task<Result<Category>> UpdateCategoryAsync(Category category)
+        public async Task<Result<Category>> UpdateCategoryAsync(int categoryId, CategoryDto categoryDto)
         {
-            return await _categoryDomain.UpdateCategory(category);
+            return await _categoryDomain.UpdateCategoryAsync(categoryId, categoryDto);
         }
-
         public async Task<Result<Category>> GetCategoryByIdAsync(int categoryId)
         {
-            return await _categoryDomain.GetCategoryById(categoryId);
+            return await _categoryDomain.GetCategoryByIdAsync(categoryId);
         }
-
         public async Task<Result<List<Category>>> GetAllCategoriesAsync()
         {
-            return await _categoryDomain.GetAllCategories();
+            return await _categoryDomain.GetAllCategoriesAsync();
         }
-
-        public async Task<Result<bool>> RemoveCategoryAsync(int categoryId)
+        public async Task<Result<bool>> DeleteCategoryAsync(int categoryId)
         {
-            return await _categoryDomain.RemoveCategory(categoryId);
+            return await _categoryDomain.DeleteCategoryAsync(categoryId);
         }
     }
 }

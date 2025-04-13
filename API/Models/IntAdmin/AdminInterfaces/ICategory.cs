@@ -12,17 +12,5 @@ namespace API.Models.IntAdmin.Interfaces
         int CategoryId { get; set; }
         string CategoryName { get; set; }
         bool CategoryStatus { get; set; }
-        List<Item> Items { get; set; }
-
-        // CRUD methods
-        Result<ICategory> AddCategory(ICategory category);
-        Result<ICategory> UpdateCategory(ICategory category);
-        Result<ICategory> GetCategoryById(int categoryId);
-        Result<List<ICategory>> GetAllCategories();
-        Result<bool> RemoveCategory(int categoryId);
-
-        // Methods from the diagram
-        Result<bool> AddItemToCategory();
-        Result<bool> RemoveItemFromCategory();
     }
 }

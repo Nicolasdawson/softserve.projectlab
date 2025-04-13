@@ -1,4 +1,5 @@
-﻿using API.Models.IntAdmin;
+﻿using softserve.projectlabs.Shared.DTOs;
+using API.Models.IntAdmin;
 using API.Services.IntAdmin;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -6,64 +7,50 @@ using System.Threading.Tasks;
 
 namespace API.Controllers.IntAdmin
 {
-    /// <summary>
-    /// API Controller for managing Item operations.
-    /// </summary>
     [ApiController]
     [Route("api/items")]
     public class ItemController : ControllerBase
     {
         private readonly IItemService _itemService;
 
-        /// <summary>
-        /// Constructor with dependency injection for IItemService.
-        /// </summary>
         public ItemController(IItemService itemService)
         {
             _itemService = itemService;
         }
 
         /// <summary>
-        /// Adds a new item.
+        /// Creates a new item using the provided DTO.
         /// </summary>
-        /// <param name="item">Item object to add</param>
-        /// <returns>HTTP response with the created item or error message</returns>
         [HttpPost]
-        public async Task<IActionResult> CreateItem([FromBody] Item item)
+        public async Task<IActionResult> CreateItem([FromBody] ItemDto itemDto)
         {
-            var result = await _itemService.AddItemAsync(item);
+            var result = await _itemService.CreateItemAsync(itemDto);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
         /// <summary>
-        /// Updates an existing item.
+        /// Updates an existing item using the provided DTO.
         /// </summary>
-        /// <param name="item">Item object with updated data</param>
-        /// <returns>HTTP response with the updated item or error message</returns>
-        [HttpPut("{Sku}")]
-        public async Task<IActionResult> UpdateItem(int Sku, [FromBody] Item item)
+        [HttpPut("{itemId}")]
+        public async Task<IActionResult> UpdateItem(int itemId, [FromBody] ItemDto itemDto)
         {
-            item.Sku = Sku;
-            var result = await _itemService.UpdateItemAsync(item);
+            var result = await _itemService.UpdateItemAsync(itemId, itemDto);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
         /// <summary>
-        /// Retrieves an item by its SKU.
+        /// Retrieves an item by its ID.
         /// </summary>
-        /// <param name="sku">Unique identifier of the item</param>
-        /// <returns>HTTP response with the item or error message</returns>
-        [HttpGet("{Sku}")]
-        public async Task<IActionResult> GetItemBySku(int sku)
+        [HttpGet("{itemId}")]
+        public async Task<IActionResult> GetItemById(int itemId)
         {
-            var result = await _itemService.GetItemBySkuAsync(sku);
+            var result = await _itemService.GetItemByIdAsync(itemId);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
         /// <summary>
         /// Retrieves all items.
         /// </summary>
-        /// <returns>HTTP response with the list of items or error message</returns>
         [HttpGet]
         public async Task<IActionResult> GetAllItems()
         {
@@ -72,43 +59,33 @@ namespace API.Controllers.IntAdmin
         }
 
         /// <summary>
-        /// Removes an item by its SKU.
+        /// Deletes an item by its ID.
         /// </summary>
-        /// <param name="sku">Unique identifier of the item to remove</param>
-        /// <returns>HTTP response indicating success or failure</returns>
-        [HttpDelete("{Sku}")]
-        public async Task<IActionResult> RemoveItem(int Sku)
+        [HttpDelete("{itemId}")]
+        public async Task<IActionResult> DeleteItem(int itemId)
         {
-            var result = await _itemService.RemoveItemAsync(Sku);
-            if (result.IsNoContent)
-            {
-                return NoContent();
-            }
+            var result = await _itemService.DeleteItemAsync(itemId);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
         /// <summary>
         /// Updates the price of an item.
         /// </summary>
-        /// <param name="sku">Unique identifier of the item</param>
-        /// <returns>HTTP response indicating success or failure</returns>
-        [HttpPut("update-price/{sku}")]
-        public async Task<IActionResult> UpdatePrice(int sku)
+        [HttpPut("update-price/{itemId}")]
+        public async Task<IActionResult> UpdatePrice(int itemId, [FromBody] decimal newPrice)
         {
-            var result = await _itemService.UpdatePriceAsync(sku);
-            return result.IsSuccess ? Ok("Price updated successfully.") : BadRequest(result.ErrorMessage);
+            var result = await _itemService.UpdatePriceAsync(itemId, newPrice);
+            return result.IsSuccess ? Ok("Price updated successfully") : BadRequest(result.ErrorMessage);
         }
 
         /// <summary>
         /// Updates the discount of an item.
         /// </summary>
-        /// <param name="sku">Unique identifier of the item</param>
-        /// <returns>HTTP response indicating success or failure</returns>
-        [HttpPut("update-discount/{sku}")]
-        public async Task<IActionResult> UpdateDiscount(int sku)
+        [HttpPut("update-discount/{itemId}")]
+        public async Task<IActionResult> UpdateDiscount(int itemId, [FromBody] decimal? newDiscount)
         {
-            var result = await _itemService.UpdateDiscountAsync(sku);
-            return result.IsSuccess ? Ok("Discount updated successfully.") : BadRequest(result.ErrorMessage);
+            var result = await _itemService.UpdateDiscountAsync(itemId, newDiscount);
+            return result.IsSuccess ? Ok("Discount updated successfully") : BadRequest(result.ErrorMessage);
         }
     }
 }
