@@ -277,6 +277,29 @@ namespace API.Implementations.Domain
             }
         }
 
+        public async Task<Result<WarehouseEntity>> CreateWarehouseAsync(WarehouseEntity warehouseEntity)
+        {
+            try
+            {
+                _context.WarehouseEntities.Add(warehouseEntity);
+                await _context.SaveChangesAsync();
+
+                return Result<WarehouseEntity>.Success(warehouseEntity);
+            }
+            catch (Exception ex)
+            {
+                return Result<WarehouseEntity>.Failure($"Failed to create warehouse: {ex.Message}", 500, ex.StackTrace);
+            }
+        }
+
+        public async Task<WarehouseEntity?> GetWarehouseByNameAsync(string name)
+        {
+            return await _context.WarehouseEntities
+                .FirstOrDefaultAsync(w => w.WarehouseLocation == name && !w.IsDeleted);
+        }
+
+
+
 
     }
 }

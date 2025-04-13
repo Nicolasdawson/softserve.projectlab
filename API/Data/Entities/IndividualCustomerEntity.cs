@@ -15,5 +15,11 @@ public partial class IndividualCustomerEntity
 
     public DateTime? LastPurchaseDate { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public virtual CustomerEntity Customer { get; set; } = null!;
 }

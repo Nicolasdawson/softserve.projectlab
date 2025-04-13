@@ -13,7 +13,11 @@ public partial class WarehouseEntity
 
     public int BranchId { get; set; }
 
-    public bool IsDeleted { get; set; } = false;
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+
+    public bool IsDeleted { get; set; }
 
     public virtual BranchEntity Branch { get; set; } = null!;
 

@@ -18,5 +18,7 @@ namespace softserve.projectlabs.Shared.Interfaces
         Task<Result<string>> GenerateInventoryReportAsync(int warehouseId);
         Task<Result<bool>> DeleteWarehouseAsync(int warehouseId);
         Task<Result<bool>> UndeleteWarehouseAsync(int warehouseId);
+        Task<Result<bool>> CreateWarehouseAsync(WarehouseDto warehouseDto);
+
     }
 }
