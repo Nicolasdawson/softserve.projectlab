@@ -123,7 +123,7 @@ public class Package
     /// <returns>The sum of all item prices multiplied by their quantities.</returns>
     public decimal CalculateTotalPrice()
     {
-        return Items.Sum(item => item.Item.UnitCost * item.Quantity);
+        return Items.Sum(item => item.Item.ItemUnitCost * item.Quantity);
     }
 
     /// <summary>
