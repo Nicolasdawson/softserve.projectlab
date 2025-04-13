@@ -30,4 +30,9 @@
       <ProjectReference Include="..\softserve.projectlabs.Shared\softserve.projectlabs.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Abstractions\" />
+      <Folder Include="implementations\Domain\" />
+    </ItemGroup>
+
 </Project>
