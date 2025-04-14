@@ -1,17 +1,18 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using API.Controllers;
-using API.Services;
+﻿using API.Services;
+using API.Helpers;
 using API.implementations.Infrastructure.Data;
+
 using Microsoft.EntityFrameworkCore;
-using API.Models;
+using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configurar Entity Framework con SQL Server
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddTransient<SeedDb>();//Se registra SeedDb como servicio transitorio para poder usarse
+builder.Services.AddScoped<IFileStorage, FileStorage>();
+
+
 
 // Configurar CORS
 builder.Services.AddCors(options =>
@@ -38,6 +39,13 @@ builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger e
 
 // Add service ProductService
 builder.Services.AddScoped<ProductService>();
+
+// Conexión con blob DB in Azure
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:blob"]!, preferMsi: true);
+    clientBuilder.AddQueueServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:queue"]!, preferMsi: true);
+});
 
 var app = builder.Build();
 SeedData(app);

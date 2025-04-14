@@ -3,7 +3,7 @@ using Azure.Storage.Blobs.Models;
 
 namespace API.Helpers;
 
-public class FileStorage
+public class FileStorage : IFileStorage
 {
     private readonly string _connnectionString;
 
