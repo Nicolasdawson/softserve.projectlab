@@ -1,16 +1,39 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+<MudLayout>
+    <!-- Navbar -->
+    <MudAppBar Elevation="1">
+        <MudText Typo="Typo.h5" Class="ml-3">Admin Dashboard</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchQuery" Placeholder="Search..." Adornment="Adornment.Start" AdornmentIcon="fa-solid fa-search" Class="mr-4" />
+        <MudIconButton Icon="fa-solid fa-cog" Color="Color.Inherit" OnClick="OpenSettings" />
+        <MudAvatar Size="Size.Medium" Image="https://i.pravatar.cc/150?u=admin" />
+    </MudAppBar>
 
-        <article class="content px-4">
+    <!-- Sidebar Navigation -->
+    <MudDrawer Elevation="2" Variant="DrawerVariant.Persistent" Width="250px">
+        <MudNavMenu Class="pa-4">
+            <MudNavLink Href="" Icon="fa-solid fa-house" Match="NavLinkMatch.All">Home</MudNavLink>
+            <MudNavLink Href="dashboard" Icon="fa-solid fa-tachometer-alt">Dashboard</MudNavLink>
+            <MudNavLink Href="logistics" Icon="fa-solid fa-truck">Logistics</MudNavLink>
+            <MudNavLink Href="internal-admin" Icon="fa-solid fa-cog">Internal Admin</MudNavLink>
+            <MudNavLink Href="customers" Icon="fa-solid fa-users">Customers</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <!-- Main Content -->
+    <MudMainContent Style="padding-left: 260px;">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private string searchQuery = "";
+
+    private void OpenSettings()
+    {
+        // Logic to open settings
+    }
+}

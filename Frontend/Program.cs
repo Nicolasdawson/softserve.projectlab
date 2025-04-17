@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Frontend;
-using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Services;
+using MudBlazor;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -12,6 +13,9 @@ builder.Services.AddHttpClient("API", client =>
     client.BaseAddress = new Uri("https://localhost:7153"); 
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
+
+builder.Services.AddMudServices();
+
 
 builder.Services.AddScoped(sp => new HttpClient
 {

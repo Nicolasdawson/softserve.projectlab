@@ -1,146 +1,100 @@
 ﻿@page "/"
-@using softserve.projectlabs.Shared.DTOs
-@using softserve.projectlabs.Shared.Interfaces
-@using System.Text.Json
-@inject IHttpClientFactory HttpClientFactory
-@inject ILogger<Home> Logger
 
-<PageTitle>Dashboard</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <!-- Hero Section -->
+    <MudPaper Elevation="2" Class="pa-4 mb-6">
+        <MudText Typo="Typo.h3" Class="mb-4">Welcome to the Admin Dashboard</MudText>
+        <MudText Class="mb-4">
+            This is an ultra-lightweight admin dashboard built with Blazor, CSS Grid, and MudBlazor. The goal is to keep the components modern and lightweight with minimal dependencies.
+        </MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LearnMore">Learn More</MudButton>
+    </MudPaper>
 
-<h1 class="text-center my-4">Dashboard</h1>
+    <!-- Features Section -->
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2">
+                <MudCardContent Class="pa-4">
+                    <MudText Typo="Typo.h5" Class="mb-3">Blazor</MudText>
+                    <MudText Class="mb-4">
+                        Blazor is an experimental .NET web framework using C# and HTML that runs in the browser. Blazor, together with Mono, compiles your Web UI and C# to WebAssembly.
+                    </MudText>
+                    <MudButton Link="https://blazor.net" Target="_blank" Variant="Variant.Outlined" Color="Color.Success">Learn More</MudButton>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-<div class="container">
-    <div class="row">
-        <!-- Warehouses Section -->
-        <div class="col-md-6">
-            <h2 class="text-center">Warehouses</h2>
-            <div class="card">
-                <div class="card-body">
-                    @if (isLoading)
-                    {
-                        <div class="text-center">
-                            <p>Cargando almacenes...</p>
-                            <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    }
-                    else if (errorMessage != null)
-                    {
-                        <div class="alert alert-danger">
-                            <strong>Error:</strong> @errorMessage
-                            <button class="btn btn-sm btn-primary mt-2" @onclick="LoadWarehouses">Reintentar</button>
-                        </div>
-                    }
-                    else if (warehouses == null || !warehouses.Any())
-                    {
-                        <p>No se encontraron almacenes.</p>
-                        <button class="btn btn-sm btn-primary" @onclick="LoadWarehouses">Recargar</button>
-                    }
-                    else
-                    {
-                        <ul class="list-group">
-                            @foreach (var warehouse in warehouses)
-                            {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>@warehouse.Name</strong> 
-                                        <div class="text-muted">@warehouse.Location</div>
-                                    </div>
-                                    <span class="badge bg-primary rounded-pill">
-                                        Items: @(warehouse.Items?.Count ?? 0)
-                                    </span>
-                                </li>
-                            }
-                        </ul>
-                    }
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2">
+                <MudCardContent Class="pa-4">
+                    <MudText Typo="Typo.h5" Class="mb-3">CSS Grid</MudText>
+                    <MudText Class="mb-4">
+                        The CSS Grid Layout Module offers a grid-based layout system, making it easier to design web pages without using floats and positioning.
+                    </MudText>
+                    <MudButton Link="https://www.w3.org/TR/css-grid-1/" Target="_blank" Variant="Variant.Outlined" Color="Color.Success">Learn More</MudButton>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-                    <div class="alert alert-info mt-3">
-                        API Base: @apiBaseAddress
-                        <p>Componente renderizado a las @DateTime.Now.ToString("HH:mm:ss.fff")</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2">
+                <MudCardContent Class="pa-4">
+                    <MudText Typo="Typo.h5" Class="mb-3">Bootstrap 4</MudText>
+                    <MudText Class="mb-4">
+                        Bootstrap is a free and open-source front-end framework for designing websites and web applications. It contains templates for typography, forms, buttons, and navigation.
+                    </MudText>
+                    <MudButton Link="https://getbootstrap.com/" Target="_blank" Variant="Variant.Outlined" Color="Color.Success">Learn More</MudButton>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Charts Section -->
+    <MudPaper Elevation="2" Class="pa-4 mt-6">
+        <MudText Typo="Typo.h4" Class="mb-4">Analytics</MudText>
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="2">
+                    <MudCardContent Class="pa-4">
+                        <MudText Typo="Typo.h5" Class="mb-3">Line Chart</MudText>
+                        
+                        <MudButton OnClick="ViewDetails" Class="mt-4">Details</MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="2">
+                    <MudCardContent Class="pa-4">
+                        <MudText Typo="Typo.h5" Class="mb-3">Pie Chart</MudText>
+                        
+                        <MudButton OnClick="ViewDetails" Class="mt-4">Details</MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <!-- Footer -->
+    <MudPaper Elevation="1" Class="pa-4 mt-6 text-center">
+        <MudText>&copy; Available under MIT License.</MudText>
+    </MudPaper>
+</MudContainer>
 
 @code {
-    private List<WarehouseResponseDto> warehouses;
-    private bool isLoading = true;
-    private string errorMessage;
-    private string apiBaseAddress;
+    private int[] lineChartData = { 30, 70, 42, 50, 3, 55, 35, 22 };
+    private string[] xAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug" };
 
-    protected override async Task OnInitializedAsync()
+    private int[] pieChartData = { 10, 30, 20, 10, 10, 10, 5, 5 };
+    private string[] pieChartLabels = { "App Store", "Website", "Partners", "Direct", "Channels", "Retail", "Distributors", "Affiliates" };
+
+    private void LearnMore()
     {
-        await LoadWarehouses();
+        // Logic to handle "Learn More" button click
     }
 
-    private async Task LoadWarehouses()
+    private void ViewDetails()
     {
-        isLoading = true;
-        errorMessage = null;
-        warehouses = null;
-        StateHasChanged(); // Forzar actualización de UI para mostrar estado de carga
-        
-        try
-        {
-            var client = HttpClientFactory.CreateClient("API");
-            apiBaseAddress = client.BaseAddress?.ToString();
-            
-            Logger.LogInformation("Realizando solicitud a {Url}", $"{apiBaseAddress}api/Warehouse");
-            
-           
-            var response = await client.GetAsync("api/Warehouse");
-            
-            if (response.IsSuccessStatusCode)
-            {
-                
-                var jsonString = await response.Content.ReadAsStringAsync();
-                Logger.LogInformation("Respuesta recibida: {Json}", jsonString);
-                
-                try {
-                    
-                    var options = new JsonSerializerOptions {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    
-                    warehouses = JsonSerializer.Deserialize<List<WarehouseResponseDto>>(jsonString, options);
-                    Logger.LogInformation("Se deserializaron {Count} almacenes", warehouses?.Count ?? 0);
-                    
-                    if (warehouses == null)
-                    {
-                        errorMessage = "Error al deserializar la respuesta";
-                    }
-                }
-                catch (JsonException ex)
-                {
-                    errorMessage = $"Error de formato JSON: {ex.Message}";
-                    Logger.LogError(ex, "Error al deserializar JSON");
-                }
-            }
-            else
-            {
-                errorMessage = $"Error de API: {response.StatusCode}";
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("Error de API: {Status}. Contenido: {Content}", 
-                    response.StatusCode, errorContent);
-            }
-        }
-        catch (HttpRequestException ex)
-        {
-            errorMessage = $"Error de conexión: {ex.Message}";
-            Logger.LogError(ex, "Error de conexión HTTP");
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Error inesperado: {ex.Message}";
-            Logger.LogError(ex, "Error inesperado");
-        }
-        finally
-        {
-            isLoading = false;
-            StateHasChanged(); 
-        }
+        // Logic to view details
     }
 }

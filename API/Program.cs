@@ -148,6 +148,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Application building and configuration
 //-------------------------------------------------------------------------------
 var app = builder.Build();
+app.UseStaticFiles();
+
 
 if (app.Environment.IsDevelopment())
 {
