@@ -20,7 +20,7 @@ namespace API.implementations.Infrastructure.Data
             _context.ClearDatabase(); // Borra los datos sin eliminar la base de datos
             await CheckCategoriesAsync();
             await CheckProductsAsync();
-            await CheckImagesAsync();
+            //await CheckImagesAsync();
             /*
             modelBuilder.Entity<Category>().HasData(
                 new Category

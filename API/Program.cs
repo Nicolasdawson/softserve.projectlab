@@ -4,6 +4,7 @@ using API.implementations.Infrastructure.Data;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -148,6 +149,30 @@ if (app.Environment.IsDevelopment())  // Solo habilitar Swagger en desarrollo
     app.UseSwagger();  // Habilita el middleware Swagger
     app.UseSwaggerUI();  // Habilita la UI de Swagger
 }
+
+app.UseStaticFiles(new StaticFileOptions { 
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Images\\Products")),
+    RequestPath= "/Images"
+});
+
+builder.Services.AddDirectoryBrowser();
+
+var fileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Images\\Products"));
+var requestPath = "/MyImages";
+
+// Enable displaying browser links.
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = fileProvider,
+    RequestPath = requestPath
+});
+
+app.UseDirectoryBrowser(new DirectoryBrowserOptions
+{
+    FileProvider = fileProvider,
+    RequestPath = requestPath
+});
 
 // Usar la pol�tica de CORS
 app.UseCors("AllowAnyOrigin");

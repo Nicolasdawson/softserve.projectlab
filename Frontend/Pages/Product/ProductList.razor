@@ -1,4 +1,5 @@
 ﻿@page "/products"
+
 @using Frontend.Services
 @inject ProductService ProductService
 
@@ -31,11 +32,3 @@ else
     </ul>
 }
 
-@code {
-    private ProductModel[]? products;
-
-    protected override async Task OnInitializedAsync()
-    {
-        products = await ProductService.GetProducts();
-    }
-}
