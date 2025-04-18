@@ -1,4 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
 var builder = DistributedApplication.CreateBuilder(args);
+
 
 // var sql = builder.AddSqlServer("sql")
 //     .WithLifetime(ContainerLifetime.Persistent);

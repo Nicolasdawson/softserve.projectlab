@@ -1,21 +1,46 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace API.Data.Models;
-
-public partial class Product
+namespace API.Data.Models
 {
-    public int Id { get; set; }
+    public class Product
+    {
+        [Key]
+        public int Id { get; set; }
 
-    public string Name { get; set; }
+        [Required]
+        [MaxLength(200)]
+        public string Name { get; set; }
 
-    public string Brand { get; set; }
+        [Required]
+        [MaxLength(400)]
+        public string Detail { get; set; }
 
-    public string Description { get; set; }
+        [MaxLength(100)]
+        [Required]
+        public string ImageUrl { get; set; }
 
-    public decimal Price { get; set; }
+        [Required]
+        public double Price { get; set; }
 
-    public int CategoryId { get; set; }
+        [Required]
+        public bool IsTrending { get; set; } = false;
 
-    public virtual ProductCategory Category { get; set; }
+        [Required]
+        public bool IsBestSelling { get; set; } = false;
+
+        [Required]
+        public bool Available { get; set; } = true;
+
+        [Required]
+        public int CategoryId { get; set; }
+
+        [NotMapped]
+        public IFormFile Image { get; set; }
+        public ICollection<ShoppingCartItem> ShoppingCartItems { get; set; }
+
+        public ICollection<OrderDetail> OrderDetails { get; set; }
+    }
 }
