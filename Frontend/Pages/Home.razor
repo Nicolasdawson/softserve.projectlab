@@ -1,7 +1,60 @@
-﻿@page "/"
+﻿@using System.Net.Http.Json;
+
+@page "/"
+@inject HttpClient Http
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h3>Products</h3>
+@* <div> *@
+@*     @* <button @onclick="GetProducts">Get Products</button> *@
+@*     <div> *@
+@*         @if (products != null) *@
+@*         { *@
+@*             <table class="table"> *@
+@*                 <thead> *@
+@*                     <tr> *@
+@*                         <th>Name</th> *@
+@*                         <th>Brand</th> *@
+@*                         <th>Description</th> *@
+@*                         <th>Price</th> *@
+@*                     </tr> *@
+@*                 </thead> *@
+@*                 <tbody> *@
+@*                     @foreach (var product in products) *@
+@*                     { *@
+@*                         <tr> *@
+@*                             <td>@product.Name</td> *@
+@*                             <td>@product.Brand</td> *@
+@*                             <td>@product.Description</td> *@
+@*                             <td>@product.Price</td> *@
+@*                         </tr> *@
+@*                     } *@
+@*                 </tbody> *@
+@*             </table> *@
+@*         } *@
+@*     </div> *@
+@* </div> *@
 
-Welcome to your new app.
+
+@code {
+    // private List<Product> products;
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     await GetProducts();
+    // }
+
+    // private async Task GetProducts()
+    // {
+    //     products = await Http.GetFromJsonAsync<List<Product>>("https:localhost:7153/api/Product");
+    // }
+
+    // public class Product
+    // {
+    //     public string Name { get; set; }
+    //     public string Brand { get; set; }
+    //     public string Description { get; set; }
+    //     public decimal Price { get; set; }
+    // }
+}
