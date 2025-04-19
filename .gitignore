@@ -491,6 +491,9 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+# Ignorar configuración sensible
+**/appsettings.json
+
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
