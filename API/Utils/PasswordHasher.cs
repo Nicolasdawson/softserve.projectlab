@@ -1,15 +1,17 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace API.Utils
 {
     public class PasswordHasher
     {
-        public static byte[] HashPassword(string password)
+        public static string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())
             {
-                return sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
             }
         }
     }
