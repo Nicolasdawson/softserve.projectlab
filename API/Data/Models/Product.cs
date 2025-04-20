@@ -23,7 +23,7 @@ namespace API.Data.Models
         public string ImageUrl { get; set; }
 
         [Required]
-        public double Price { get; set; }
+        public decimal Price { get; set; }
 
         [Required]
         public bool IsTrending { get; set; } = false;

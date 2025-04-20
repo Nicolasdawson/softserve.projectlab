@@ -10,12 +10,12 @@ namespace API.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(200)]
+        [MaxLength(300)]
         public string Address { get; set; }
 
         [Required]
         [MaxLength(200)]
-        public double OrderTotal { get; set; }
+        public decimal OrderTotal { get; set; }
 
         [Required]
         public DateTime OrderPlaced { get; set; } = DateTime.Now;
