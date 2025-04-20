@@ -15,6 +15,7 @@ using softserve.projectlabs.Shared.Interfaces;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using API.Mappings;
+using API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +92,9 @@ builder.Services.AddScoped<ItemDomain>();
 builder.Services.AddScoped<PermissionDomain>();
 builder.Services.AddScoped<RoleDomain>();
 builder.Services.AddScoped<UserDomain>();
+builder.Services.AddScoped<LineOfCreditDomain>();
+builder.Services.AddScoped<CartDomain>();
+builder.Services.AddScoped<PackageDomain>();
 
 // 3. Interface services
 builder.Services.AddScoped<ICustomerService, API.Services.CustomerService>();
@@ -105,6 +109,11 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILineOfCreditService, LineOfCreditService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IPackageService, PackageService>();
+
+
 
 // 4. Model implementations
 builder.Services.AddScoped<IWarehouse, Warehouse>();
