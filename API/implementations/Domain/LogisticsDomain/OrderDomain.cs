@@ -9,16 +9,16 @@ namespace API.Implementations.Domain
     {
         private readonly List<Order> _orders = new List<Order>(); // Example in-memory storage
 
-        /// <summary>
-        /// Creates a new order.
-        /// </summary>
-        /// <param name="order">The order to create.</param>
-        /// <returns>A result containing the created order.</returns>
         public async Task<Result<Order>> CreateOrder(Order order)
         {
             try
             {
+                // Use GetOrderData() to retrieve OrderDto
+                var orderData = order.GetOrderData();
+
+                // Add the order to the in-memory storage
                 _orders.Add(order);
+
                 return Result<Order>.Success(order);
             }
             catch (Exception ex)
@@ -27,17 +27,17 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Retrieves an order by its ID.
-        /// </summary>
-        /// <param name="orderId">The ID of the order to retrieve.</param>
-        /// <returns>A result containing the order with the specified ID.</returns>
+
+
         public async Task<Result<Order>> GetOrderById(int orderId)
         {
             try
             {
-                var order = _orders.FirstOrDefault(o => o.OrderId == orderId);
-                return order != null ? Result<Order>.Success(order) : Result<Order>.Failure("Order not found.");
+                var order = _orders.FirstOrDefault(o => o.GetOrderData().OrderId == orderId);
+
+                return order != null
+                    ? Result<Order>.Success(order)
+                    : Result<Order>.Failure("Order not found.");
             }
             catch (Exception ex)
             {
@@ -45,10 +45,8 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Retrieves all orders.
-        /// </summary>
-        /// <returns>A result containing a list of all orders.</returns>
+
+
         public async Task<Result<List<Order>>> GetAllOrders()
         {
             try
@@ -61,21 +59,23 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Updates an existing order.
-        /// </summary>
-        /// <param name="order">The order to update.</param>
-        /// <returns>A result containing the updated order.</returns>
+
+
         public async Task<Result<Order>> UpdateOrder(Order order)
         {
             try
             {
-                var existingOrder = _orders.FirstOrDefault(o => o.OrderId == order.OrderId);
+                var existingOrder = _orders.FirstOrDefault(o => o.GetOrderData().OrderId == order.GetOrderData().OrderId);
+
                 if (existingOrder != null)
                 {
-                    existingOrder.Customer = order.Customer;
-                    existingOrder.TotalAmount = order.TotalAmount;
-                    // Update other properties as necessary
+                    // Update the existing order's data
+                    var orderData = order.GetOrderData();
+                    var existingOrderData = existingOrder.GetOrderData();
+
+                    existingOrderData.TotalAmount = orderData.TotalAmount;
+                    existingOrderData.Items = orderData.Items;
+
                     return Result<Order>.Success(existingOrder);
                 }
                 else
@@ -89,16 +89,14 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Deletes an order by its ID.
-        /// </summary>
-        /// <param name="orderId">The ID of the order to delete.</param>
-        /// <returns>A result indicating whether the deletion was successful.</returns>
+
+
         public async Task<Result<bool>> DeleteOrder(int orderId)
         {
             try
             {
-                var orderToDelete = _orders.FirstOrDefault(o => o.OrderId == orderId);
+                var orderToDelete = _orders.FirstOrDefault(o => o.GetOrderData().OrderId == orderId);
+
                 if (orderToDelete != null)
                 {
                     _orders.Remove(orderToDelete);
@@ -114,5 +112,7 @@ namespace API.Implementations.Domain
                 return Result<bool>.Failure($"Failed to delete order: {ex.Message}");
             }
         }
+
+
     }
 }

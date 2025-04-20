@@ -23,13 +23,18 @@ public class WarehouseService : IWarehouseService
         if (!result.IsSuccess)
             return new List<WarehouseResponseDto>();
 
-        var warehouseDtos = result.Data.Select(warehouse => new WarehouseResponseDto
+        var warehouseDtos = result.Data.Select(warehouse =>
         {
-            WarehouseId = warehouse.WarehouseId,
+            var warehouseData = warehouse.GetWarehouseData();
+            return new WarehouseResponseDto
+            {
+                WarehouseId = warehouseData.WarehouseId,
+            };
         }).ToList();
 
         return warehouseDtos;
     }
+
 
     public async Task<Result<WarehouseResponseDto>> GetWarehouseByIdAsync(int warehouseId)
     {
@@ -37,13 +42,15 @@ public class WarehouseService : IWarehouseService
         if (!result.IsSuccess)
             return Result<WarehouseResponseDto>.Failure(result.ErrorMessage, result.ErrorCode);
 
+        var warehouseData = result.Data.GetWarehouseData();
         var warehouseDto = new WarehouseResponseDto
         {
-            WarehouseId = result.Data.WarehouseId,
+            WarehouseId = warehouseData.WarehouseId,
         };
 
         return Result<WarehouseResponseDto>.Success(warehouseDto);
     }
+
 
     public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto)
     {
@@ -74,6 +81,7 @@ public class WarehouseService : IWarehouseService
         return Result<List<ItemDto>>.Success(itemDtos);
     }
 
+
     public async Task<Result<bool>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId)
     {
         var result = await _warehouseDomain.RemoveItemFromWarehouseAsync(warehouseId, itemId);
@@ -92,11 +100,12 @@ public class WarehouseService : IWarehouseService
         return stockResult;
     }
 
+
     public async Task<Result<bool>> TransferItemAsync(
-        int sourceWarehouseId,
-        int sku,
-        int quantity,
-        int targetWarehouseId)
+     int sourceWarehouseId,
+     int sku,
+     int quantity,
+     int targetWarehouseId)
     {
         var sourceResult = await _warehouseDomain.GetWarehouseByIdAsync(sourceWarehouseId);
         var targetResult = await _warehouseDomain.GetWarehouseByIdAsync(targetWarehouseId);
@@ -112,6 +121,7 @@ public class WarehouseService : IWarehouseService
         return transferResult;
     }
 
+
     public async Task<Result<decimal>> CalculateTotalInventoryValueAsync(int warehouseId)
     {
         var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
@@ -122,6 +132,7 @@ public class WarehouseService : IWarehouseService
         return valueResult;
     }
 
+
     public async Task<Result<string>> GenerateInventoryReportAsync(int warehouseId)
     {
         var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
@@ -131,6 +142,7 @@ public class WarehouseService : IWarehouseService
         var reportResult = await result.Data.GenerateInventoryReportAsync();
         return reportResult;
     }
+
 
     public async Task<Result<bool>> DeleteWarehouseAsync(int warehouseId)
     {

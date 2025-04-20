@@ -6,6 +6,7 @@ using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.DTOs;
 using AutoMapper;
+using API.Models.Logistics;
 
 namespace API.Services.Logistics
 {
@@ -23,26 +24,47 @@ namespace API.Services.Logistics
         public async Task<List<SupplierOrderDto>> GetAllSupplierOrdersAsync()
         {
             var orders = await _domain.GetAllSupplierOrdersAsync();
-            return _mapper.Map<List<SupplierOrderDto>>(orders);
+
+            // Map List<ISupplierOrder> to List<SupplierOrderDto>
+            var orderDtos = orders.Select(order =>
+            {
+                var supplierOrder = new SupplierOrder(order.GetOrderData());
+                return supplierOrder.GetOrderData();
+            }).ToList();
+
+            return orderDtos;
         }
 
         public async Task<SupplierOrderDto> GetSupplierOrderByIdAsync(int orderId)
         {
             var order = await _domain.GetSupplierOrderByIdAsync(orderId);
-            return _mapper.Map<SupplierOrderDto>(order);
+
+            // Create a new SupplierOrder instance
+            var supplierOrder = new SupplierOrder(order.GetOrderData());
+
+            // Use GetOrderData() to retrieve SupplierOrderDto
+            return supplierOrder.GetOrderData();
         }
 
         public async Task<SupplierOrderDto> AddSupplierOrderAsync(SupplierOrderDto orderDto)
         {
-            var order = _mapper.Map<ISupplierOrder>(orderDto);
-            var createdOrder = await _domain.AddSupplierOrderAsync(order);
-            return _mapper.Map<SupplierOrderDto>(createdOrder);
+            // Create a new SupplierOrder instance using SupplierOrderDto
+            var supplierOrder = new SupplierOrder(orderDto);
+
+            // Add the order to the domain
+            var createdOrder = await _domain.AddSupplierOrderAsync(supplierOrder);
+
+            // Use GetOrderData() to retrieve SupplierOrderDto
+            return createdOrder.GetOrderData();
         }
 
         public async Task<bool> UpdateSupplierOrderAsync(SupplierOrderDto orderDto)
         {
-            var order = _mapper.Map<ISupplierOrder>(orderDto);
-            return await _domain.UpdateSupplierOrderAsync(order);
+            // Create a new SupplierOrder instance using SupplierOrderDto
+            var supplierOrder = new SupplierOrder(orderDto);
+
+            // Update the order in the domain
+            return await _domain.UpdateSupplierOrderAsync(supplierOrder);
         }
 
         public async Task<bool> DeleteSupplierOrderAsync(int orderId)

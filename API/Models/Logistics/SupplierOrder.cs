@@ -1,32 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using API.Models.IntAdmin;
-using API.Models.Logistics.Interfaces;
+﻿using API.Models.Logistics.Interfaces;
+using softserve.projectlabs.Shared.DTOs;
 
-namespace API.Models.Logistics
+public class SupplierOrder : ISupplierOrder
 {
-    public class SupplierOrder : ISupplierOrder
+    private readonly SupplierOrderDto _orderDto;
+
+    public SupplierOrder(int supplierId, SupplierOrderDto orderDto)
     {
-        public int OrderId { get; set; }
-        public int SupplierId { get; set; }
-        public List<Item> OrderedItems { get; set; }
-        public DateTime OrderDate { get; set; }
-        public DateTime? ExpectedDeliveryDate { get; set; }
-        public string Status { get; set; } = "Pending";
+        _orderDto = orderDto;
+    }
 
-        public SupplierOrder() { }
+    public SupplierOrder(SupplierOrderDto orderDto)
+    {
+        _orderDto = orderDto;
+    }
 
-        public SupplierOrder(int supplierId, List<Item> orderedItems)
-        {
-            OrderId = new Random().Next(1000, 9999);
-            SupplierId = supplierId;
-            OrderedItems = orderedItems;
-            OrderDate = DateTime.UtcNow;
-        }
+    public int OrderId
+    {
+        get => _orderDto.OrderId;
+        set => _orderDto.OrderId = value;
+    }
 
-        public void UpdateStatus(string newStatus)
-        {
-            Status = newStatus;
-        }
+    public SupplierOrderDto GetOrderData()
+    {
+        return _orderDto;
+    }
+
+    public void UpdateStatus(string newStatus)
+    {
+        _orderDto.Status = newStatus;
+    }
+
+    public void AddItem(OrderItemDto item)
+    {
+        _orderDto.Items.Add(item);
+    }
+
+    public void RemoveItem(OrderItemDto item)
+    {
+        _orderDto.Items.Remove(item);
+    }
+
+    public decimal CalculateTotalAmount()
+    {
+        return _orderDto.Items.Sum(item => item.TotalPrice);
     }
 }

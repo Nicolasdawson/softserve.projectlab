@@ -1,10 +1,9 @@
 ﻿using API.Services.Logistics;
 using Logistics.Models;
 using Microsoft.AspNetCore.Mvc;
-using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.DTOs;
-using AutoMapper; // Add this for mapping
+using AutoMapper; 
 
 namespace API.Controllers.Logistics
 {

@@ -1,14 +1,10 @@
 ﻿using API.Models.IntAdmin;
-using softserve.projectlabs.Shared.Utilities; // Add this using directive at the top of the file
+using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Models.Logistics.Interfaces
 {
     public interface IWarehouse
     {
-        int WarehouseId { get; set; }
-        string Name { get; set; }
-        string Location { get; set; }
-        int Capacity { get; set; }
         List<Item> Items { get; set; }
 
         // Stock Management

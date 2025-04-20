@@ -2,6 +2,7 @@
 {
     public class OrderItemDto
     {
+        public int Sku { get; set; } // Stock Keeping Unit for the item
         public int ItemId { get; set; } // Unique identifier for the item
         public string ItemName { get; set; } // Name of the item
         public int Quantity { get; set; } // Quantity of the item in the order

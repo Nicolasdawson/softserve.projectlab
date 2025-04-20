@@ -29,8 +29,13 @@ namespace API.Services.OrderService
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var orderEntity = _mapper.Map<OrderEntity>(orderRequestDto);
-                decimal totalAmount = 0;
+                var orderDto = new OrderDto
+                {
+                    OrderDate = DateTime.UtcNow,
+                    TotalAmount = 0,
+                    Items = new List<OrderItemDto>()
+                };
+
                 var itemsToUpdate = new List<ItemEntity>();
 
                 foreach (var itemRequest in orderRequestDto.Items)
@@ -46,18 +51,26 @@ namespace API.Services.OrderService
 
                     itemEntity.CurrentStock -= itemRequest.Quantity;
                     itemsToUpdate.Add(itemEntity);
-                    totalAmount += itemEntity.ItemPrice * itemRequest.Quantity;
+
+                    orderDto.TotalAmount += itemEntity.ItemPrice * itemRequest.Quantity;
+                    orderDto.Items.Add(new OrderItemDto
+                    {
+                        ItemId = itemEntity.Sku,
+                        ItemName = itemEntity.ItemName,
+                        Quantity = itemRequest.Quantity,
+                        UnitPrice = itemEntity.ItemPrice,
+                        // Remove assignment to TotalPrice as it is read-only
+                    });
                 }
 
-                orderEntity.OrderTotalAmount = totalAmount;
-                orderEntity.OrderDate = DateTime.UtcNow;
-                orderEntity.OrderStatus = "Pending";
+                var order = new Order(orderDto);
+                var orderEntity = _mapper.Map<OrderEntity>(order.GetOrderData());
 
                 _context.OrderEntities.Add(orderEntity);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return Result<OrderDto>.Success(_mapper.Map<OrderDto>(orderEntity));
+                return Result<OrderDto>.Success(order.GetOrderData());
             }
             catch (Exception ex)
             {
@@ -66,30 +79,55 @@ namespace API.Services.OrderService
             }
         }
 
+
+
         public async Task<Result<OrderDto>> GetOrderByIdAsync(int orderId)
         {
             var result = await _orderDomain.GetOrderById(orderId);
-            return result.IsSuccess
-                ? Result<OrderDto>.Success(_mapper.Map<OrderDto>(result.Data))
-                : Result<OrderDto>.Failure(result.ErrorMessage);
+
+            if (!result.IsSuccess)
+                return Result<OrderDto>.Failure(result.ErrorMessage);
+
+            // Use GetOrderData() to retrieve OrderDto
+            var orderData = result.Data.GetOrderData();
+
+            return Result<OrderDto>.Success(orderData);
         }
+
+
 
         public async Task<Result<List<OrderDto>>> GetAllOrdersAsync()
         {
             var result = await _orderDomain.GetAllOrders();
-            return result.IsSuccess
-                ? Result<List<OrderDto>>.Success(_mapper.Map<List<OrderDto>>(result.Data))
-                : Result<List<OrderDto>>.Failure(result.ErrorMessage);
+
+            if (!result.IsSuccess)
+                return Result<List<OrderDto>>.Failure(result.ErrorMessage);
+
+            // Use GetOrderData() to map List<Order> to List<OrderDto>
+            var orderDtos = result.Data.Select(order => order.GetOrderData()).ToList();
+
+            return Result<List<OrderDto>>.Success(orderDtos);
         }
+
+
 
         public async Task<Result<OrderDto>> UpdateOrderAsync(OrderDto orderDto)
         {
-            var order = _mapper.Map<Order>(orderDto);
+            // Create a new Order instance using OrderDto
+            var order = new Order(orderDto);
+
             var result = await _orderDomain.UpdateOrder(order);
-            return result.IsSuccess
-                ? Result<OrderDto>.Success(_mapper.Map<OrderDto>(result.Data))
-                : Result<OrderDto>.Failure(result.ErrorMessage);
+
+            if (!result.IsSuccess)
+                return Result<OrderDto>.Failure(result.ErrorMessage);
+
+            // Use GetOrderData() to retrieve OrderDto
+            var updatedOrderData = result.Data.GetOrderData();
+
+            return Result<OrderDto>.Success(updatedOrderData);
         }
+
+
 
         public async Task<Result<bool>> DeleteOrderAsync(int orderId)
         {

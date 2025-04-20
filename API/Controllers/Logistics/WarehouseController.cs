@@ -7,17 +7,29 @@ using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Controller for managing warehouse operations.
+    /// </summary>
     [ApiController]
     [Route("api/Warehouse")]
     public class WarehouseController : ControllerBase
     {
         private readonly IWarehouseService _warehouseService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WarehouseController"/> class.
+        /// </summary>
+        /// <param name="warehouseService">Service for warehouse operations.</param>
         public WarehouseController(IWarehouseService warehouseService)
         {
             _warehouseService = warehouseService;
         }
 
+        /// <summary>
+        /// Retrieves a warehouse by its ID.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse.</param>
+        /// <returns>The warehouse details if found, otherwise a NotFound result.</returns>
         [HttpGet("{warehouseId}")]
         public async Task<IActionResult> GetWarehouseById(int warehouseId)
         {
@@ -25,13 +37,16 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Retrieves all warehouses.
+        /// </summary>
+        /// <returns>A list of all warehouses.</returns>
         [HttpGet("")]
         [ProducesResponseType(typeof(List<WarehouseResponseDto>), 200)]
         public async Task<ActionResult<List<WarehouseResponseDto>>> GetAllWarehouses()
         {
             var warehouses = await _warehouseService.GetWarehousesAsync();
 
-            // Manually map List<WarehouseResponseDto>
             var result = warehouses.Select(w => new WarehouseResponseDto
             {
                 WarehouseId = w.WarehouseId,
@@ -52,6 +67,11 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Creates a new warehouse.
+        /// </summary>
+        /// <param name="warehouseDto">The warehouse details.</param>
+        /// <returns>A success message if created, otherwise a BadRequest result.</returns>
         [HttpPost]
         public async Task<IActionResult> CreateWarehouse([FromBody] WarehouseDto warehouseDto)
         {
@@ -72,6 +92,12 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Adds an item to a warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse.</param>
+        /// <param name="itemDto">The item details.</param>
+        /// <returns>A success message if added, otherwise a BadRequest result.</returns>
         [HttpPost("{warehouseId}/items")]
         public async Task<IActionResult> AddItem(int warehouseId, [FromBody] AddItemToWarehouseDTO itemDto)
         {
@@ -92,6 +118,12 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Removes an item from a warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse.</param>
+        /// <param name="itemId">The ID of the item to remove.</param>
+        /// <returns>A success message if removed, otherwise a BadRequest result.</returns>
         [HttpDelete("{warehouseId}/items/{itemId}")]
         public async Task<IActionResult> RemoveItem(int warehouseId, int itemId)
         {
@@ -99,6 +131,12 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(new { Message = "Item successfully removed." }) : BadRequest(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Checks the stock of an item in a warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse.</param>
+        /// <param name="itemId">The ID of the item.</param>
+        /// <returns>The stock quantity if found, otherwise a NotFound result.</returns>
         [HttpGet("{warehouseId}/items/{itemId}/stock")]
         public async Task<IActionResult> CheckStock(int warehouseId, int itemId)
         {
@@ -108,6 +146,11 @@ namespace API.Controllers
                 : NotFound(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Transfers an item between warehouses.
+        /// </summary>
+        /// <param name="transferRequest">The transfer request details.</param>
+        /// <returns>A success message if transferred, otherwise a BadRequest result.</returns>
         [HttpPost("transfer")]
         public async Task<IActionResult> TransferItem([FromBody] TransferRequestDto transferRequest)
         {
@@ -122,6 +165,12 @@ namespace API.Controllers
                 : BadRequest(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Retrieves items with low stock in a warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse.</param>
+        /// <param name="threshold">The stock threshold to consider as low.</param>
+        /// <returns>A list of low-stock items if found, otherwise a NotFound result.</returns>
         [HttpGet("{warehouseId}/low-stock")]
         public async Task<IActionResult> GetLowStockItems(int warehouseId, [FromQuery] int threshold = 5)
         {
@@ -131,6 +180,11 @@ namespace API.Controllers
                 : NotFound(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Calculates the total inventory value of a warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse.</param>
+        /// <returns>The total inventory value if successful, otherwise a BadRequest result.</returns>
         [HttpGet("{warehouseId}/inventory-value")]
         public async Task<IActionResult> GetTotalInventoryValue(int warehouseId)
         {
@@ -140,6 +194,11 @@ namespace API.Controllers
                 : BadRequest(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Generates an inventory report for a warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse.</param>
+        /// <returns>The inventory report if successful, otherwise a BadRequest result.</returns>
         [HttpGet("{warehouseId}/inventory-report")]
         public async Task<IActionResult> GetInventoryReport(int warehouseId)
         {
@@ -149,6 +208,11 @@ namespace API.Controllers
                 : BadRequest(result.ErrorMessage);
         }
 
+        /// <summary>
+        /// Deletes a warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse to delete.</param>
+        /// <returns>A success message if deleted, otherwise a BadRequest result.</returns>
         [HttpDelete("{warehouseId}")]
         public async Task<IActionResult> DeleteWarehouse(int warehouseId)
         {
@@ -164,6 +228,11 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Restores a previously deleted warehouse.
+        /// </summary>
+        /// <param name="warehouseId">The ID of the warehouse to restore.</param>
+        /// <returns>A success message if restored, otherwise a BadRequest result.</returns>
         [HttpPost("{warehouseId}/undelete")]
         public async Task<IActionResult> UndeleteWarehouse(int warehouseId)
         {

@@ -21,7 +21,7 @@ namespace API.Implementations.Domain
         {
             try
             {
-                // Manually map BranchDto to BranchEntity
+                // Map BranchDto to BranchEntity
                 var branchEntity = new BranchEntity
                 {
                     BranchName = branchDto.BranchName,
@@ -39,17 +39,20 @@ namespace API.Implementations.Domain
                 _context.BranchEntities.Add(branchEntity);
                 await _context.SaveChangesAsync();
 
-                // Manually map BranchEntity to Branch
-                var branch = new Branch
+                // Map BranchEntity to BranchDto
+                var newBranchDto = new BranchDto
                 {
                     BranchId = branchEntity.BranchId,
-                    Name = branchEntity.BranchName,
-                    City = branchEntity.BranchCity,
-                    Region = branchEntity.BranchRegion,
-                    ContactNumber = branchEntity.BranchContactNumber,
-                    ContactEmail = branchEntity.BranchContactEmail,
-                    Address = branchEntity.BranchAddress
+                    BranchName = branchEntity.BranchName,
+                    BranchCity = branchEntity.BranchCity,
+                    BranchRegion = branchEntity.BranchRegion,
+                    BranchContactNumber = branchEntity.BranchContactNumber,
+                    BranchContactEmail = branchEntity.BranchContactEmail,
+                    BranchAddress = branchEntity.BranchAddress
                 };
+
+                // Create a new Branch instance
+                var branch = new Branch(newBranchDto);
 
                 return Result<Branch>.Success(branch);
             }
@@ -70,36 +73,28 @@ namespace API.Implementations.Domain
             try
             {
                 var existingBranchEntity = await _context.BranchEntities
-                    .FirstOrDefaultAsync(b => b.BranchId == branch.BranchId && !b.IsDeleted);
+                    .FirstOrDefaultAsync(b => b.BranchId == branch.GetBranchData().BranchId && !b.IsDeleted);
 
                 if (existingBranchEntity == null)
                 {
                     return Result<Branch>.Failure("Branch not found.");
                 }
 
-                // Manually map Branch to BranchEntity
-                existingBranchEntity.BranchName = branch.Name;
-                existingBranchEntity.BranchCity = branch.City;
-                existingBranchEntity.BranchRegion = branch.Region;
-                existingBranchEntity.BranchContactNumber = branch.ContactNumber;
-                existingBranchEntity.BranchContactEmail = branch.ContactEmail;
-                existingBranchEntity.BranchAddress = branch.Address;
+                // Map BranchDto to BranchEntity
+                var branchData = branch.GetBranchData();
+                existingBranchEntity.BranchName = branchData.BranchName;
+                existingBranchEntity.BranchCity = branchData.BranchCity;
+                existingBranchEntity.BranchRegion = branchData.BranchRegion;
+                existingBranchEntity.BranchContactNumber = branchData.BranchContactNumber;
+                existingBranchEntity.BranchContactEmail = branchData.BranchContactEmail;
+                existingBranchEntity.BranchAddress = branchData.BranchAddress;
                 existingBranchEntity.UpdatedAt = DateTime.UtcNow;
 
                 _context.BranchEntities.Update(existingBranchEntity);
                 await _context.SaveChangesAsync();
 
-                // Manually map BranchEntity to Branch
-                var updatedBranch = new Branch
-                {
-                    BranchId = existingBranchEntity.BranchId,
-                    Name = existingBranchEntity.BranchName,
-                    City = existingBranchEntity.BranchCity,
-                    Region = existingBranchEntity.BranchRegion,
-                    ContactNumber = existingBranchEntity.BranchContactNumber,
-                    ContactEmail = existingBranchEntity.BranchContactEmail,
-                    Address = existingBranchEntity.BranchAddress
-                };
+                // Create a new Branch instance
+                var updatedBranch = new Branch(branchData);
 
                 return Result<Branch>.Success(updatedBranch);
             }
@@ -119,17 +114,20 @@ namespace API.Implementations.Domain
                 if (branchEntity == null)
                     return Result<Branch>.Failure("Branch not found.");
 
-                // Manually map BranchEntity to Branch
-                var branch = new Branch
+                // Map BranchEntity to BranchDto
+                var branchDto = new BranchDto
                 {
                     BranchId = branchEntity.BranchId,
-                    Name = branchEntity.BranchName,
-                    City = branchEntity.BranchCity,
-                    Region = branchEntity.BranchRegion,
-                    ContactNumber = branchEntity.BranchContactNumber,
-                    ContactEmail = branchEntity.BranchContactEmail,
-                    Address = branchEntity.BranchAddress
+                    BranchName = branchEntity.BranchName,
+                    BranchCity = branchEntity.BranchCity,
+                    BranchRegion = branchEntity.BranchRegion,
+                    BranchContactNumber = branchEntity.BranchContactNumber,
+                    BranchContactEmail = branchEntity.BranchContactEmail,
+                    BranchAddress = branchEntity.BranchAddress
                 };
+
+                // Create a new Branch instance
+                var branch = new Branch(branchDto);
 
                 return Result<Branch>.Success(branch);
             }
@@ -147,16 +145,21 @@ namespace API.Implementations.Domain
                     .Where(b => !b.IsDeleted)
                     .ToListAsync();
 
-                // Manually map List<BranchEntity> to List<Branch>
-                var branches = branchEntities.Select(branchEntity => new Branch
+                // Map List<BranchEntity> to List<Branch>
+                var branches = branchEntities.Select(branchEntity =>
                 {
-                    BranchId = branchEntity.BranchId,
-                    Name = branchEntity.BranchName,
-                    City = branchEntity.BranchCity,
-                    Region = branchEntity.BranchRegion,
-                    ContactNumber = branchEntity.BranchContactNumber,
-                    ContactEmail = branchEntity.BranchContactEmail,
-                    Address = branchEntity.BranchAddress
+                    var branchDto = new BranchDto
+                    {
+                        BranchId = branchEntity.BranchId,
+                        BranchName = branchEntity.BranchName,
+                        BranchCity = branchEntity.BranchCity,
+                        BranchRegion = branchEntity.BranchRegion,
+                        BranchContactNumber = branchEntity.BranchContactNumber,
+                        BranchContactEmail = branchEntity.BranchContactEmail,
+                        BranchAddress = branchEntity.BranchAddress
+                    };
+
+                    return new Branch(branchDto);
                 }).ToList();
 
                 return Result<List<Branch>>.Success(branches);

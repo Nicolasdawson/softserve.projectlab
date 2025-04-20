@@ -17,7 +17,7 @@ namespace API.Domain.Logistics
 
         public Task<ISupplierOrder> GetSupplierOrderByIdAsync(int orderId)
         {
-            var order = _orders.FirstOrDefault(o => o.OrderId == orderId);
+            var order = _orders.FirstOrDefault(o => o.GetOrderData().OrderId == orderId);
             return Task.FromResult(order);
         }
 
@@ -29,7 +29,7 @@ namespace API.Domain.Logistics
 
         public Task<bool> UpdateSupplierOrderAsync(ISupplierOrder order)
         {
-            var existing = _orders.FirstOrDefault(o => o.OrderId == order.OrderId);
+            var existing = _orders.FirstOrDefault(o => o.GetOrderData().OrderId == order.GetOrderData().OrderId);
             if (existing == null) return Task.FromResult(false);
 
             _orders.Remove(existing);
@@ -39,7 +39,7 @@ namespace API.Domain.Logistics
 
         public Task<bool> DeleteSupplierOrderAsync(int orderId)
         {
-            var order = _orders.FirstOrDefault(o => o.OrderId == orderId);
+            var order = _orders.FirstOrDefault(o => o.GetOrderData().OrderId == orderId);
             if (order == null) return Task.FromResult(false);
 
             _orders.Remove(order);

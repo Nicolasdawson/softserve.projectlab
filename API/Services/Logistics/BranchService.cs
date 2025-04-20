@@ -30,54 +30,29 @@ namespace API.Services.Logistics
             if (!result.IsSuccess)
                 return Result<BranchDto>.Failure(result.ErrorMessage, result.ErrorCode);
 
-            // Manually map Branch to BranchDto
-            var branchDtoResult = new BranchDto
-            {
-                BranchId = result.Data.BranchId,
-                BranchName = result.Data.Name,
-                BranchCity = result.Data.City,
-                BranchAddress = result.Data.Address,
-                BranchRegion = result.Data.Region,
-                BranchContactNumber = result.Data.ContactNumber,
-                BranchContactEmail = result.Data.ContactEmail
-            };
+            // Use GetBranchData() to retrieve BranchDto
+            var branchData = result.Data.GetBranchData();
 
-            return Result<BranchDto>.Success(branchDtoResult);
+            return Result<BranchDto>.Success(branchData);
         }
+
 
         public async Task<Result<BranchDto>> UpdateBranchAsync(BranchDto branchDto)
         {
-            // Manually map BranchDto to Branch
-            var branch = new Branch
-            {
-                BranchId = branchDto.BranchId,
-                Name = branchDto.BranchName,
-                City = branchDto.BranchCity,
-                Address = branchDto.BranchAddress,
-                Region = branchDto.BranchRegion,
-                ContactNumber = branchDto.BranchContactNumber,
-                ContactEmail = branchDto.BranchContactEmail
-            };
+            // Create a new Branch instance using BranchDto
+            var branch = new Branch(branchDto);
 
             var result = await _branchDomain.UpdateBranch(branch);
 
             if (!result.IsSuccess)
                 return Result<BranchDto>.Failure(result.ErrorMessage);
 
-            // Manually map Branch to BranchDto
-            var updatedBranchDto = new BranchDto
-            {
-                BranchId = result.Data.BranchId,
-                BranchName = result.Data.Name,
-                BranchCity = result.Data.City,
-                BranchAddress = result.Data.Address,
-                BranchRegion = result.Data.Region,
-                BranchContactNumber = result.Data.ContactNumber,
-                BranchContactEmail = result.Data.ContactEmail
-            };
+            // Use GetBranchData() to retrieve BranchDto
+            var updatedBranchData = result.Data.GetBranchData();
 
-            return Result<BranchDto>.Success(updatedBranchDto);
+            return Result<BranchDto>.Success(updatedBranchData);
         }
+
 
         public async Task<Result<BranchDto>> GetBranchByIdAsync(int branchId)
         {
@@ -86,20 +61,12 @@ namespace API.Services.Logistics
             if (!result.IsSuccess)
                 return Result<BranchDto>.Failure(result.ErrorMessage);
 
-            // Manually map Branch to BranchDto
-            var branchDto = new BranchDto
-            {
-                BranchId = result.Data.BranchId,
-                BranchName = result.Data.Name,
-                BranchCity = result.Data.City,
-                BranchAddress = result.Data.Address,
-                BranchRegion = result.Data.Region,
-                BranchContactNumber = result.Data.ContactNumber,
-                BranchContactEmail = result.Data.ContactEmail
-            };
+            // Use GetBranchData() to retrieve BranchDto
+            var branchData = result.Data.GetBranchData();
 
-            return Result<BranchDto>.Success(branchDto);
+            return Result<BranchDto>.Success(branchData);
         }
+
 
         public async Task<Result<List<BranchDto>>> GetAllBranchesAsync()
         {
@@ -108,20 +75,12 @@ namespace API.Services.Logistics
             if (!result.IsSuccess)
                 return Result<List<BranchDto>>.Failure(result.ErrorMessage);
 
-            // Manually map List<Branch> to List<BranchDto>
-            var branchDtos = result.Data.Select(branch => new BranchDto
-            {
-                BranchId = branch.BranchId,
-                BranchName = branch.Name,
-                BranchCity = branch.City,
-                BranchAddress = branch.Address,
-                BranchRegion = branch.Region,
-                BranchContactNumber = branch.ContactNumber,
-                BranchContactEmail = branch.ContactEmail
-            }).ToList();
+            // Use GetBranchData() to map List<Branch> to List<BranchDto>
+            var branchDtos = result.Data.Select(branch => branch.GetBranchData()).ToList();
 
             return Result<List<BranchDto>>.Success(branchDtos);
         }
+
 
         public async Task<Result<bool>> RemoveBranchAsync(int branchId)
         {
