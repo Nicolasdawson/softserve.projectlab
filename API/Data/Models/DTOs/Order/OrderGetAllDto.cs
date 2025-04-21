@@ -12,6 +12,6 @@ namespace API.Data.Models.DTOs.Order
 
         public DateTime OrderPlaced { get; set; } = DateTime.Now;
 
-        public int UserId { get; set; }
+        public string UserEmail { get; set; } 
     }
 }

@@ -23,13 +23,13 @@ namespace API.Repository
 
         public async Task<IEnumerable<OrderGetAllDto>> GetAllOrders()
         {
-            var orders = await db.Order.OrderByDescending(order => order.OrderPlaced).Select(order => new OrderGetAllDto
+            var orders = await db.Order.Include(o => o.User).OrderByDescending(order => order.OrderPlaced).Select(order => new OrderGetAllDto
             {
                 Id = order.Id,
                 Address = order.Address,
                 OrderTotal = order.OrderTotal,
                 OrderPlaced = order.OrderPlaced,
-                UserId = order.UserId,
+                UserEmail = order.User.Email
             }).ToListAsync();
 
             return orders;
