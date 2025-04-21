@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using API.Models;
 using API.Services;
+using API.DTO;
+using API.Helpers;
+using API.implementations.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.CodeAnalysis;
 
 namespace API.Controllers;
 
@@ -8,15 +13,23 @@ namespace API.Controllers;
     [ApiController]
     public class ProductController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly ProductService _productService;
-
+        private readonly ProductImageService _productImageService;
+        private readonly AppDbContext _context;
+        private readonly IFileStorage _fileStorage;
+        
         /// <summary>
         /// Injects the ProductService dependency.
         /// </summary>
         /// <param name="productService">The product service.</param>
-        public ProductController(ProductService productService)
+        public ProductController(IConfiguration configuration, ProductService productService, ProductImageService productImageService, IFileStorage fileStorage, AppDbContext context)
         {
+            _configuration = configuration;
             _productService = productService;
+            _productImageService = productImageService;
+            _context = context; 
+            _fileStorage = fileStorage;
         }
 
         /// <summary>
@@ -25,20 +38,53 @@ namespace API.Controllers;
         /// <param name="product">The product to create.</param>
         /// <returns>The created product.</returns>
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct([FromBody] Product product)
+        public async Task<ActionResult<Product>> CreateProduct([FromForm] ProductDTO product)
         {
-            Console.WriteLine(product);
-
             if (product == null)
                 return BadRequest("The product can't be null");
 
-        //var categoryExists = await _context.Categories.AnyAsync(categoryExists => categoryExists.Id == product.IdCategory);
-        //if (!categoryExists)
-        //    return BadRequest("The selected category doesn't exist");
+            var categoryExists = await _context.Categories.AnyAsync(categoryExists => categoryExists.Id == product.IdCategory);
+            if (!categoryExists)
+                return BadRequest("The selected category doesn't exist");
 
-            // Save in DB
-            var createdProduct = await _productService.CreateProductAsync(product);
-            return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
+
+            Product prod = new Product
+            {
+                Id = Guid.NewGuid(),
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Weight = product.Weight,
+                Height = product.Height,
+                Width = product.Width,
+                Length = product.Length,
+                IdCategory = product.IdCategory,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            //Store the Images in folder
+            if (product.Images != null) {            
+                var images = new List<ProductImage>();
+                foreach (var image in product.Images)
+                {
+                    var fileName = await _fileStorage.SaveLocalFileAsync(image);                
+                    var imagePath = _configuration["urlBackEnd"] + "/Images/" + fileName;
+
+                    images.Add(new ProductImage {
+                        Id = Guid.NewGuid(),
+                        ImageUrl = imagePath,
+                        IdProduct = prod.Id,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+
+                    });
+                }
+                await _productImageService.CreateProductImageAsync(images);
+            }
+
+            await _productService.CreateProductAsync(prod);
+            return StatusCode(StatusCodes.Status201Created); // CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
 
         /// <summary>

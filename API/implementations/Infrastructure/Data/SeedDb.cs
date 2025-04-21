@@ -8,18 +8,23 @@ namespace API.implementations.Infrastructure.Data
     public class SeedDb
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
         private readonly IFileStorage _fileStorage;
 
-        public SeedDb(AppDbContext context, IFileStorage fileStorage)
+        public SeedDb(AppDbContext context, IFileStorage fileStorage, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
             _fileStorage = fileStorage;
         }
         public async Task SeedAsync()
         {
-            _context.ClearDatabase(); // Borra los datos sin eliminar la base de datos
-            await CheckCategoriesAsync();
-            await CheckProductsAsync();
+            //_context.ClearDatabase(); // Borra los datos sin eliminar la base de datos
+            //await CheckCategoriesAsync();
+            //await CheckProductsAsync();
+            //await CheckLocalImagesAsync();
+
+
             //await CheckImagesAsync();
             /*
             modelBuilder.Entity<Category>().HasData(
@@ -480,6 +485,69 @@ namespace API.implementations.Infrastructure.Data
             Console.WriteLine("Imágenes guardadas.");
 
 
+        }
+
+        private async Task CheckLocalImagesAsync()
+        {
+            var products = await _context.Products.ToListAsync();
+            var glassBreakProduct = products.FirstOrDefault(p => p.Name == "Glass Break Sensor");
+            var smartHomeProduct = products.FirstOrDefault(p => p.Name == "Vivint Smart Home Lighting");
+            var doorbellCameraProduct = products.FirstOrDefault(p => p.Name == "Doorbell Camera Pro");
+            var smartDoorLocksProduct = products.FirstOrDefault(p => p.Name == "Smart Door Locks");
+            var sportlightProProduct = products.FirstOrDefault(p => p.Name == "Sporlight Pro - Spotlight Camera");
+            var combinSmokeandCarbonProduct = products.FirstOrDefault(p => p.Name == "Combination Smoke and Carbon Monoxide Detector");
+            var outdoorCameraProduct = products.FirstOrDefault(p => p.Name == "Outdoor Camera Pro");
+            var indoorCameraProduct = products.FirstOrDefault(p => p.Name == "Indoor Camera Pro");
+            var doorAndWindowProduct = products.FirstOrDefault(p => p.Name == "Door and Window Sensors");
+            var keypadProduct = products.FirstOrDefault(p => p.Name == "Vivint Keypad");
+            var motionSensorProduct = products.FirstOrDefault(p => p.Name == "Motion Sensor");
+            var smartHubProduct = products.FirstOrDefault(p => p.Name == "Smart Hub");
+            var playbackDvrProduct = products.FirstOrDefault(p => p.Name == "Playback DVR");
+            var smartThermoProduct = products.FirstOrDefault(p => p.Name == "Vivint Smart Thermostat");
+            var waterSensorProduct = products.FirstOrDefault(p => p.Name == "Water Sensor");
+
+            var filePath = $"{Environment.CurrentDirectory}\\Images\\Products\\";
+            var filesNames = Directory
+                      .GetFiles(filePath)
+                      .Select(Path.GetFileName)
+                      .ToArray();
+
+            var folder = Path.Combine(Directory.GetCurrentDirectory(), "Images", "Products");
+
+            var images = new List<ProductImage>();
+            foreach (var item in products)
+            {
+
+                int index = Array.FindIndex(filesNames, name => name.StartsWith(item.Name, StringComparison.OrdinalIgnoreCase));
+
+                for (int i = 0; i < 3; i++)
+                {
+                    /*
+                        var fileBytes = File.ReadAllBytes(filePath + filesNames[index + i]);
+                        var imagePath = await _fileStorage.SaveFileAsync(fileBytes, "PNG", "products");
+                        
+                    */
+                    
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(item.Name);
+                    Console.WriteLine("Agregando nuevo objeto a la lista images");
+                    images.Add(new ProductImage
+                    {
+                        Id = Guid.NewGuid(),
+                        ImageUrl = _configuration["urlBackEnd"] + "/Images/" + fileName,
+                        IdProduct = item.Id,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+
+                    });
+                }
+            }
+
+            ProductImage[] imageArr = images.ToArray();
+
+            Console.WriteLine("Ejecutando SaveChangesAsync...");
+            await _context.ProductImages.AddRangeAsync(imageArr);
+            await _context.SaveChangesAsync(); // Guardar las imagenes                    
+            Console.WriteLine("Imágenes guardadas.");
         }
     }
 }

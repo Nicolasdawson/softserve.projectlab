@@ -1,5 +1,7 @@
-﻿using Azure.Storage.Blobs;
+﻿using System.Net.Sockets;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace API.Helpers;
 
@@ -34,5 +36,25 @@ public class FileStorage : IFileStorage
             await blob.UploadAsync(ms);
         }
         return blob.Uri.ToString();
+    }
+
+
+    public async Task<string> SaveLocalFileAsync(IFormFile image)
+    {
+        var folder = Path.Combine(Directory.GetCurrentDirectory(), "Images", "Products");
+
+        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+        var filePath = Path.Combine(folder, fileName);        
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await image.CopyToAsync(stream);
+        }
+        /*        
+        Console.WriteLine($"{Environment.CurrentDirectory}\\Images\\Products\\");
+        Console.WriteLine(Directory.GetCurrentDirectory());
+        */
+
+
+        return fileName;
     }
 }

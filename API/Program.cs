@@ -32,6 +32,7 @@ builder.Services.AddCors(options =>
 
 // Agregar servicios para controllers y vistas
 builder.Services.AddControllersWithViews(); // Aquí es donde permitimos vistas (Razor)
+
 // Agrega servicios de Razor Pages
 builder.Services.AddRazorPages();
 
@@ -40,8 +41,9 @@ builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger e
 
 // Add service ProductService
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ProductImageService>();
 
-// Conexión con blob DB in Azure
+// Conexión con Azure blob DB Azure
 builder.Services.AddAzureClients(clientBuilder =>
 {
     clientBuilder.AddBlobServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:blob"]!, preferMsi: true);
@@ -156,6 +158,7 @@ app.UseStaticFiles(new StaticFileOptions {
     RequestPath= "/Images"
 });
 
+/*
 builder.Services.AddDirectoryBrowser();
 
 var fileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Images\\Products"));
@@ -173,6 +176,7 @@ app.UseDirectoryBrowser(new DirectoryBrowserOptions
     FileProvider = fileProvider,
     RequestPath = requestPath
 });
+*/
 
 // Usar la pol�tica de CORS
 app.UseCors("AllowAnyOrigin");
