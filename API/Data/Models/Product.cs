@@ -36,6 +36,7 @@ namespace API.Data.Models
 
         [Required]
         public int CategoryId { get; set; }
+        public Category Category { get; set; }
 
         [NotMapped]
         public IFormFile Image { get; set; }
