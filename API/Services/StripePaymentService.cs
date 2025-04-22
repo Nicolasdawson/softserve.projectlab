@@ -4,7 +4,7 @@ namespace API.Services;
 
     public class StripePaymentService
     {
-        public Session CreateCheckoutSession(decimal amount, string currency, string successUrl, string cancelUrl)
+        public Session CreateCheckoutSession(decimal amount, string currency, string successUrl, string cancelUrl, string? customerEmail)
         {
             var options = new SessionCreateOptions
             {
@@ -29,7 +29,7 @@ namespace API.Services;
                 SuccessUrl = successUrl,
                 CancelUrl = cancelUrl,
 
-                CustomerEmail = "ignaciomaldonado188@gmail.com"
+                CustomerEmail = customerEmail
             };
 
             var service = new SessionService();

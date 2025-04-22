@@ -73,7 +73,8 @@ namespace API.Controllers
                 request.Amount,
                 request.Currency,
                 request.SuccessUrl,
-                request.CancelUrl
+                request.CancelUrl,
+                request.CustomerEmail
             );
 
             return Ok(new { sessionId = session.Id, url = session.Url });
