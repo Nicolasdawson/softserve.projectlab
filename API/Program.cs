@@ -78,10 +78,10 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-//builder.Services.AddCors( p => p.AddPolicy("PoliticaCors", build =>
-//{
-//   build.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
-//}));
+builder.Services.AddCors(p => p.AddPolicy("PoliticaCors", build =>
+{
+    build.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+}));
 
 var app = builder.Build();
 
@@ -100,7 +100,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-//app.UseCors("PoliticaCors");
+app.UseCors("PoliticaCors");
 
 app.MapControllers();
 

@@ -6,55 +6,57 @@
 <PageTitle>Home</PageTitle>
 
 <h3>Products</h3>
-@* <div> *@
-@*     @* <button @onclick="GetProducts">Get Products</button> *@
-@*     <div> *@
-@*         @if (products != null) *@
-@*         { *@
-@*             <table class="table"> *@
-@*                 <thead> *@
-@*                     <tr> *@
-@*                         <th>Name</th> *@
-@*                         <th>Brand</th> *@
-@*                         <th>Description</th> *@
-@*                         <th>Price</th> *@
-@*                     </tr> *@
-@*                 </thead> *@
-@*                 <tbody> *@
-@*                     @foreach (var product in products) *@
-@*                     { *@
-@*                         <tr> *@
-@*                             <td>@product.Name</td> *@
-@*                             <td>@product.Brand</td> *@
-@*                             <td>@product.Description</td> *@
-@*                             <td>@product.Price</td> *@
-@*                         </tr> *@
-@*                     } *@
-@*                 </tbody> *@
-@*             </table> *@
-@*         } *@
-@*     </div> *@
-@* </div> *@
+<div>
+    <button @onclick="GetProducts">Get Products</button>
+    <div>
+        @if (products != null)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Image</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in products)
+                    {
+                        <tr>
+                            <td>@product.Name</td>
+                            <td><img src="@product.ImageUrl"/></td>
+                            <td>@product.Detail</td>
+                            <td>@product.Price</td>
+                        </tr>
+                    }
+                </tbody>
+            </table> 
+        }
+    </div>
+</div>
 
 
 @code {
-    // private List<Product> products;
+    private List<Product> products;
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     await GetProducts();
-    // }
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProducts();
+    }
 
-    // private async Task GetProducts()
-    // {
-    //     products = await Http.GetFromJsonAsync<List<Product>>("https:localhost:7153/api/Product");
-    // }
+    private async Task GetProducts()
+    {
+        products = await Http.GetFromJsonAsync<List<Product>>("https://localhost:7153/api/Products/Filter");
+    }
 
-    // public class Product
-    // {
-    //     public string Name { get; set; }
-    //     public string Brand { get; set; }
-    //     public string Description { get; set; }
-    //     public decimal Price { get; set; }
-    // }
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Detail { get; set; }
+        public string ImageUrl { get; set; }
+        public decimal Price { get; set; }   
+        public string CategoryName { get; set; }
+    }
 }
