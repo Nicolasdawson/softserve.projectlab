@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using API.Models;
 using API.Services;
+using Stripe;
 
-namespace API.Controllers;
-
+namespace API.Controllers
+{
     [Route("api/[controller]")]
     [ApiController]
     public class PaymentsController : ControllerBase
@@ -17,13 +18,7 @@ namespace API.Controllers;
             _stripeService = stripeService;
         }
 
-
-        [HttpPost]
-        public ActionResult<Payment> CreatePayment(Payment payment)
-        {
-            var created = _paymentService.CreatePayment(payment);
-            return CreatedAtAction(nameof(GetPaymentById), new { id = created.Id }, created);
-        }
+        // ---------------- CRUD interno ----------------
 
         [HttpGet]
         public ActionResult<IEnumerable<Payment>> GetPayments()
@@ -40,6 +35,13 @@ namespace API.Controllers;
                 return NotFound();
             }
             return Ok(payment);
+        }
+
+        [HttpPost]
+        public ActionResult<Payment> CreatePayment(Payment payment)
+        {
+            var created = _paymentService.CreatePayment(payment);
+            return CreatedAtAction(nameof(GetPaymentById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
@@ -62,6 +64,8 @@ namespace API.Controllers;
             return NoContent();
         }
 
+        // ---------------- Stripe integración ----------------
+
         [HttpPost("create-checkout-session")]
         public ActionResult CreateCheckoutSession([FromBody] CreatePaymentRequest request)
         {
@@ -75,5 +79,68 @@ namespace API.Controllers;
             return Ok(new { sessionId = session.Id, url = session.Url });
         }
 
-    }
+        [HttpGet("session-details/{sessionId}")]
+        public IActionResult GetSessionDetails(string sessionId)
+        {
+            try
+            {
+                var sessionService = new Stripe.Checkout.SessionService();
+                var session = sessionService.Get(sessionId);
 
+                return Ok(new
+                {
+                    SessionId = session.Id,
+                    Email = session.CustomerEmail,
+                    Status = session.PaymentStatus,
+                    Amount = (session.AmountTotal ?? 0) / 100m,
+                    Currency = session.Currency,
+                    PaymentIntentId = session.PaymentIntentId
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("payment-details-from-charge/{paymentIntentId}")]
+        public IActionResult GetPaymentDetailsFromCharge(string paymentIntentId)
+        {
+            try
+            {
+                var chargeService = new ChargeService();
+
+                var options = new ChargeListOptions
+                {
+                    PaymentIntent = paymentIntentId,
+                    Limit = 1,
+                    Expand = new List<string>
+                    {
+                        "data.payment_method_details",
+                        "data.billing_details"
+                    }
+                };
+
+                var charges = chargeService.List(options);
+                var charge = charges.Data.FirstOrDefault();
+                var card = charge?.PaymentMethodDetails?.Card;
+
+                return Ok(new
+                {
+                    Status = charge?.Status,
+                    Amount = charge?.Amount / 100m,
+                    Currency = charge?.Currency,
+                    CardBrand = card?.Brand,
+                    Last4 = card?.Last4,
+                    ExpMonth = card?.ExpMonth,
+                    ExpYear = card?.ExpYear,
+                    CardHolderName = charge?.BillingDetails?.Name
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+    }
+}

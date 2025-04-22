@@ -47,24 +47,24 @@ namespace API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c850356c-72e5-48e4-b4c4-4b8f4ea30001"),
-                            CreatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 434, DateTimeKind.Utc).AddTicks(9578),
+                            Id = new Guid("f645755d-c680-4091-9600-5c3e041dc495"),
+                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(1027),
                             Name = "Cámaras de Seguridad",
-                            UpdatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 434, DateTimeKind.Utc).AddTicks(9585)
+                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(1036)
                         },
                         new
                         {
-                            Id = new Guid("7bc32edc-f075-4a37-9fd0-e4a5b107d368"),
-                            CreatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 435, DateTimeKind.Utc).AddTicks(755),
+                            Id = new Guid("a3fd8a0a-0620-4deb-b7d7-e85dc2c866d1"),
+                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(2446),
                             Name = "Alarmas",
-                            UpdatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 435, DateTimeKind.Utc).AddTicks(756)
+                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(2448)
                         },
                         new
                         {
-                            Id = new Guid("daedbd41-43c5-4729-8fbd-ba6e4b3e2ecc"),
-                            CreatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 435, DateTimeKind.Utc).AddTicks(760),
+                            Id = new Guid("64a075b8-a5a3-4fee-8896-f7089eedd098"),
+                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(2452),
                             Name = "Sensores",
-                            UpdatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 435, DateTimeKind.Utc).AddTicks(761)
+                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(2453)
                         });
                 });
 
@@ -254,21 +254,6 @@ namespace API.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<string>("CardHolderName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("CardLastFour")
-                        .IsRequired()
-                        .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
-
-                    b.Property<string>("CardType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -277,33 +262,19 @@ namespace API.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)");
 
-                    b.Property<string>("ExpirationDate")
-                        .IsRequired()
-                        .HasMaxLength(7)
-                        .HasColumnType("nvarchar(7)");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("ResponseCode")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<string>("PaymentIntentId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("TransactionId")
+                    b.Property<string>("StripeSessionId")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
@@ -370,91 +341,91 @@ namespace API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d2fe7d0c-d0f7-4539-a57b-3f1697b77118"),
-                            CreatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 436, DateTimeKind.Utc).AddTicks(6261),
+                            Id = new Guid("3468403f-a527-4b56-ab2d-a36bf3fb9c3a"),
+                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 800, DateTimeKind.Utc).AddTicks(6229),
                             Description = "Cámara de seguridad de alta definición con visión nocturna y grabación en 1080p. Conectividad Wi-Fi y detección de movimiento.",
                             Height = 10m,
-                            IdCategory = new Guid("c850356c-72e5-48e4-b4c4-4b8f4ea30001"),
+                            IdCategory = new Guid("f645755d-c680-4091-9600-5c3e041dc495"),
                             Length = 20m,
                             Name = "Cámara de Seguridad IP 1080p",
                             Price = 120.99m,
                             Stock = 50,
-                            UpdatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 436, DateTimeKind.Utc).AddTicks(6268),
+                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 800, DateTimeKind.Utc).AddTicks(6238),
                             Weight = 0.5m,
                             Width = 15m
                         },
                         new
                         {
-                            Id = new Guid("33577b56-b564-4c23-a062-c666b0c220ff"),
-                            CreatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1078),
+                            Id = new Guid("cb155d6f-8a0a-4c81-bf7d-89ba46c417ab"),
+                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3487),
                             Description = "Sistema de alarma inalámbrico con 4 zonas, ideal para viviendas. Compatible con sensores de puertas y ventanas.",
                             Height = 8m,
-                            IdCategory = new Guid("7bc32edc-f075-4a37-9fd0-e4a5b107d368"),
+                            IdCategory = new Guid("a3fd8a0a-0620-4deb-b7d7-e85dc2c866d1"),
                             Length = 25m,
                             Name = "Alarma Inalámbrica 4 Zonas",
                             Price = 150.50m,
                             Stock = 100,
-                            UpdatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1079),
+                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3493),
                             Weight = 1.2m,
                             Width = 20m
                         },
                         new
                         {
-                            Id = new Guid("819c8ae2-a95b-4f1c-a376-dc733db0a9ce"),
-                            CreatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1126),
+                            Id = new Guid("3660b7e1-7ec7-4a3f-a04b-f64e4694c019"),
+                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3517),
                             Description = "Sensor de movimiento PIR (infrarrojo pasivo) para sistemas de alarma. Detecta movimiento en un rango de hasta 10 metros.",
                             Height = 6m,
-                            IdCategory = new Guid("daedbd41-43c5-4729-8fbd-ba6e4b3e2ecc"),
+                            IdCategory = new Guid("64a075b8-a5a3-4fee-8896-f7089eedd098"),
                             Length = 12m,
                             Name = "Sensor de Movimiento PIR",
                             Price = 45.30m,
                             Stock = 0,
-                            UpdatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1127),
+                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3518),
                             Weight = 0.3m,
                             Width = 8m
                         },
                         new
                         {
-                            Id = new Guid("e9b2a087-db87-4a92-9b9f-074cdc0430f0"),
-                            CreatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1135),
+                            Id = new Guid("f2f0d62f-fefe-4eb0-8910-a81427cb2598"),
+                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3526),
                             Description = "Cámara dome 4K con visión panorámica y grabación en calidad ultra HD. Resistente a condiciones climáticas extremas.",
                             Height = 12m,
-                            IdCategory = new Guid("c850356c-72e5-48e4-b4c4-4b8f4ea30001"),
+                            IdCategory = new Guid("f645755d-c680-4091-9600-5c3e041dc495"),
                             Length = 18m,
                             Name = "Cámara de Seguridad Dome 4K",
                             Price = 299.99m,
                             Stock = 50,
-                            UpdatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1136),
+                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3527),
                             Weight = 0.8m,
                             Width = 15m
                         },
                         new
                         {
-                            Id = new Guid("77d09223-94d7-4511-9bf2-67084b602560"),
-                            CreatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1144),
+                            Id = new Guid("7aa0cbda-e37f-4978-bee2-234100826adf"),
+                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3560),
                             Description = "Alarma de seguridad para puertas y ventanas. Ideal para prevenir accesos no autorizados en el hogar o negocio.",
                             Height = 5m,
-                            IdCategory = new Guid("7bc32edc-f075-4a37-9fd0-e4a5b107d368"),
+                            IdCategory = new Guid("a3fd8a0a-0620-4deb-b7d7-e85dc2c866d1"),
                             Length = 15m,
                             Name = "Alarma para Puerta/ ventana",
                             Price = 32.99m,
                             Stock = 200,
-                            UpdatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1145),
+                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3560),
                             Weight = 0.5m,
                             Width = 10m
                         },
                         new
                         {
-                            Id = new Guid("b10610b5-8606-4b4c-a5be-81dc761bc9d8"),
-                            CreatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1153),
+                            Id = new Guid("6b4f67f4-93a2-42d9-a90d-9caa2c88837c"),
+                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3569),
                             Description = "Cámara de seguridad para exteriores, resistente al agua y con visión nocturna. Se conecta a través de Wi-Fi.",
                             Height = 10m,
-                            IdCategory = new Guid("c850356c-72e5-48e4-b4c4-4b8f4ea30001"),
+                            IdCategory = new Guid("f645755d-c680-4091-9600-5c3e041dc495"),
                             Length = 25m,
                             Name = "Cámara de Seguridad para Exteriores",
                             Price = 180.75m,
                             Stock = 30,
-                            UpdatedAt = new DateTime(2025, 4, 10, 3, 24, 46, 437, DateTimeKind.Utc).AddTicks(1153),
+                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3570),
                             Weight = 1.0m,
                             Width = 20m
                         });

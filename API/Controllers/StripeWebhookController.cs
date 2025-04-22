@@ -13,10 +13,13 @@ public class StripeWebhookController : ControllerBase
     private readonly PaymentService _paymentService;
     private readonly IConfiguration _configuration;
 
-    public StripeWebhookController(PaymentService paymentService, IConfiguration configuration)
+    private readonly EmailService _emailService;
+
+    public StripeWebhookController(PaymentService paymentService, IConfiguration configuration, EmailService emailService)
     {
         _paymentService = paymentService;
         _configuration = configuration;
+        _emailService = emailService;
     }
 
     [HttpPost]
@@ -31,7 +34,7 @@ public class StripeWebhookController : ControllerBase
                 json,
                 Request.Headers["Stripe-Signature"],
                 endpointSecret,
-                60000 // Tolerancia de 10 minutos (solo para desarrollo)
+                60000 // Tolerancia  (solo para desarrollo)
             );
 
             Console.WriteLine($"Stripe event received: {stripeEvent.Type}");
@@ -47,22 +50,28 @@ public class StripeWebhookController : ControllerBase
                     var payment = new Payment
                     {
                         Id = Guid.NewGuid(),
-                        TransactionId = session.PaymentIntentId ?? "unknown",
+                        StripeSessionId  = session.Id,
+                        PaymentIntentId = session.PaymentIntentId,
                         Status = "paid",
-                        ResponseCode = "200",
-                        PaymentMethod = "card",
-                        CardType = "unknown",
-                        CardLastFour = "****",
-                        ExpirationDate = "00/00",
                         Amount = session.AmountTotal.HasValue ? session.AmountTotal.Value / 100m : 0,
                         Currency = session.Currency,
-                        CardHolderName = session.CustomerEmail ?? "Desconocido",
                         CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
                     };
 
                     _paymentService.CreatePayment(payment);
+
+                    if (session.CustomerEmail != null)
+                    {
+                        var emailBody = $"Gracias por tu compra. El total fue: {(session.AmountTotal ?? 0) / 100.0m} {session.Currency.ToUpper()}";
+                        await _emailService.SendPaymentConfirmationEmail(
+                            session.CustomerEmail,
+                            "Confirmación de pago",
+                            emailBody
+                        );
+                    }
                 }
+
+                
             }
 
             return Ok();

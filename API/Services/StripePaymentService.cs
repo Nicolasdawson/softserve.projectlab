@@ -15,7 +15,7 @@ namespace API.Services;
                     {
                         PriceData = new SessionLineItemPriceDataOptions
                         {
-                            UnitAmountDecimal = amount * 100, // Stripe usa centavos
+                            UnitAmountDecimal = amount * 100, 
                             Currency = currency,
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
@@ -27,7 +27,9 @@ namespace API.Services;
                 },
                 Mode = "payment",
                 SuccessUrl = successUrl,
-                CancelUrl = cancelUrl
+                CancelUrl = cancelUrl,
+
+                CustomerEmail = "ignaciomaldonado188@gmail.com"
             };
 
             var service = new SessionService();

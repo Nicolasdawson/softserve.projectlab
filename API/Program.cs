@@ -46,6 +46,9 @@ builder.Services.AddScoped<PaymentService>();
 
 builder.Services.AddScoped<StripePaymentService>();
 
+builder.Services.AddScoped<EmailService>();
+
+
 // Configuración de Swagger
 builder.Services.AddSwaggerGen(c =>
 {

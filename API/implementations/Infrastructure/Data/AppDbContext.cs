@@ -223,33 +223,13 @@ namespace API.implementations.Infrastructure.Data
             {
                 entity.ToTable("Payments");
 
-                entity.Property(p => p.TransactionId)
+                entity.Property(p => p.StripeSessionId)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(255);
 
                 entity.Property(p => p.Status)
                     .IsRequired()
                     .HasMaxLength(20);
-
-                entity.Property(p => p.ResponseCode)
-                    .IsRequired()
-                    .HasMaxLength(10);
-
-                entity.Property(p => p.PaymentMethod)
-                    .IsRequired()
-                    .HasMaxLength(20);
-
-                entity.Property(p => p.CardType)
-                    .IsRequired()
-                    .HasMaxLength(20);
-
-                entity.Property(p => p.CardLastFour)
-                    .IsRequired()
-                    .HasMaxLength(4);
-
-                entity.Property(p => p.ExpirationDate)
-                    .IsRequired()
-                    .HasMaxLength(7);
 
                 entity.Property(p => p.Amount)
                     .IsRequired()
@@ -258,10 +238,6 @@ namespace API.implementations.Infrastructure.Data
                 entity.Property(p => p.Currency)
                     .IsRequired()
                     .HasMaxLength(3);
-
-                entity.Property(p => p.CardHolderName)
-                    .IsRequired()
-                    .HasMaxLength(100);
             });
 
             //Entity DeliveryAddress configuration

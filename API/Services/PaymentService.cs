@@ -1,8 +1,8 @@
 using API.implementations.Infrastructure.Data;
 using API.Models;
 
-namespace API.Services;
-
+namespace API.Services
+{
     public class PaymentService
     {
         private readonly AppDbContext _context;
@@ -16,7 +16,6 @@ namespace API.Services;
         {
             payment.Id = Guid.NewGuid();
             payment.CreatedAt = DateTime.UtcNow;
-            payment.UpdatedAt = DateTime.UtcNow;
 
             _context.Payments.Add(payment);
             _context.SaveChanges();
@@ -50,17 +49,11 @@ namespace API.Services;
             var existing = GetPaymentById(id);
             if (existing != null)
             {
-                existing.TransactionId = updatedPayment.TransactionId;
+                existing.StripeSessionId = updatedPayment.StripeSessionId;
                 existing.Status = updatedPayment.Status;
-                existing.ResponseCode = updatedPayment.ResponseCode;
-                existing.PaymentMethod = updatedPayment.PaymentMethod;
-                existing.CardType = updatedPayment.CardType;
-                existing.CardLastFour = updatedPayment.CardLastFour;
-                existing.ExpirationDate = updatedPayment.ExpirationDate;
                 existing.Amount = updatedPayment.Amount;
                 existing.Currency = updatedPayment.Currency;
-                existing.CardHolderName = updatedPayment.CardHolderName;
-                existing.UpdatedAt = DateTime.UtcNow;
+                // createdAt no se cambia, así que lo dejamos igual
 
                 _context.SaveChanges();
                 return true;
@@ -68,4 +61,4 @@ namespace API.Services;
             return false;
         }
     }
-
+}
