@@ -71,14 +71,23 @@ namespace API.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Register([FromBody] UserRegisterDto userRegisterDto)
         {
-            var registrarionResult = await userRepository.RegisterUser(userRegisterDto);
-
-            if(registrarionResult)
+            var result = await userRepository.RegisterUser(userRegisterDto);
+            if(result.IsUserRegistered)
             {
-                return StatusCode(StatusCodes.Status201Created);      
+                return Ok(result.Message);
             }
 
-            return BadRequest(new { message = "El correo electrónico ya está registrado" });
+            ModelState.AddModelError("Email", result.Message);
+            return BadRequest(ModelState);
+
+            //var registrarionResult = await userRepository.RegisterUser(userRegisterDto);
+
+            //if(registrarionResult)
+            //{
+            //    return StatusCode(StatusCodes.Status201Created);      
+            //}
+
+            //return BadRequest(new { message = "El correo electrónico ya está registrado" });
         }
 
     }

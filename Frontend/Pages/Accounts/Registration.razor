@@ -1,4 +1,9 @@
 ﻿@page "/registration"
+@using System.Text.Json
+@using System.Text
+@using System.Net
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
 
 <div class="ma-6 d-flex justify-center">
     <h3>User Registration Form</h3>
@@ -8,6 +13,18 @@
     <MudCard width = "500px">
         <MudForm Model="registrationModel" @ref="form" Validation="validationModel.ValidateValue">
             <MudCardContent>
+                @if (!string.IsNullOrEmpty(APIErrorMessages))
+                {
+                    <MudAlert Severity="MudBlazor.Severity.Error" Variant="Variant.Outlined" Class="mb-6">
+                        @APIErrorMessages
+                    </MudAlert>
+                }
+                @if (success)
+                {
+                    <MudAlert Severity="MudBlazor.Severity.Success" Variant="Variant.Outlined" Class="mb-6">
+                       Registration Success. Please Login!
+                    </MudAlert>
+                }
                 <MudTextField @bind-Value="registrationModel.Name" 
                 For="@(() => registrationModel.Name)"
                 Inmediate ="true"
@@ -40,18 +57,56 @@
 
     MudForm form;
 
+    string APIErrorMessages;
+
+    bool success = false;
+
     private async Task RegisterAsync()
     {
+        APIErrorMessages = null;
+        success = false;
+
         await form.Validate();
         if (form.IsValid)
         {
             // Call your registration API here
-            // await Http.PostAsJsonAsync("api/registration", registrationModel);
-            // Show success message
+            var jsonPayLoad = JsonSerializer.Serialize(registrationModel);
+            var requestContent = new StringContent(jsonPayLoad, Encoding.UTF8, "application/json");
+
+            var response = await _http.PostAsync("/api/Users/Register", requestContent);
+
+            if(response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>();
+                if (errors.Count>0)
+                {
+                    foreach (var item in errors)
+                    {
+                        foreach (var errorMessage in item.Value)
+                        {
+                            APIErrorMessages = $"{APIErrorMessages} {errorMessage}";
+                        }
+                    }
+                }
+            }
+
+            else if (response.StatusCode == HttpStatusCode.OK)
+            {
+                //_navigationManager.NavigateTo
+                success = true;
+                StateHasChanged();
+                await Task.Delay(3000);
+                _navigationManager.NavigateTo("/");
+
+            }
+
+            else
+
+            {
+                APIErrorMessages = "An error occurred while processing your request.";
+            }
+
         }
-        else
-        {
-            // Show error message
-        }
+
     }
 }

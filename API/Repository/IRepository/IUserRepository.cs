@@ -6,7 +6,7 @@ namespace API.Repository.IRepository
 {
     public interface IUserRepository
     {
-        Task<bool> RegisterUser(UserRegisterDto userRegisterDto);
+        Task<(bool IsUserRegistered, string Message)> RegisterUser(UserRegisterDto userRegisterDto);
 
         Task<User> LoginUser(UserLoginDto userLoginDto);
     }

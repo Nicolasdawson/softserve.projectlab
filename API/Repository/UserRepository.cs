@@ -20,6 +20,16 @@ namespace API.Repository
             this.mapper = mapper;
         }
 
+        private User FromUserRegistrationModelToUserModel(UserRegisterDto userRegisterDto)
+        {
+            return new User
+            {
+                Name = userRegisterDto.Name,
+                Email = userRegisterDto.Email,
+                Password = PasswordHasher.HashPassword(userRegisterDto.Password.Trim())
+            };
+        }
+
         public async Task<User> LoginUser(UserLoginDto userLoginDto)
         {
             var user = await db.User.FirstOrDefaultAsync(u => u.Email == userLoginDto.Email.Trim());
@@ -31,22 +41,32 @@ namespace API.Repository
             return user;
         }
 
-        public async Task<bool> RegisterUser(UserRegisterDto userRegisterDto)
+        public async Task<(bool IsUserRegistered, string Message)> RegisterUser(UserRegisterDto userRegisterDto)
         {
-            var userExists = await db.User.FirstOrDefaultAsync(u => u.Email == userRegisterDto.Email.Trim());
+            var userExists = await db.User.AnyAsync(u => u.Email.ToLower().Trim() == userRegisterDto.Email.ToLower().Trim());
 
-            if (userExists != null)
+            if(userExists)
             {
-                return false;
+                return (false, "Email Address Already Registred");
             }
 
-            userRegisterDto.Password = PasswordHasher.HashPassword(userRegisterDto.Password.Trim());
+            var newUser = FromUserRegistrationModelToUserModel(userRegisterDto);
 
-            var user = mapper.Map<User>(userRegisterDto);
-
-            await db.User.AddAsync(user);
+            db.User.Add(newUser);
             await db.SaveChangesAsync();
-            return true;
+            return (true, "User Registered Successfully");
+            //if (userExists != null)
+            //{
+            //    return false;
+            //}
+
+            //userRegisterDto.Password = PasswordHasher.HashPassword(userRegisterDto.Password.Trim());
+
+            //var user = mapper.Map<User>(userRegisterDto);
+
+            //await db.User.AddAsync(user);
+            //await db.SaveChangesAsync();
+            //return true;
         }
     }
 }
