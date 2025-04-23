@@ -99,14 +99,9 @@ namespace API.Controllers
         /// <param name="itemDto">The item details.</param>
         /// <returns>A success message if added, otherwise a BadRequest result.</returns>
         [HttpPost("{warehouseId}/items")]
-        public async Task<IActionResult> AddItem(int warehouseId, [FromBody] AddItemToWarehouseDTO itemDto)
+        public async Task<IActionResult> AddItem(int warehouseId, [FromBody] int sku)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var result = await _warehouseService.AddItemToWarehouseAsync(warehouseId, itemDto);
+            var result = await _warehouseService.AddItemToWarehouseAsync(warehouseId, sku);
 
             if (result.IsSuccess)
             {
@@ -137,12 +132,12 @@ namespace API.Controllers
         /// <param name="warehouseId">The ID of the warehouse.</param>
         /// <param name="itemId">The ID of the item.</param>
         /// <returns>The stock quantity if found, otherwise a NotFound result.</returns>
-        [HttpGet("{warehouseId}/items/{itemId}/stock")]
-        public async Task<IActionResult> CheckStock(int warehouseId, int itemId)
+        [HttpGet("{warehouseId}/items/{sku}/stock")]
+        public async Task<IActionResult> CheckStock(int warehouseId, int sku)
         {
-            var result = await _warehouseService.CheckWarehouseStockAsync(warehouseId, itemId);
+            var result = await _warehouseService.CheckWarehouseStockAsync(warehouseId, sku);
             return result.IsSuccess
-                ? Ok(new { ItemId = itemId, Stock = result.Data })
+                ? Ok(new { Sku = sku, Stock = result.Data })
                 : NotFound(result.ErrorMessage);
         }
 
@@ -156,7 +151,7 @@ namespace API.Controllers
         {
             var result = await _warehouseService.TransferItemAsync(
                 transferRequest.SourceWarehouseId,
-                transferRequest.ItemId,
+                transferRequest.Sku,
                 transferRequest.Quantity,
                 transferRequest.TargetWarehouseId);
 

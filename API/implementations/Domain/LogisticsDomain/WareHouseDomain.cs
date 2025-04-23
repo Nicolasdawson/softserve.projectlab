@@ -20,42 +20,50 @@ namespace API.Implementations.Domain
             _context = context;
         }
 
-        public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto)
+        public async Task<Result<bool>> AddItemToWarehouseAsync(AddItemToWarehouseDto addItemDto)
         {
             try
             {
+                // Check if the item exists
                 var existingItem = await _context.ItemEntities
-                    .FirstOrDefaultAsync(i => i.Sku == itemDto.Sku);
+                    .FirstOrDefaultAsync(i => i.Sku == addItemDto.Sku);
 
                 if (existingItem == null)
                 {
-                    return Result<bool>.Failure($"Item with SKU {itemDto.Sku} does not exist in the system. Please create the item first.");
+                    return Result<bool>.Failure($"Item with SKU {addItemDto.Sku} does not exist in the system. Please create the item first.");
                 }
 
+                // Check if the warehouse exists
                 var warehouse = await _context.WarehouseEntities
-                    .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
+                    .FirstOrDefaultAsync(w => w.WarehouseId == addItemDto.WarehouseId);
 
                 if (warehouse == null)
                 {
-                    return Result<bool>.Failure($"Warehouse with ID {warehouseId} does not exist.");
+                    return Result<bool>.Failure($"Warehouse with ID {addItemDto.WarehouseId} does not exist.");
                 }
 
+                // Check if the item is already linked to the warehouse
                 var warehouseItem = await _context.WarehouseItemEntities
-                    .FirstOrDefaultAsync(wi => wi.WarehouseId == warehouseId && wi.Sku == itemDto.Sku);
+                    .FirstOrDefaultAsync(wi => wi.WarehouseId == addItemDto.WarehouseId && wi.Sku == addItemDto.Sku);
 
                 if (warehouseItem != null)
                 {
-                    return Result<bool>.Failure($"Item with SKU {itemDto.Sku} is already linked to Warehouse ID {warehouseId}.");
+                    // Update the quantity explicitly
+                    warehouseItem.ItemQuantity = addItemDto.CurrentStock;
+                    _context.WarehouseItemEntities.Update(warehouseItem);
                 }
-
-                var newWarehouseItem = new WarehouseItemEntity
+                else
                 {
-                    WarehouseId = warehouseId,
-                    Sku = existingItem.Sku,
-                    ItemQuantity = 0 
-                };
+                    // Add a new warehouse item
+                    var newWarehouseItem = new WarehouseItemEntity
+                    {
+                        WarehouseId = addItemDto.WarehouseId,
+                        Sku = existingItem.Sku,
+                        ItemQuantity = addItemDto.CurrentStock // Set explicitly
+                    };
 
-                _context.WarehouseItemEntities.Add(newWarehouseItem);
+                    _context.WarehouseItemEntities.Add(newWarehouseItem);
+                }
 
                 await _context.SaveChangesAsync();
 
@@ -125,11 +133,11 @@ namespace API.Implementations.Domain
             return await _context.WarehouseEntities
                 .FirstOrDefaultAsync(w => w.WarehouseLocation == name && !w.IsDeleted);
         }
+
         public async Task<Result<Warehouse>> CreateWarehouseAsync(WarehouseDto warehouseDto)
         {
             try
             {
-                // Map WarehouseDto to WarehouseEntity
                 var warehouseEntity = new WarehouseEntity
                 {
                     WarehouseLocation = warehouseDto.Location,
@@ -138,11 +146,9 @@ namespace API.Implementations.Domain
                     IsDeleted = false
                 };
 
-                // Add the new warehouse entity to the database
                 _context.WarehouseEntities.Add(warehouseEntity);
                 await _context.SaveChangesAsync();
 
-                // Map WarehouseEntity to WarehouseDto
                 var newWarehouseDto = new WarehouseDto
                 {
                     WarehouseId = warehouseEntity.WarehouseId,
@@ -152,7 +158,6 @@ namespace API.Implementations.Domain
                     BranchId = warehouseEntity.BranchId
                 };
 
-                // Create a new Warehouse instance
                 var warehouse = new Warehouse(newWarehouseDto);
 
                 return Result<Warehouse>.Success(warehouse);
@@ -162,8 +167,6 @@ namespace API.Implementations.Domain
                 return Result<Warehouse>.Failure($"Failed to create warehouse: {ex.Message}");
             }
         }
-
-
 
         public async Task<Result<Warehouse>> GetWarehouseByIdAsync(int warehouseId)
         {
@@ -195,6 +198,7 @@ namespace API.Implementations.Domain
                 warehouse.Items = entity.WarehouseItemEntities.Select(wi => new Item
                 {
                     ItemId = wi.Sku,
+                    Sku = wi.Sku,
                     ItemName = wi.SkuNavigation.ItemName,
                     ItemDescription = wi.SkuNavigation.ItemDescription,
                     CurrentStock = wi.ItemQuantity
@@ -207,8 +211,6 @@ namespace API.Implementations.Domain
                 return Result<Warehouse>.Failure($"Failed to retrieve warehouse: {ex.Message}", 500, ex.StackTrace);
             }
         }
-
-
 
         public async Task<Result<List<Warehouse>>> GetAllWarehousesAsync()
         {
@@ -254,8 +256,6 @@ namespace API.Implementations.Domain
                 return Result<List<Warehouse>>.Failure($"Failed to retrieve warehouses: {ex.Message}", 500, ex.StackTrace);
             }
         }
-
-
 
         public async Task<Result<Warehouse>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId)
         {
@@ -311,59 +311,62 @@ namespace API.Implementations.Domain
             }
         }
 
-
-
         public async Task<Result<bool>> TransferItemAsync(
-            Warehouse source,
-            int itemId,
-            int quantity,
-            Warehouse target)
+         Warehouse source,
+         int sku,
+         int quantity,
+         Warehouse target)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var executionStrategy = _context.Database.CreateExecutionStrategy();
+
+            return await executionStrategy.ExecuteAsync(async () =>
             {
-                var sourceData = source.GetWarehouseData();
-                var targetData = target.GetWarehouseData();
-
-                var sourceItem = await _context.WarehouseItemEntities
-                    .FirstOrDefaultAsync(wi => wi.WarehouseId == sourceData.WarehouseId && wi.Sku == itemId);
-
-                if (sourceItem == null || sourceItem.ItemQuantity < quantity)
-                    return Result<bool>.Failure("Insufficient stock for transfer", 400);
-
-                sourceItem.ItemQuantity -= quantity;
-                _context.WarehouseItemEntities.Update(sourceItem);
-
-                var targetItem = await _context.WarehouseItemEntities
-                    .FirstOrDefaultAsync(wi => wi.WarehouseId == targetData.WarehouseId && wi.Sku == itemId);
-
-                if (targetItem == null)
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    await _context.WarehouseItemEntities.AddAsync(new WarehouseItemEntity
+                    var sourceData = source.GetWarehouseData();
+                    var targetData = target.GetWarehouseData();
+
+                    var sourceItem = await _context.WarehouseItemEntities
+                        .FirstOrDefaultAsync(wi => wi.WarehouseId == sourceData.WarehouseId && wi.Sku == sku);
+
+                    if (sourceItem == null || sourceItem.ItemQuantity < quantity)
+                        return Result<bool>.Failure("Insufficient stock for transfer", 400);
+
+                    // Deduct quantity from source warehouse
+                    sourceItem.ItemQuantity -= quantity;
+                    _context.WarehouseItemEntities.Update(sourceItem);
+
+                    // Add or update quantity in target warehouse
+                    var targetItem = await _context.WarehouseItemEntities
+                        .FirstOrDefaultAsync(wi => wi.WarehouseId == targetData.WarehouseId && wi.Sku == sku);
+
+                    if (targetItem == null)
                     {
-                        WarehouseId = targetData.WarehouseId,
-                        Sku = itemId,
-                        ItemQuantity = quantity
-                    });
+                        await _context.WarehouseItemEntities.AddAsync(new WarehouseItemEntity
+                        {
+                            WarehouseId = targetData.WarehouseId,
+                            Sku = sku,
+                            ItemQuantity = quantity
+                        });
+                    }
+                    else
+                    {
+                        targetItem.ItemQuantity += quantity;
+                        _context.WarehouseItemEntities.Update(targetItem);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return Result<bool>.Success(true);
                 }
-                else
+                catch (Exception ex)
                 {
-                    targetItem.ItemQuantity += quantity;
-                    _context.WarehouseItemEntities.Update(targetItem);
+                    await transaction.RollbackAsync();
+                    return Result<bool>.Failure($"Transfer failed: {ex.Message}", 500);
                 }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return Result<bool>.Success(true);
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return Result<bool>.Failure($"Transfer failed: {ex.Message}", 500);
-            }
+            });
         }
-
-
     }
 }

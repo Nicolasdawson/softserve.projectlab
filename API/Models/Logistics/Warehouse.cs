@@ -65,12 +65,14 @@ namespace API.Models.Logistics
 
         public async Task<Result<int>> CheckItemStockAsync(int sku)
         {
-            await Task.CompletedTask;
             var item = Items.FirstOrDefault(i => i.Sku == sku);
-            return item != null
-                ? Result<int>.Success(item.CurrentStock)
-                : Result<int>.Failure("Item not found");
+            if (item == null)
+                return Result<int>.Failure("Item not found in warehouse", 404);
+
+            return Result<int>.Success(item.CurrentStock);
         }
+
+
 
         public async Task<Result<bool>> IsItemInStockAsync(int sku, int requiredQuantity)
         {

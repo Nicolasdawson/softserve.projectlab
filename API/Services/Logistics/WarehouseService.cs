@@ -5,6 +5,7 @@ using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.DTOs;
 using API.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 public class WarehouseService : IWarehouseService
 {
@@ -52,13 +53,37 @@ public class WarehouseService : IWarehouseService
     }
 
 
-    public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto)
+    public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, int sku)
     {
-        var result = await _warehouseDomain.AddItemToWarehouseAsync(warehouseId, itemDto);
+        // Retrieve the current stock from the ItemEntity table
+        var item = await _context.ItemEntities.FirstOrDefaultAsync(i => i.Sku == sku);
+
+        if (item == null)
+        {
+            return Result<bool>.Failure($"Item with SKU {sku} does not exist in the system.");
+        }
+
+        // Use the item's CurrentStock value
+        var currentStock = item.CurrentStock;
+
+        // Construct the AddItemToWarehouseDto
+        var addItemDto = new AddItemToWarehouseDto
+        {
+            WarehouseId = warehouseId,
+            Sku = sku,
+            CurrentStock = currentStock // Use the actual stock value
+        };
+
+        // Call the domain layer
+        var result = await _warehouseDomain.AddItemToWarehouseAsync(addItemDto);
+
         return result.IsSuccess
             ? Result<bool>.Success(true)
             : Result<bool>.Failure(result.ErrorMessage, result.ErrorCode);
     }
+
+
+
 
     public async Task<Result<List<ItemDto>>> GetLowStockItemsAsync(int warehouseId, int threshold)
     {
@@ -100,7 +125,6 @@ public class WarehouseService : IWarehouseService
         return stockResult;
     }
 
-
     public async Task<Result<bool>> TransferItemAsync(
      int sourceWarehouseId,
      int sku,
@@ -113,13 +137,15 @@ public class WarehouseService : IWarehouseService
         if (!sourceResult.IsSuccess || !targetResult.IsSuccess)
             return Result<bool>.Failure("One or both warehouses not found", 404);
 
-        var transferResult = await sourceResult.Data.TransferItemAsync(
+        var transferResult = await _warehouseDomain.TransferItemAsync(
+            sourceResult.Data,
             sku,
             quantity,
             targetResult.Data);
 
         return transferResult;
     }
+
 
 
     public async Task<Result<decimal>> CalculateTotalInventoryValueAsync(int warehouseId)

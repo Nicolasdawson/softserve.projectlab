@@ -32,7 +32,7 @@ public class LogisticsMapping : Profile
 
 
         // Consolidated mapping for AddItemToWarehouseDTO to Item
-        CreateMap<AddItemToWarehouseDTO, Item>()
+        CreateMap<AddItemToWarehouseDto, Item>()
             .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.Sku))
             .ReverseMap();
 

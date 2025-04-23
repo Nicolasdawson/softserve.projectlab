@@ -16,6 +16,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using API.Mappings;
 using API.Services;
+using softserve.projectlabs.Shared.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -120,6 +121,14 @@ builder.Services.AddScoped<IWarehouse, Warehouse>();
 builder.Services.AddScoped<IBranch, Branch>();
 builder.Services.AddScoped<IOrder, Order>();
 builder.Services.AddScoped<ISupplier, Supplier>();
+
+//5. Logistics DTOs
+builder.Services.AddScoped<WarehouseDto>();
+builder.Services.AddScoped<BranchDto>();
+builder.Services.AddScoped<OrderDto>();
+builder.Services.AddScoped<SupplierDto>();
+
+
 
 //-------------------------------------------------------------------------------
 // AutoMapper Configuration

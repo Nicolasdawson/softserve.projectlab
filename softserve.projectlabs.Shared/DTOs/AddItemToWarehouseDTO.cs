@@ -1,7 +1,9 @@
 ﻿namespace softserve.projectlabs.Shared.DTOs
 {
-    public class AddItemToWarehouseDTO
+    public class AddItemToWarehouseDto
     {
-        public int Sku { get; set; } // SKU to identify the item
+        public int WarehouseId { get; set; }
+        public int Sku { get; set; }
+        public int CurrentStock { get; set; } = 1; 
     }
 }
