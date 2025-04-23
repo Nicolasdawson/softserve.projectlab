@@ -1,4 +1,6 @@
 ﻿@using System.Net.Http.Json;
+@using MudBlazor.Services
+
 
 @page "/"
 @inject HttpClient Http
@@ -6,10 +8,59 @@
 <PageTitle>Home</PageTitle>
 
 <div>
-    <div class="mt-5 ma-5">
-        @if (products != null){
-            <MudGrid>
+    <MudCarousel Class="mud-width-full mt-5" Style="height:450px;" ShowArrows="@arrows" TData="object">
+        <MudCarouselItem Transition="transition" Color="@Color.Secondary">
+            <div style="height:100%;  width:100%;">
+                @* <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" /> *@
+                <MudImage Src="/banner_cp_newinkerastase_abr25_1_.jpg" />
+            </div>
+        </MudCarouselItem>
+        <MudCarouselItem Transition="transition" Color="@Color.Secondary">
+            <div style="height:100%;  width:100%;">
+                @* <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" /> *@
+                <MudImage Src="/banner_cp_marcadelmes_abr25.jpg" />
+            </div>
+        </MudCarouselItem>
+        <MudCarouselItem Transition="transition" Color="@Color.Secondary">
+            <div style="height:100%;  width:100%;">
+                @* <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" /> *@
+                <MudImage Src="/2.png" />
+            </div>
+        </MudCarouselItem>
+    </MudCarousel>
+</div>
+
+<div>
+    <h2 style="font-size: 3.2em; color: #FF5733; text-align: center; margin-top: 20px; margin-bottom: 15px;">Más Populares</h2>
+    <div class="mx-5 ma-5">
+        @if (products != null)
+        {
+            <MudGrid Justify="Justify.Center">
                 @foreach (var product in products)
+                {
+                    <MudItem xs="12" sm="6" md="4" lg="3" >
+                        <MudCard Height="100%">
+                            <MudCardMedia Image="@product.ImageUrl" Class="mud-card-media" />
+                            <MudCardContent>
+                                <MudText Typo="Typo.h5">@product.Name</MudText>
+                                <MudText Typo="Typo.body2">@product.Detail</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+
+                }
+            </MudGrid>
+        }
+    </div>
+</div>
+
+<div>
+    <h2 style="font-size: 3.2em; color: #FF5733; text-align: center; margin-top: 20px; margin-bottom: 15px;">Más Vendidos</h2>
+    <div class="mx-5 ma-5">
+        @if (productsBestSelling != null)
+        {
+            <MudGrid Justify="Justify.Center">
+                @foreach (var product in productsBestSelling)
                 {
                     <MudItem xs="12" sm="6" md="4" lg="3">
                         <MudCard Height="100%">
@@ -17,11 +68,7 @@
                             <MudCardContent>
                                 <MudText Typo="Typo.h5">@product.Name</MudText>
                                 <MudText Typo="Typo.body2">@product.Detail</MudText>
-                            </MudCardContent>
-                            <MudCardActions>
-                                <MudButton Variant="Variant.Text" Color="Color.Primary">Share</MudButton>
-                                <MudButton Variant="Variant.Text" Color="Color.Primary">Learn More</MudButton>
-                            </MudCardActions>
+                            </MudCardContent>                       
                         </MudCard>
                     </MudItem>
 
@@ -32,16 +79,27 @@
 </div>
 
 @code {
+    private bool arrows = true;
+    private Transition transition = Transition.Slide;
+
     private List<Product> products;
+
+    private List<Product> productsBestSelling;
 
     protected override async Task OnInitializedAsync()
     {
         await GetProducts();
+        await GetProductsBestSelling();
     }
 
     private async Task GetProducts()
     {
-        products = await Http.GetFromJsonAsync<List<Product>>("https://localhost:7153/api/Products/Filter");
+        products = await Http.GetFromJsonAsync<List<Product>>("https://localhost:7153/api/Products/Filter?productType=trending");
+    }
+
+    private async Task GetProductsBestSelling()
+    {
+        productsBestSelling = await Http.GetFromJsonAsync<List<Product>>("https://localhost:7153/api/Products/Filter?productType=bestselling");
     }
 
     public class Product
