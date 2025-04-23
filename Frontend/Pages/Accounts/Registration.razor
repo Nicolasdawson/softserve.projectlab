@@ -1,0 +1,57 @@
+﻿@page "/registration"
+
+<div class="ma-6 d-flex justify-center">
+    <h3>User Registration Form</h3>
+</div>
+
+<div class="ma-6 d-flex justify-center">
+    <MudCard width = "500px">
+        <MudForm Model="registrationModel" @ref="form" Validation="validationModel.ValidateValue">
+            <MudCardContent>
+                <MudTextField @bind-Value="registrationModel.Name" 
+                For="@(() => registrationModel.Name)"
+                Inmediate ="true"
+                Label ="Name" />
+                <MudTextField @bind-Value="registrationModel.Email"
+                For="@(() => registrationModel.Email)"
+                Inmediate="true"
+                Label="Email" />
+                <MudTextField @bind-Value="registrationModel.Password"
+                For="@(() => registrationModel.Password)"
+                Inmediate="true"
+                Label="Password" InputType="InputType.Password"/>
+                <MudTextField @bind-Value="registrationModel.ConfirmPassword"
+                For="@(() => registrationModel.ConfirmPassword)"
+                Inmediate="true"
+                Label="Confirm Password" InputType="InputType.Password" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="RegisterAsync" >Register</MudButton>
+            </MudCardActions>
+        </MudForm>
+    </MudCard>
+</div>
+
+
+@code {
+    RegistrationVM registrationModel = new RegistrationVM();
+
+    RegistrationValidationVM validationModel = new RegistrationValidationVM();
+
+    MudForm form;
+
+    private async Task RegisterAsync()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            // Call your registration API here
+            // await Http.PostAsJsonAsync("api/registration", registrationModel);
+            // Show success message
+        }
+        else
+        {
+            // Show error message
+        }
+    }
+}
