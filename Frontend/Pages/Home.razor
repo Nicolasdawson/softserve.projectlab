@@ -5,37 +5,31 @@
 
 <PageTitle>Home</PageTitle>
 
-<h3>Products</h3>
 <div>
-    <button @onclick="GetProducts">Get Products</button>
-    <div>
-        @if (products != null)
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Image</th>
-                        <th>Description</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var product in products)
-                    {
-                        <tr>
-                            <td>@product.Name</td>
-                            <td><img src="@product.ImageUrl"/></td>
-                            <td>@product.Detail</td>
-                            <td>@product.Price</td>
-                        </tr>
-                    }
-                </tbody>
-            </table> 
+    <div class="mt-5 ma-5">
+        @if (products != null){
+            <MudGrid>
+                @foreach (var product in products)
+                {
+                    <MudItem xs="12" sm="6" md="4" lg="3">
+                        <MudCard Height="100%">
+                            <MudCardMedia Image="@product.ImageUrl" Class="mud-card-media" />
+                            <MudCardContent>
+                                <MudText Typo="Typo.h5">@product.Name</MudText>
+                                <MudText Typo="Typo.body2">@product.Detail</MudText>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary">Share</MudButton>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary">Learn More</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+
+                }
+            </MudGrid>
         }
     </div>
 </div>
-
 
 @code {
     private List<Product> products;
