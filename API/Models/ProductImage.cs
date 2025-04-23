@@ -11,7 +11,7 @@ namespace API.Models
         public Guid IdProduct { get; set; }
 
         //Navigation Property
-
+        [JsonIgnore] //Para evitar la referencia ciclica
         public Product? Product { get; set; } = default!;
     }
 }

@@ -301,8 +301,6 @@ namespace API.implementations.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Cascade); // Define la acción de eliminación en cascada
             });
 
-            //Insert Data
-            modelBuilder.SeedProducts();
         }
 
         public void ClearDatabase()

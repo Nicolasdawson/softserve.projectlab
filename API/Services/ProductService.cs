@@ -28,9 +28,7 @@ namespace API.Services
         public async Task<Product> CreateProductAsync(Product product)
         {
             try
-            {
-                product.Id = Guid.NewGuid();
-                
+            {                                
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
 

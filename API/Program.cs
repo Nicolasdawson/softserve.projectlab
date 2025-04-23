@@ -5,15 +5,21 @@ using API.Controllers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using API.Services;
+using API.Helpers;
 using API.implementations.Infrastructure.Data;
+
 using Microsoft.EntityFrameworkCore;
-using API.Models;
+using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configurar Entity Framework con SQL Server
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddTransient<SeedDb>();//Se registra SeedDb como servicio transitorio para poder usarse
+builder.Services.AddScoped<IFileStorage, FileStorage>();
+
+
 
 // Configurar CORS
 builder.Services.AddCors(options =>
@@ -33,6 +39,7 @@ builder.Services.AddCors(options =>
 
 // Agregar servicios para controllers y vistas
 builder.Services.AddControllersWithViews(); // Aquí es donde permitimos vistas (Razor)
+
 // Agrega servicios de Razor Pages
 builder.Services.AddRazorPages();
 
@@ -41,6 +48,14 @@ builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger e
 
 // Add service ProductService
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ProductImageService>();
+
+// Conexión con Azure blob DB Azure
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:blob"]!, preferMsi: true);
+    clientBuilder.AddQueueServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:queue"]!, preferMsi: true);
+});
 
 builder.Services.AddScoped<PaymentService>();
 
@@ -58,7 +73,18 @@ builder.Services.AddSwaggerGen(c =>
 Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 var app = builder.Build();
+SeedData(app);
 
+void SeedData(WebApplication App)
+{
+    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+    using var scope = scopedFactory!.CreateScope();
+    var service = scope.ServiceProvider.GetService<SeedDb>();
+    service!.SeedAsync().Wait();
+}
+
+/*
+ 
 // Aplicar las migraciones autom�ticamente al iniciar la aplicaci�n
 using (var scope = app.Services.CreateScope())
 {
@@ -129,16 +155,17 @@ using (var scope = app.Services.CreateScope())
         );
     }
     dbContext.SaveChanges(); // Guardar los productos
-        /*
+        
                                  //
                                  //dbContext.Database.Migrate(); // Aplica las migraciones si es necesario
                                  //dbContext.Database.EnsureCreated();// Si quieres asegurarte de que se creen las tablas antes de poblar datos
         
      
-        dbContext.Database.EnsureDeleted(); // Elimina la base de datos
-        dbContext.Database.EnsureCreated();  // Esto crear� las tablas si no existen
-         */
+                                 //dbContext.Database.EnsureDeleted(); // Elimina la base de datos
+                                 //dbContext.Database.EnsureCreated();  // Esto crear� las tablas si no existen
+        
 }
+*/
 
 // Habilitar el uso de Swagger en la API
 if (app.Environment.IsDevelopment())
@@ -146,6 +173,32 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();  // Habilita el middleware Swagger
     app.UseSwaggerUI();  // Habilita la UI de Swagger
 }
+
+app.UseStaticFiles(new StaticFileOptions { 
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Images\\Products")),
+    RequestPath= "/Images"
+});
+
+/*
+builder.Services.AddDirectoryBrowser();
+
+var fileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Images\\Products"));
+var requestPath = "/MyImages";
+
+// Enable displaying browser links.
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = fileProvider,
+    RequestPath = requestPath
+});
+
+app.UseDirectoryBrowser(new DirectoryBrowserOptions
+{
+    FileProvider = fileProvider,
+    RequestPath = requestPath
+});
+*/
 
 // Usar la pol�tica de CORS
 app.UseCors("AllowAnyOrigin");
