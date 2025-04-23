@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using API.Models;
 using API.Services;
 using Stripe;
+using API.DTO;
 
 namespace API.Controllers
 {
@@ -67,7 +68,7 @@ namespace API.Controllers
         // ---------------- Stripe integración ----------------
 
         [HttpPost("create-checkout-session")]
-        public ActionResult CreateCheckoutSession([FromBody] CreatePaymentRequest request)
+        public ActionResult CreateCheckoutSession([FromBody] PaymentCheckoutRequest request)
         {
             var session = _stripeService.CreateCheckoutSession(
                 request.Amount,
