@@ -92,9 +92,10 @@ namespace API.Controllers;
         /// </summary>
         /// <returns>A list of all products.</returns>
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetProducts()
+        public ActionResult<IEnumerable<Product>> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var products = _productService.GetAllProducts();
+            var products = _productService.GetAllProductsPaged(pageNumber, pageSize);
+            //var images = _productImageService.GetProductImagesByProductId();
             return Ok(products.Result);
         }
 

@@ -1,5 +1,6 @@
 ﻿using API.implementations.Infrastructure.Data;
 using API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services
 {
@@ -26,6 +27,18 @@ namespace API.Services
             }
 
             return true;
+        }
+
+        public async Task<Boolean> GetProductImagesByProductId(Guid id)
+        {
+            var images = await _context.ProductImages
+                .Where(p => p.IdProduct == id)
+                .ToListAsync();
+            foreach (var item in images)
+            {
+                Console.WriteLine(item);                
+            }
+            return true; 
         }
     }
 }
