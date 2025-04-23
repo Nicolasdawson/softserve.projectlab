@@ -1,0 +1,56 @@
+﻿@page "/login"
+
+<div class="ma-6 d-flex justify-center">
+    <h3>Iniciar Sesión</h3>
+</div>
+
+<div class="ma-6 d-flex justify-center">
+    <MudCard width="500px">
+        <MudForm Model="loginModel" @ref="form" Validation="validationModel.ValidateValue">
+            <MudCardContent>
+                @if (!string.IsNullOrEmpty(APIErrorMessages))
+                {
+                    <MudAlert Severity="MudBlazor.Severity.Error" Variant="Variant.Outlined" Class="mb-6">
+                        @APIErrorMessages
+                    </MudAlert>
+                }
+                @if (success)
+                {
+                    <MudAlert Severity="MudBlazor.Severity.Success" Variant="Variant.Outlined" Class="mb-6">
+                        Registration Success. Please Login!
+                    </MudAlert>
+                }
+                <MudTextField @bind-Value="loginModel.Email"
+                              For="@(() => loginModel.Email)"
+                              Inmediate="true"
+                              Label="Email" />
+                <MudTextField @bind-Value="loginModel.Password"
+                              For="@(() => loginModel.Password)"
+                              Inmediate="true"
+                              Label="Password" InputType="InputType.Password" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="LoginAsync">Iniciar Sesion</MudButton>
+            </MudCardActions>
+        </MudForm>
+    </MudCard>
+</div>
+
+
+@code {
+    LoginVM loginModel = new LoginVM();
+
+    LoginValidationVm validationModel = new LoginValidationVm();
+
+    MudForm form;
+
+    private async Task LoginAsync ()
+    {
+        await form.Validate();
+
+        if(form.IsValid)
+        {
+
+        }
+    }
+}

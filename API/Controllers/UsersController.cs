@@ -35,36 +35,51 @@ namespace API.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
         {
-            var loggedInUser = await userRepository.LoginUser(userLoginDto);
+            var result = await userRepository.LoginUser(userLoginDto);
 
-            if (loggedInUser == null)
+            if (result.IsLoginSucces)
             {
-                return NotFound(new { message = "El correo electrónico o la contraseña son incorrectos" });
+                return Ok(result.TokenResponse);  
             }
 
-            // Generate JWT token
-
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var calims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, loggedInUser.Id.ToString()),
-                new Claim(ClaimTypes.Email, userLoginDto.Email),
-                new Claim(ClaimTypes.Role, loggedInUser.Role),
-            };
-
-            var token = new JwtSecurityToken(
-                issuer: configuration["JWT:Issuer"],
-                audience: configuration["JWT:Audience"],
-                claims: calims,
-                expires: DateTime.Now.AddDays(60),
-                signingCredentials: credentials
-            );
-
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return Ok(new { acces_token = jwt, token_type = "bearer", user_id = loggedInUser.Id, user_name = loggedInUser.Name });
+            ModelState.AddModelError("LoginError", "Invalid Credentials");
+            return base.BadRequest(ModelState);            
         }
+
+
+        //[HttpPost("[action]")]
+        //public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
+        //{
+        //    var loggedInUser = await userRepository.LoginUser(userLoginDto);
+
+        //    if (loggedInUser == null)
+        //    {
+        //        return NotFound(new { message = "El correo electrónico o la contraseña son incorrectos" });
+        //    }
+
+        //    // Generate JWT token
+
+        //    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
+        //    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        //    var calims = new[]
+        //    {
+        //        new Claim(ClaimTypes.NameIdentifier, loggedInUser.Id.ToString()),
+        //        new Claim(ClaimTypes.Email, userLoginDto.Email),
+        //        new Claim(ClaimTypes.Role, loggedInUser.Role),
+        //    };
+
+        //    var token = new JwtSecurityToken(
+        //        issuer: configuration["JWT:Issuer"],
+        //        audience: configuration["JWT:Audience"],
+        //        claims: calims,
+        //        expires: DateTime.Now.AddDays(60),
+        //        signingCredentials: credentials
+        //    );
+
+        //    var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+        //    return Ok(new { acces_token = jwt, token_type = "bearer", user_id = loggedInUser.Id, user_name = loggedInUser.Name });
+        //}
 
 
         // api/users/Register

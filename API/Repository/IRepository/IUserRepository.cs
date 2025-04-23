@@ -8,6 +8,8 @@ namespace API.Repository.IRepository
     {
         Task<(bool IsUserRegistered, string Message)> RegisterUser(UserRegisterDto userRegisterDto);
 
-        Task<User> LoginUser(UserLoginDto userLoginDto);
+        //Task<User> LoginUser(UserLoginDto userLoginDto);
+
+        Task<(bool IsLoginSucces, JWTTokenResponseDto TokenResponse)> LoginUser(UserLoginDto userLoginDto);
     }
 }

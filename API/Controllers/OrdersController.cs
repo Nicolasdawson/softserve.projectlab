@@ -2,6 +2,7 @@
 using API.Data.Models.DTOs.Order;
 using API.Repository;
 using API.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -49,6 +50,7 @@ namespace API.Controllers
             return NotFound("No orders found");
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
