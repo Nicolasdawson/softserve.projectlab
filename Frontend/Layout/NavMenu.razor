@@ -8,7 +8,11 @@
         <MudDivider Class="my-2" /> *@
         <MudNavLink Href="" Icon="@Icons.Material.Filled.Dashboard">home</MudNavLink>
         <MudNavLink Href="/counter" Icon="@Icons.Material.Filled.Storage">counter</MudNavLink>
-        <MudNavLink Href="/weather" Icon="@Icons.Material.Filled.ShoppingCart">weather</MudNavLink>
+        <AuthorizeView>
+            <Authorized>
+                <MudNavLink Href="/orders" Icon="@Icons.Material.Filled.ShoppingCart">Ordenes</MudNavLink>
+            </Authorized>
+        </AuthorizeView> 
     </MudNavMenu>
 </MudPaper>
 

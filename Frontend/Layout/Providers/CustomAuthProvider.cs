@@ -48,5 +48,11 @@ namespace Frontend.Layout.Providers
         {
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
+
+        public void NotifyUserLogout()
+        {
+            var authState = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
+            NotifyAuthenticationStateChanged(authState);
+        }
     }
 }

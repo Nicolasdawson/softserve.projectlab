@@ -1,5 +1,9 @@
 ﻿@using System.Security.Claims
+@using Frontend.Layout.Providers
 @inherits LayoutComponentBase
+@inject ILocalStorageService _localStorageService;
+@inject AuthenticationStateProvider _authenticationStateProvider;
+@inject NavigationManager _navigationManager
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -15,14 +19,13 @@
         <AuthorizeView>
             <Authorized>
                 <span>@UserDisplayName(context.User.Claims.ToList())</span>
+                <MudLink Class="ml-5" Color="Color.Inherit" Underline="Underline.None" OnClick="Logout">Cerrar Sesión</MudLink>
             </Authorized>
             <NotAuthorized>
                 <MudLink Color="Color.Inherit" Underline="Underline.None" Class="mr-5" Href="/login">Iniciar Sesión</MudLink>
                 <MudLink Color="Color.Inherit" Underline="Underline.None" Href="/registration">Crear Cuenta</MudLink>
             </NotAuthorized>
         </AuthorizeView>
-
-
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen">
         <NavMenu/>
@@ -42,7 +45,18 @@
 
     private string UserDisplayName(List<Claim> claims)
     {
-        var email = claims.Where(_ => _.Type == "Email").Select(_=> _.Value).FirstOrDefault();
+        var email = claims.Where(_ => _.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress").Select(_=> _.Value).FirstOrDefault();
         return email;
+    }
+
+    private async Task Logout()
+    {
+        // Borrar el token de localStorage
+        await _localStorageService.RemoveItemAsync("jwt-access-token");
+
+        (_authenticationStateProvider as CustomAuthProvider).NotifyUserLogout();
+
+        // Redirigir a la página de login
+        _navigationManager.NavigateTo("/login");
     }
 }

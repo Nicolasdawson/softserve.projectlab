@@ -64,22 +64,22 @@ namespace API.Repository
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            //var calims = new[]
-            //{
-            //    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            //    new Claim(ClaimTypes.Email, user.Email),
-            //    new Claim(ClaimTypes.Role, user.Role)
-            //};
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
 
-            var cliams = new List<Claim>();
-            cliams.Add(new Claim("Id", user.Id.ToString()));
-            cliams.Add(new Claim("Email", user.Email));
-            cliams.Add(new Claim("Role", user.Role));
-      
+            //var cliams = new List<Claim>();
+            //cliams.Add(new Claim("Id", user.Id.ToString()));
+            //cliams.Add(new Claim("Email", user.Email));
+            //cliams.Add(new Claim("Role", user.Role));
+
             var token = new JwtSecurityToken(
                 issuer: configuration["JWT:Issuer"],
                 audience: configuration["JWT:Audience"],
-                claims: cliams,
+                claims: claims,
                 expires: DateTime.Now.AddDays(60),
                 signingCredentials: credentials
             );
