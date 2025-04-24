@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Security.Claims
+@inherits LayoutComponentBase
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -7,12 +8,21 @@
 
 <MudLayout>
     <MudAppBar>
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudLink Class="ml-5"  Color="Color.Inherit" Underline="Underline.None" Style="font-size: 3.2em; font-weight: bold;" Href="/">Petal & Potion</MudLink>
 
-        <MudSpacer/>
-        <MudLink Color="Color.Inherit" Underline="Underline.None" Class="mr-5" Href="/login">Iniciar Sesión</MudLink>
-        <MudLink Color="Color.Inherit" Underline="Underline.None" Href="/registration">Crear Cuenta</MudLink>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudLink Class="ml-5" Color="Color.Inherit" Underline="Underline.None" Style="font-size: 2.0em;  font-weight: bold;" Href="/">Petal & Potion</MudLink>
+        <MudSpacer />
+        <AuthorizeView>
+            <Authorized>
+                <span>@UserDisplayName(context.User.Claims.ToList())</span>
+            </Authorized>
+            <NotAuthorized>
+                <MudLink Color="Color.Inherit" Underline="Underline.None" Class="mr-5" Href="/login">Iniciar Sesión</MudLink>
+                <MudLink Color="Color.Inherit" Underline="Underline.None" Href="/registration">Crear Cuenta</MudLink>
+            </NotAuthorized>
+        </AuthorizeView>
+
+
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen">
         <NavMenu/>
@@ -28,5 +38,11 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private string UserDisplayName(List<Claim> claims)
+    {
+        var email = claims.Where(_ => _.Type == "Email").Select(_=> _.Value).FirstOrDefault();
+        return email;
     }
 }

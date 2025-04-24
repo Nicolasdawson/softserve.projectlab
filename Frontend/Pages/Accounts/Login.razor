@@ -2,7 +2,10 @@
 @using System.Text.Json
 @using System.Text
 @using System.Net
+@using Frontend.Layout.Providers
 @inject HttpClient _http
+@inject ILocalStorageService _localStorageService;
+@inject AuthenticationStateProvider _authenticationStateProvider;
 
 <div class="ma-6 d-flex justify-center">
     <h3>Iniciar Sesión</h3>
@@ -25,13 +28,13 @@
                     </MudAlert>
                 }
                 <MudTextField @bind-Value="loginModel.Email"
-                              For="@(() => loginModel.Email)"
-                              Inmediate="true"
-                              Label="Email" />
+                For="@(() => loginModel.Email)"
+                Inmediate="true"
+                Label="Email" />
                 <MudTextField @bind-Value="loginModel.Password"
-                              For="@(() => loginModel.Password)"
-                              Inmediate="true"
-                              Label="Password" InputType="InputType.Password" />
+                For="@(() => loginModel.Password)"
+                Inmediate="true"
+                Label="Password" InputType="InputType.Password" />
             </MudCardContent>
             <MudCardActions>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="LoginAsync">Iniciar Sesion</MudButton>
@@ -86,6 +89,9 @@
             {
                 //_navigationManager.NavigateTo
                 success = true;
+                var tokenResponse = await response.Content.ReadFromJsonAsync<JwtTokenResponseVm>();
+                await _localStorageService.SetItemAsync<string>("jwt-access-token", tokenResponse.AccessToken);
+                (_authenticationStateProvider as CustomAuthProvider).NotifyAuthState();
                 // StateHasChanged();
                 // await Task.Delay(3000);
                 // _navigationManager.NavigateTo("/");
