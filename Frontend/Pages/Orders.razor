@@ -4,18 +4,23 @@
 @using MudBlazor.Services
 @inject IHttpClientFactory _httpClientFactory
 
-<PageTitle>Ordenes</PageTitle>
+<AuthorizeView Roles="Admin">
+    <PageTitle>Ordenes</PageTitle>
 
-<h1>Ordenes</h1>
+    <h1>Ordenes</h1>
 
-<MudDataGrid Items="@ordersModel.Take(1)">
-    <Columns>
-        <PropertyColumn Property="x => x.UserEmail" Title="Email" />
-        <PropertyColumn Property="x => x.Address" Title="Dirección" />
-        <PropertyColumn Property="x => x.OrderTotal" Title="Total" />    
-        <PropertyColumn Property="x => x.OrderPlaced" Title="Fecha"/>
-    </Columns>
-</MudDataGrid>
+    <MudDataGrid Items="@ordersModel.Take(1)">
+        <Columns>
+            <PropertyColumn Property="x => x.UserEmail" Title="Email" />
+            <PropertyColumn Property="x => x.Address" Title="Dirección" />
+            <PropertyColumn Property="x => x.OrderTotal" Title="Total" />
+            <PropertyColumn Property="x => x.OrderPlaced" Title="Fecha" />
+        </Columns>
+    </MudDataGrid>
+
+</AuthorizeView>
+
+
 
 
 @code {

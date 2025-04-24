@@ -3,14 +3,16 @@
 
 <MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
     <MudNavMenu Class="mud-width-full">
-@*         <MudText Typo="Typo.h6" Class="px-4">Material</MudText>
-        <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Icons</MudText>
-        <MudDivider Class="my-2" /> *@
         <MudNavLink Href="" Icon="@Icons.Material.Filled.Dashboard">home</MudNavLink>
         <MudNavLink Href="/counter" Icon="@Icons.Material.Filled.Storage">counter</MudNavLink>
         <AuthorizeView>
             <Authorized>
-                <MudNavLink Href="/orders" Icon="@Icons.Material.Filled.ShoppingCart">Ordenes</MudNavLink>
+                <AuthorizeView Roles="Admin" Context="roleContext">
+                    <Authorized>
+                        <MudNavLink Href="/orders" Icon="@Icons.Material.Filled.ShoppingCart">Ordenes</MudNavLink>     
+                      </Authorized>
+                </AuthorizeView>
+                @* <MudNavLink Href="/orders" Icon="@Icons.Material.Filled.ShoppingCart">Ordenes</MudNavLink> *@
             </Authorized>
         </AuthorizeView> 
     </MudNavMenu>

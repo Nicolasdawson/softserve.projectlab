@@ -3,6 +3,7 @@
 @using System.Text
 @using System.Net
 @using Frontend.Layout.Providers
+@using System.Security.Claims
 @inject IHttpClientFactory _httpClientFactory
 @inject ILocalStorageService _localStorageService;
 @inject AuthenticationStateProvider _authenticationStateProvider;
@@ -93,9 +94,29 @@
                 var tokenResponse = await response.Content.ReadFromJsonAsync<JwtTokenResponseVm>();
                 await _localStorageService.SetItemAsync<string>("jwt-access-token", tokenResponse.AccessToken);
                 (_authenticationStateProvider as CustomAuthProvider).NotifyAuthState();
-                 // StateHasChanged();
-                // await Task.Delay(2000);
-                _navigationManager.NavigateTo("/orders");
+
+                // Obtener el estado de autenticación para extraer el rol
+                var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+                var role = user.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+                // Redirigir según el rol
+                if (role == "Admin")
+                {
+                    _navigationManager.NavigateTo("/orders");
+                }
+                else if (role == "User")
+                {
+                    _navigationManager.NavigateTo("/");
+                }
+                else
+                {
+                    // Si el rol no es reconocido, redirigir a una página por defecto
+                    _navigationManager.NavigateTo("/counter");
+                }
+                
+ 
+                // _navigationManager.NavigateTo("/");
 
             }
 
