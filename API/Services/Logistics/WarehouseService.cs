@@ -36,7 +36,6 @@ public class WarehouseService : IWarehouseService
         return warehouseDtos;
     }
 
-
     public async Task<Result<WarehouseResponseDto>> GetWarehouseByIdAsync(int warehouseId)
     {
         var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
@@ -51,7 +50,6 @@ public class WarehouseService : IWarehouseService
 
         return Result<WarehouseResponseDto>.Success(warehouseDto);
     }
-
 
     public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, int sku)
     {
@@ -82,9 +80,6 @@ public class WarehouseService : IWarehouseService
             : Result<bool>.Failure(result.ErrorMessage, result.ErrorCode);
     }
 
-
-
-
     public async Task<Result<List<ItemDto>>> GetLowStockItemsAsync(int warehouseId, int threshold)
     {
         var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
@@ -105,7 +100,6 @@ public class WarehouseService : IWarehouseService
 
         return Result<List<ItemDto>>.Success(itemDtos);
     }
-
 
     public async Task<Result<bool>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId)
     {
@@ -145,8 +139,6 @@ public class WarehouseService : IWarehouseService
 
         return transferResult;
     }
-
-
 
     public async Task<Result<decimal>> CalculateTotalInventoryValueAsync(int warehouseId)
     {

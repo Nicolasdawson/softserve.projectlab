@@ -1,24 +1,21 @@
-﻿using API.Data.Entities;
-using API.Models;
+﻿using API.Models;
+using API.Models.IntAdmin;
 using Logistics.Models;
 using softserve.projectlabs.Shared.Utilities;
 
-
 namespace API.Implementations.Domain
 {
+    
     public class SupplierDomain
     {
-        private readonly List<Supplier> _suppliers = new List<Supplier>(); 
-
-        public async Task<Result<Supplier>> CreateSupplier(Supplier supplier)
+        public Result<Supplier> CreateSupplier(Supplier supplier)
         {
             try
             {
-                // Use GetSupplierData() to retrieve SupplierDto
-                var supplierData = supplier.GetSupplierData();
-
-                // Add the supplier to the in-memory storage
-                _suppliers.Add(supplier);
+                if (string.IsNullOrWhiteSpace(supplier.GetSupplierData().Name))
+                {
+                    return Result<Supplier>.Failure("Supplier name cannot be empty.");
+                }
 
                 return Result<Supplier>.Success(supplier);
             }
@@ -28,11 +25,11 @@ namespace API.Implementations.Domain
             }
         }
 
-        public async Task<Result<Supplier>> GetSupplierById(int supplierId)
+        public Result<Supplier> GetSupplierById(int supplierId, List<Supplier> suppliers)
         {
             try
             {
-                var supplier = _suppliers.FirstOrDefault(s => s.GetSupplierData().SupplierId == supplierId);
+                var supplier = suppliers.FirstOrDefault(s => s.GetSupplierData().SupplierId == supplierId);
 
                 return supplier != null
                     ? Result<Supplier>.Success(supplier)
@@ -44,11 +41,13 @@ namespace API.Implementations.Domain
             }
         }
 
-        public async Task<Result<List<Supplier>>> GetAllSuppliers()
+        public Result<List<Supplier>> GetAllSuppliers(List<Supplier> suppliers)
         {
             try
             {
-                return Result<List<Supplier>>.Success(_suppliers);
+                return suppliers.Any()
+                    ? Result<List<Supplier>>.Success(suppliers)
+                    : Result<List<Supplier>>.Failure("No suppliers found.");
             }
             catch (Exception ex)
             {
@@ -56,29 +55,24 @@ namespace API.Implementations.Domain
             }
         }
 
-        public async Task<Result<Supplier>> UpdateSupplier(Supplier supplier)
+        public Result<Supplier> UpdateSupplier(Supplier existingSupplier, Supplier updatedSupplier)
         {
             try
             {
-                var existingSupplier = _suppliers.FirstOrDefault(s => s.GetSupplierData().SupplierId == supplier.GetSupplierData().SupplierId);
-
-                if (existingSupplier != null)
+                if (string.IsNullOrWhiteSpace(updatedSupplier.GetSupplierData().Name))
                 {
-                    // Update the existing supplier's data
-                    var supplierData = supplier.GetSupplierData();
-                    var existingSupplierData = existingSupplier.GetSupplierData();
-
-                    existingSupplierData.Name = supplierData.Name;
-                    existingSupplierData.ContactNumber = supplierData.ContactNumber;
-                    existingSupplierData.ContactEmail = supplierData.ContactEmail;
-                    existingSupplierData.Address = supplierData.Address;
-
-                    return Result<Supplier>.Success(existingSupplier);
+                    return Result<Supplier>.Failure("Supplier name cannot be empty.");
                 }
-                else
-                {
-                    return Result<Supplier>.Failure("Supplier not found.");
-                }
+
+                var existingSupplierData = existingSupplier.GetSupplierData();
+                var updatedSupplierData = updatedSupplier.GetSupplierData();
+
+                existingSupplierData.Name = updatedSupplierData.Name;
+                existingSupplierData.ContactNumber = updatedSupplierData.ContactNumber;
+                existingSupplierData.ContactEmail = updatedSupplierData.ContactEmail;
+                existingSupplierData.Address = updatedSupplierData.Address;
+
+                return Result<Supplier>.Success(existingSupplier);
             }
             catch (Exception ex)
             {
@@ -86,21 +80,16 @@ namespace API.Implementations.Domain
             }
         }
 
-        public async Task<Result<bool>> RemoveSupplier(int supplierId)
+        public Result<bool> RemoveSupplier(Supplier supplier)
         {
             try
             {
-                var supplierToRemove = _suppliers.FirstOrDefault(s => s.GetSupplierData().SupplierId == supplierId);
-
-                if (supplierToRemove != null)
-                {
-                    _suppliers.Remove(supplierToRemove);
-                    return Result<bool>.Success(true);
-                }
-                else
+                if (supplier == null)
                 {
                     return Result<bool>.Failure("Supplier not found.");
                 }
+
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
@@ -108,6 +97,18 @@ namespace API.Implementations.Domain
             }
         }
 
+        public Result<bool> ValidateAddItemToSupplier(Supplier supplier, Item item, int quantity)
+        {
+            if (supplier == null)
+                return Result<bool>.Failure("Supplier does not exist.");
 
+            if (item == null)
+                return Result<bool>.Failure("Item does not exist.");
+
+            if (quantity <= 0)
+                return Result<bool>.Failure("Quantity must be greater than zero.");
+
+            return Result<bool>.Success(true);
+        }
     }
 }

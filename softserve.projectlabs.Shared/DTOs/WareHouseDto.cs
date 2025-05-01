@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace softserve.projectlabs.Shared.DTOs
 {
-    public class WarehouseDto
+    public class WarehouseDto :BaseDto
     {
         [JsonIgnore]
         public int WarehouseId { get; set; }

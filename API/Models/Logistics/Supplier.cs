@@ -84,30 +84,6 @@ namespace Logistics.Models
             return Result<List<Item>>.Success(new List<Item>());
         }
 
-        public Result<SupplierOrder> PlaceOrder(int supplierId, List<Item> items)
-        {
-            var orderDto = new SupplierOrderDto
-            {
-                SupplierId = supplierId,
-                Items = items.Select(item => new OrderItemDto
-                {
-                    ItemId = item.ItemId,
-                    Sku = item.Sku,
-                    ItemName = item.ItemName,
-                    Quantity = item.CurrentStock,
-                    UnitPrice = item.ItemPrice
-                }).ToList()
-            };
-
-            var order = new SupplierOrder(orderDto);
-            return Result<SupplierOrder>.Success(order);
-        }
-
-        public Result<List<SupplierOrder>> GetSupplierOrders()
-        {
-            return Result<List<SupplierOrder>>.Success(new List<SupplierOrder>());
-        }
-
         public Result<bool> CancelOrder(int orderId)
         {
             return Result<bool>.Success(true);

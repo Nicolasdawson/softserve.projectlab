@@ -98,8 +98,18 @@ public class LogisticsMapping : Profile
         //    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
         //    .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
 
+        // Add mapping for SupplierDto to SupplierEntity
+        CreateMap<SupplierDto, SupplierEntity>()
+            .ForMember(dest => dest.SupplierId, opt => opt.MapFrom(src => src.SupplierId))
+            .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.SupplierAddress, opt => opt.MapFrom(src => src.Address))
+            .ForMember(dest => dest.SupplierContactNumber, opt => opt.MapFrom(src => src.ContactNumber))
+            .ForMember(dest => dest.SupplierContactEmail, opt => opt.MapFrom(src => src.ContactEmail))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+            .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted == false ? false : src.IsDeleted)) 
+            .ReverseMap();
 
-        CreateMap<SupplierOrder, SupplierOrderDto>().ReverseMap();
 
         CreateMap<WarehouseDto, WarehouseEntity>().ReverseMap();
         CreateMap<Warehouse, WarehouseResponseDto>()

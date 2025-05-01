@@ -59,7 +59,6 @@ namespace API.Services.OrderService
                         ItemName = itemEntity.ItemName,
                         Quantity = itemRequest.Quantity,
                         UnitPrice = itemEntity.ItemPrice,
-                        // Remove assignment to TotalPrice as it is read-only
                     });
                 }
 
@@ -88,7 +87,6 @@ namespace API.Services.OrderService
             if (!result.IsSuccess)
                 return Result<OrderDto>.Failure(result.ErrorMessage);
 
-            // Use GetOrderData() to retrieve OrderDto
             var orderData = result.Data.GetOrderData();
 
             return Result<OrderDto>.Success(orderData);
@@ -103,7 +101,6 @@ namespace API.Services.OrderService
             if (!result.IsSuccess)
                 return Result<List<OrderDto>>.Failure(result.ErrorMessage);
 
-            // Use GetOrderData() to map List<Order> to List<OrderDto>
             var orderDtos = result.Data.Select(order => order.GetOrderData()).ToList();
 
             return Result<List<OrderDto>>.Success(orderDtos);
@@ -113,7 +110,6 @@ namespace API.Services.OrderService
 
         public async Task<Result<OrderDto>> UpdateOrderAsync(OrderDto orderDto)
         {
-            // Create a new Order instance using OrderDto
             var order = new Order(orderDto);
 
             var result = await _orderDomain.UpdateOrder(order);
@@ -121,7 +117,6 @@ namespace API.Services.OrderService
             if (!result.IsSuccess)
                 return Result<OrderDto>.Failure(result.ErrorMessage);
 
-            // Use GetOrderData() to retrieve OrderDto
             var updatedOrderData = result.Data.GetOrderData();
 
             return Result<OrderDto>.Success(updatedOrderData);

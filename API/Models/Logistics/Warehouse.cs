@@ -72,8 +72,6 @@ namespace API.Models.Logistics
             return Result<int>.Success(item.CurrentStock);
         }
 
-
-
         public async Task<Result<bool>> IsItemInStockAsync(int sku, int requiredQuantity)
         {
             await Task.CompletedTask;

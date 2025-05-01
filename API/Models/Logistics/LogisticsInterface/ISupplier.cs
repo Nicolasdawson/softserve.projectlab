@@ -14,8 +14,6 @@ namespace API.Models.Logistics.Interfaces
         Result<bool> AddProductToSupplier(Item item);
         Result<bool> RemoveProductFromSupplier(Item item);
         Result<List<Item>> GetSupplierProducts();
-        Result<SupplierOrder> PlaceOrder(int supplierId, List<Item> items);
-        Result<List<SupplierOrder>> GetSupplierOrders();
         Result<bool> CancelOrder(int orderId);
         Result<bool> CheckSupplierAvailability();
         Result<bool> UpdateSupplierStatus(bool isActive);

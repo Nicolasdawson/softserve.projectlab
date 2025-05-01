@@ -1,9 +1,9 @@
 ﻿using API.Services.Logistics;
 using Logistics.Models;
 using Microsoft.AspNetCore.Mvc;
-using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.DTOs;
-using AutoMapper; 
+using AutoMapper;
+using softserve.projectlabs.Shared.Interfaces;
 
 namespace API.Controllers.Logistics
 {
@@ -31,12 +31,14 @@ namespace API.Controllers.Logistics
         /// <summary>
         /// Creates a new supplier.
         /// </summary>
-        /// <param name="supplier">The supplier to create.</param>
+        /// <param name="supplierDto">The supplier data to create.</param>
         /// <returns>HTTP 201 Created if successful, otherwise HTTP 400 Bad Request.</returns>
         [HttpPost]
-        public async Task<IActionResult> CreateSupplier([FromBody] Supplier supplier)
+        public async Task<IActionResult> CreateSupplier([FromBody] SupplierDto supplierDto)
         {
-            var supplierDto = _mapper.Map<SupplierDto>(supplier);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var result = await _supplierService.CreateSupplierAsync(supplierDto);
             if (!result.IsSuccess)
                 return BadRequest(result.ErrorMessage);
@@ -71,12 +73,14 @@ namespace API.Controllers.Logistics
         /// Updates an existing supplier.
         /// </summary>
         /// <param name="supplierId">The ID of the supplier to update.</param>
-        /// <param name="supplier">The updated supplier data.</param>
+        /// <param name="supplierDto">The updated supplier data.</param>
         /// <returns>HTTP 200 OK with the updated supplier data, or HTTP 404 Not Found if not found.</returns>
         [HttpPut("{supplierId}")]
-        public async Task<IActionResult> UpdateSupplier(int supplierId, [FromBody] Supplier supplier)
+        public async Task<IActionResult> UpdateSupplier(int supplierId, [FromBody] SupplierDto supplierDto)
         {
-            var supplierDto = _mapper.Map<SupplierDto>(supplier);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             supplierDto.SupplierId = supplierId;
             var result = await _supplierService.UpdateSupplierAsync(supplierDto);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
@@ -91,12 +95,38 @@ namespace API.Controllers.Logistics
         public async Task<IActionResult> DeleteSupplier(int supplierId)
         {
             var result = await _supplierService.DeleteSupplierAsync(supplierId);
-            if (result.IsNoContent)
-            {
-                return NoContent();
-            }
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            return result.IsSuccess ? NoContent() : NotFound(result.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Restores a deleted supplier by its ID.
+        /// </summary>
+        /// <param name="supplierId">The ID of the supplier to restore.</param>
+        /// <returns>HTTP 200 OK if successful, or HTTP 404 Not Found if the supplier does not exist.</returns>
+        [HttpPut("{supplierId}/undelete")]
+        public async Task<IActionResult> UndeleteSupplier(int supplierId)
+        {
+            var result = await _supplierService.UndeleteSupplierAsync(supplierId);
+            return result.IsSuccess ? Ok(new { Message = "Supplier successfully restored." }) : NotFound(result.ErrorMessage);
+        }
+       
+        /// <summary>
+        /// Adds an item to a supplier's inventory.
+        /// </summary>
+        /// <param name="supplierId">The ID of the supplier to which the item will be added.</param>
+        /// <param name="dto">The data transfer object containing the SKU and quantity of the item to add.</param>
+        /// <returns>
+        /// HTTP 200 OK with a success message if the item is added successfully, 
+        /// or HTTP 400 Bad Request if the input data is invalid or the operation fails.
+        /// </returns>
+        [HttpPost("{supplierId}/items")]
+        public async Task<IActionResult> AddItemToSupplier(int supplierId, [FromBody] AddItemToSupplierDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _supplierService.AddItemToSupplierAsync(supplierId, dto.Sku, dto.Quantity);
+            return result.IsSuccess ? Ok(new { Message = "Item successfully added to supplier." }) : BadRequest(result.ErrorMessage);
         }
     }
 }
-
