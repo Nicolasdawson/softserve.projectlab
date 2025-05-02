@@ -1,14 +1,13 @@
 ﻿using API.Data.Entities;
 using softserve.projectlabs.Shared.Utilities;
 
-namespace API.Models.IntAdmin.Interfaces
-{
+namespace API.Models.IntAdmin.AdminInterfaces;
 
-    public interface IRole
-    {
-        int RoleId { get; set; }
-        string RoleName { get; set; }
-        string RoleDescription { get; set; }
-        bool RoleStatus { get; set; }
-    }
+
+public interface IRole
+{
+    int RoleId { get; set; }
+    string RoleName { get; set; }
+    string RoleDescription { get; set; }
+    bool RoleStatus { get; set; }
 }
