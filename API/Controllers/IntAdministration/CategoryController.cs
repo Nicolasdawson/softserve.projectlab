@@ -50,7 +50,12 @@ namespace API.Controllers.IntAdmin
         public async Task<IActionResult> DeleteCategory(int categoryId)
         {
             var result = await _categoryService.DeleteCategoryAsync(categoryId);
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.ErrorMessage);
+            }
+
+            return NoContent();
         }
     }
 }

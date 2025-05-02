@@ -49,7 +49,12 @@ namespace API.Controllers.IntAdmin
         public async Task<IActionResult> DeleteUser(int userId)
         {
             var result = await _userService.DeleteUserAsync(userId);
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.ErrorMessage);
+            }
+
+            return NoContent();
         }
 
         [HttpPut("assign-roles/{userId}")]

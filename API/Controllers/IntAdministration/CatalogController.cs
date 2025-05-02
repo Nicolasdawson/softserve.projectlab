@@ -48,7 +48,12 @@ namespace API.Controllers.IntAdmin
         public async Task<IActionResult> DeleteCatalog(int catalogId)
         {
             var result = await _catalogService.DeleteCatalogAsync(catalogId);
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.ErrorMessage);
+            }
+
+            return NoContent();
         }
 
         [HttpPost("{catalogId}/add-categories")]
