@@ -24,62 +24,6 @@ namespace API.Services.OrderService
             _orderDomain = orderDomain;
         }
 
-        public async Task<Result<OrderDto>> CreateOrderAsync(OrderItemRequestDto orderRequestDto)
-        {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                var orderDto = new OrderDto
-                {
-                    OrderDate = DateTime.UtcNow,
-                    TotalAmount = 0,
-                    Items = new List<OrderItemDto>()
-                };
-
-                var itemsToUpdate = new List<ItemEntity>();
-
-                foreach (var itemRequest in orderRequestDto.Items)
-                {
-                    var itemEntity = await _context.ItemEntities
-                        .FirstOrDefaultAsync(i => i.Sku.ToString() == itemRequest.ItemId.ToString());
-
-                    if (itemEntity == null)
-                        return Result<OrderDto>.Failure($"Item SKU {itemRequest.ItemId} not found");
-
-                    if (itemEntity.CurrentStock < itemRequest.Quantity)
-                        return Result<OrderDto>.Failure($"Insufficient stock for SKU {itemRequest.ItemId}");
-
-                    itemEntity.CurrentStock -= itemRequest.Quantity;
-                    itemsToUpdate.Add(itemEntity);
-
-                    orderDto.TotalAmount += itemEntity.ItemPrice * itemRequest.Quantity;
-                    orderDto.Items.Add(new OrderItemDto
-                    {
-                        ItemId = itemEntity.Sku,
-                        ItemName = itemEntity.ItemName,
-                        Quantity = itemRequest.Quantity,
-                        UnitPrice = itemEntity.ItemPrice,
-                    });
-                }
-
-                var order = new Order(orderDto);
-                var orderEntity = _mapper.Map<OrderEntity>(order.GetOrderData());
-
-                _context.OrderEntities.Add(orderEntity);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return Result<OrderDto>.Success(order.GetOrderData());
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return Result<OrderDto>.Failure($"Order creation failed: {ex.Message}");
-            }
-        }
-
-
-
         public async Task<Result<OrderDto>> GetOrderByIdAsync(int orderId)
         {
             var result = await _orderDomain.GetOrderById(orderId);
@@ -92,8 +36,6 @@ namespace API.Services.OrderService
             return Result<OrderDto>.Success(orderData);
         }
 
-
-
         public async Task<Result<List<OrderDto>>> GetAllOrdersAsync()
         {
             var result = await _orderDomain.GetAllOrders();
@@ -105,8 +47,6 @@ namespace API.Services.OrderService
 
             return Result<List<OrderDto>>.Success(orderDtos);
         }
-
-
 
         public async Task<Result<OrderDto>> UpdateOrderAsync(OrderDto orderDto)
         {
@@ -122,11 +62,51 @@ namespace API.Services.OrderService
             return Result<OrderDto>.Success(updatedOrderData);
         }
 
-
-
         public async Task<Result<bool>> DeleteOrderAsync(int orderId)
         {
             return await _orderDomain.DeleteOrder(orderId);
+        }
+
+        public async Task<Result<OrderDto>> RetrieveOrderByCartIdAsync(int cartId)
+        {
+            var cart = await _context.CartEntities
+                .Include(c => c.CartItemEntities)
+                .ThenInclude(ci => ci.SkuNavigation) // Ensure SkuNavigation is loaded
+                .FirstOrDefaultAsync(c => c.CartId == cartId);
+
+
+            if (cart == null)
+                return Result<OrderDto>.Failure("Cart not found.");
+
+            var result = await _orderDomain.RetrieveOrderByCartId(cartId, cart);
+
+            if (!result.IsSuccess)
+                return Result<OrderDto>.Failure(result.ErrorMessage);
+
+            return Result<OrderDto>.Success(result.Data.GetOrderData());
+        }
+
+        public async Task<Result<bool>> FulfillOrderAsync(int orderId)
+        {
+            var order = await _context.OrderEntities
+                .Include(o => o.OrderItemEntities)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+                return Result<bool>.Failure("Order not found.");
+
+            var warehouse = new Warehouse(new WarehouseDto()); // Replace with actual warehouse retrieval logic
+            var result = await _orderDomain.FulfillOrder(orderId, warehouse);
+
+            if (!result.IsSuccess)
+                return Result<bool>.Failure(result.ErrorMessage);
+
+            // Update order status in the database
+            order.OrderStatus = "Fulfilled";
+            _context.OrderEntities.Update(order);
+            await _context.SaveChangesAsync();
+
+            return Result<bool>.Success(true);
         }
     }
 }

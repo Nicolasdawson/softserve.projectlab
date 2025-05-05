@@ -31,20 +31,6 @@ namespace API.Controllers.Logistics
         }
 
         /// <summary>
-        /// Creates a new order.
-        /// </summary>
-        /// <param name="orderRequest">The order request containing order details.</param>
-        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] OrderItemRequest orderRequest)
-        {
-            var orderRequestDto = _mapper.Map<OrderItemRequestDto>(orderRequest);
-            var result = await _orderService.CreateOrderAsync(orderRequestDto);
-            return result.IsSuccess ? CreatedAtAction(nameof(GetOrderById), new { id = result.Data.OrderId }, result.Data)
-                                    : BadRequest(result.ErrorMessage);
-        }
-
-        /// <summary>
         /// Retrieves an order by its ID.
         /// </summary>
         /// <param name="id">The ID of the order to retrieve.</param>
@@ -96,6 +82,30 @@ namespace API.Controllers.Logistics
                 return NoContent();
             }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Retrieves an order by its associated cart ID.
+        /// </summary>
+        /// <param name="cartId">The ID of the cart associated with the order.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the order details or an error message.</returns>
+        [HttpGet("cart/{cartId}")]
+        public async Task<IActionResult> RetrieveOrderByCartId(int cartId)
+        {
+            var result = await _orderService.RetrieveOrderByCartIdAsync(cartId);
+            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Marks an order as fulfilled.
+        /// </summary>
+        /// <param name="orderId">The ID of the order to fulfill.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [HttpPost("{orderId}/fulfill")]
+        public async Task<IActionResult> FulfillOrder(int orderId)
+        {
+            var result = await _orderService.FulfillOrderAsync(orderId);
+            return result.IsSuccess ? Ok("Order fulfilled successfully.") : BadRequest(result.ErrorMessage);
         }
     }
 }
