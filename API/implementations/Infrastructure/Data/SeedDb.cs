@@ -24,6 +24,7 @@ namespace API.implementations.Infrastructure.Data
             await CheckProductsAsync();
             await CheckLocalImagesAsync();
             await CheckCountriesAsync();
+            await CheckRegionsAsync();
 
             //await CheckImagesAsync();
             /*
@@ -466,11 +467,7 @@ namespace API.implementations.Infrastructure.Data
 
                 for (int i = 0; i < 3; i++)
                 {
-                    
-                     Console.WriteLine(filesNames[index+i]);
-                    //var fileBytes = File.ReadAllBytes(filePath + filesNames[index + i]);
-                    //var imagePath = await _fileStorage.SaveFileAsync(fileBytes, "PNG", "products");
-                                           
+                                                
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(item.Name);                    
                     images.Add(new ProductImage
                     {
@@ -485,11 +482,10 @@ namespace API.implementations.Infrastructure.Data
             }
 
             ProductImage[] imageArr = images.ToArray();
-
-            Console.WriteLine("Ejecutando SaveChangesAsync...");
+            
             await _context.ProductImages.AddRangeAsync(imageArr);
-            await _context.SaveChangesAsync(); // Guardar las imagenes                    
-            Console.WriteLine("Imágenes guardadas.");
+            await _context.SaveChangesAsync();                
+            
         }
 
         private async Task CheckImagesAsync()
@@ -556,7 +552,15 @@ namespace API.implementations.Infrastructure.Data
                 var countriesSqlScript = File.ReadAllText("implementations\\Infrastructure\\Data\\Countries.sql");
                 await _context.Database.ExecuteSqlRawAsync(countriesSqlScript);
             }
-            
+        }
+
+        private async Task CheckRegionsAsync()
+        {
+            if (!_context.Regions.Any())
+            {
+                var countriesSqlScript = File.ReadAllText("implementations\\Infrastructure\\Data\\Regions.sql");
+                await _context.Database.ExecuteSqlRawAsync(countriesSqlScript);
+            }
         }
     }
 }
