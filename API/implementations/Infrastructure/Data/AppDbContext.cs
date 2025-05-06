@@ -307,6 +307,8 @@ namespace API.implementations.Infrastructure.Data
         {
             Products.RemoveRange(Products);
             Categories.RemoveRange(Categories);
+            Countries.RemoveRange(Countries);
+            Regions.RemoveRange(Regions);
             SaveChanges();
         }
     }

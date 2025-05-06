@@ -4,6 +4,7 @@ using API.implementations.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250427034140_newProd")]
+    partial class newProd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,29 +46,6 @@ namespace API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("f645755d-c680-4091-9600-5c3e041dc495"),
-                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(1027),
-                            Name = "Cámaras de Seguridad",
-                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(1036)
-                        },
-                        new
-                        {
-                            Id = new Guid("a3fd8a0a-0620-4deb-b7d7-e85dc2c866d1"),
-                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(2446),
-                            Name = "Alarmas",
-                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(2448)
-                        },
-                        new
-                        {
-                            Id = new Guid("64a075b8-a5a3-4fee-8896-f7089eedd098"),
-                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(2452),
-                            Name = "Sensores",
-                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 791, DateTimeKind.Utc).AddTicks(2453)
-                        });
                 });
 
             modelBuilder.Entity("API.Models.City", b =>
@@ -254,6 +234,21 @@ namespace API.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(10,2)");
 
+                    b.Property<string>("CardHolderName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CardLastFour")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("nvarchar(4)");
+
+                    b.Property<string>("CardType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -262,19 +257,38 @@ namespace API.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)");
 
-                    b.Property<string>("PaymentIntentId")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<string>("ExpirationDate")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ResponseCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("StripeSessionId")
+                    b.Property<string>("TransactionId")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("WebpayToken")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -342,98 +356,6 @@ namespace API.Migrations
                     b.HasIndex("ProdId");
 
                     b.ToTable("Products", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("3468403f-a527-4b56-ab2d-a36bf3fb9c3a"),
-                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 800, DateTimeKind.Utc).AddTicks(6229),
-                            Description = "Cámara de seguridad de alta definición con visión nocturna y grabación en 1080p. Conectividad Wi-Fi y detección de movimiento.",
-                            Height = 10m,
-                            IdCategory = new Guid("f645755d-c680-4091-9600-5c3e041dc495"),
-                            Length = 20m,
-                            Name = "Cámara de Seguridad IP 1080p",
-                            Price = 120.99m,
-                            Stock = 50,
-                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 800, DateTimeKind.Utc).AddTicks(6238),
-                            Weight = 0.5m,
-                            Width = 15m
-                        },
-                        new
-                        {
-                            Id = new Guid("cb155d6f-8a0a-4c81-bf7d-89ba46c417ab"),
-                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3487),
-                            Description = "Sistema de alarma inalámbrico con 4 zonas, ideal para viviendas. Compatible con sensores de puertas y ventanas.",
-                            Height = 8m,
-                            IdCategory = new Guid("a3fd8a0a-0620-4deb-b7d7-e85dc2c866d1"),
-                            Length = 25m,
-                            Name = "Alarma Inalámbrica 4 Zonas",
-                            Price = 150.50m,
-                            Stock = 100,
-                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3493),
-                            Weight = 1.2m,
-                            Width = 20m
-                        },
-                        new
-                        {
-                            Id = new Guid("3660b7e1-7ec7-4a3f-a04b-f64e4694c019"),
-                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3517),
-                            Description = "Sensor de movimiento PIR (infrarrojo pasivo) para sistemas de alarma. Detecta movimiento en un rango de hasta 10 metros.",
-                            Height = 6m,
-                            IdCategory = new Guid("64a075b8-a5a3-4fee-8896-f7089eedd098"),
-                            Length = 12m,
-                            Name = "Sensor de Movimiento PIR",
-                            Price = 45.30m,
-                            Stock = 0,
-                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3518),
-                            Weight = 0.3m,
-                            Width = 8m
-                        },
-                        new
-                        {
-                            Id = new Guid("f2f0d62f-fefe-4eb0-8910-a81427cb2598"),
-                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3526),
-                            Description = "Cámara dome 4K con visión panorámica y grabación en calidad ultra HD. Resistente a condiciones climáticas extremas.",
-                            Height = 12m,
-                            IdCategory = new Guid("f645755d-c680-4091-9600-5c3e041dc495"),
-                            Length = 18m,
-                            Name = "Cámara de Seguridad Dome 4K",
-                            Price = 299.99m,
-                            Stock = 50,
-                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3527),
-                            Weight = 0.8m,
-                            Width = 15m
-                        },
-                        new
-                        {
-                            Id = new Guid("7aa0cbda-e37f-4978-bee2-234100826adf"),
-                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3560),
-                            Description = "Alarma de seguridad para puertas y ventanas. Ideal para prevenir accesos no autorizados en el hogar o negocio.",
-                            Height = 5m,
-                            IdCategory = new Guid("a3fd8a0a-0620-4deb-b7d7-e85dc2c866d1"),
-                            Length = 15m,
-                            Name = "Alarma para Puerta/ ventana",
-                            Price = 32.99m,
-                            Stock = 200,
-                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3560),
-                            Weight = 0.5m,
-                            Width = 10m
-                        },
-                        new
-                        {
-                            Id = new Guid("6b4f67f4-93a2-42d9-a90d-9caa2c88837c"),
-                            CreatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3569),
-                            Description = "Cámara de seguridad para exteriores, resistente al agua y con visión nocturna. Se conecta a través de Wi-Fi.",
-                            Height = 10m,
-                            IdCategory = new Guid("f645755d-c680-4091-9600-5c3e041dc495"),
-                            Length = 25m,
-                            Name = "Cámara de Seguridad para Exteriores",
-                            Price = 180.75m,
-                            Stock = 30,
-                            UpdatedAt = new DateTime(2025, 4, 21, 21, 22, 3, 801, DateTimeKind.Utc).AddTicks(3570),
-                            Weight = 1.0m,
-                            Width = 20m
-                        });
                 });
 
             modelBuilder.Entity("API.Models.ProductImage", b =>

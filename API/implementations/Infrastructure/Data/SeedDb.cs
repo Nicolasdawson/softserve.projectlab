@@ -19,11 +19,12 @@ namespace API.implementations.Infrastructure.Data
         }
         public async Task SeedAsync()
         {
-            //_context.ClearDatabase(); // Borra los datos sin eliminar la base de datos
-            //await CheckCategoriesAsync();
-            //await CheckProductsAsync();
-            //await CheckLocalImagesAsync();
-
+            _context.ClearDatabase(); // Borra los datos sin eliminar la base de datos
+            await CheckCategoriesAsync();
+            await CheckProductsAsync();
+            await CheckLocalImagesAsync();
+            await CheckCountriesAsync();
+            await CheckRegionsAsync();
 
             //await CheckImagesAsync();
             /*
@@ -133,12 +134,10 @@ namespace API.implementations.Infrastructure.Data
 
         private async Task CheckCategoriesAsync()
         {
-
             // Verifica si ya existen categorías para evitar duplicados
             if (!_context.Categories.Any())
             {
-                // Crear las categorías primero
-                // Agregar categorías
+                // Adding categories
                 var category1 = new Category
                 {
                     Id = Guid.NewGuid(),
@@ -198,7 +197,7 @@ namespace API.implementations.Infrastructure.Data
             // Verifica si ya existen Productos para evitar duplicados
             if (!_context.Products.Any())
             {
-                // Agregar productos
+                // Adding products
                 _context.Products.AddRange(
                     new Product
                     {
@@ -427,7 +426,66 @@ namespace API.implementations.Infrastructure.Data
                     }
                 );
             }
-            _context.SaveChanges(); // Guardar los productos
+            _context.SaveChanges(); // Saving products
+        }
+
+        private async Task CheckLocalImagesAsync()
+        {
+            var products = await _context.Products.ToListAsync();
+            var glassBreakProduct = products.FirstOrDefault(p => p.Name == "Glass Break Sensor");
+            var smartHomeProduct = products.FirstOrDefault(p => p.Name == "Vivint Smart Home Lighting");
+            var doorbellCameraProduct = products.FirstOrDefault(p => p.Name == "Doorbell Camera Pro");
+            var smartDoorLocksProduct = products.FirstOrDefault(p => p.Name == "Smart Door Locks");
+            var sportlightProProduct = products.FirstOrDefault(p => p.Name == "Sporlight Pro - Spotlight Camera");
+            var combinSmokeandCarbonProduct = products.FirstOrDefault(p => p.Name == "Combination Smoke and Carbon Monoxide Detector");
+            var outdoorCameraProduct = products.FirstOrDefault(p => p.Name == "Outdoor Camera Pro");
+            var indoorCameraProduct = products.FirstOrDefault(p => p.Name == "Indoor Camera Pro");
+            var doorAndWindowProduct = products.FirstOrDefault(p => p.Name == "Door and Window Sensors");
+            var keypadProduct = products.FirstOrDefault(p => p.Name == "Vivint Keypad");
+            var motionSensorProduct = products.FirstOrDefault(p => p.Name == "Motion Sensor");
+            var smartHubProduct = products.FirstOrDefault(p => p.Name == "Smart Hub");
+            var playbackDvrProduct = products.FirstOrDefault(p => p.Name == "Playback DVR");
+            var smartThermoProduct = products.FirstOrDefault(p => p.Name == "Vivint Smart Thermostat");
+            var waterSensorProduct = products.FirstOrDefault(p => p.Name == "Water Sensor");
+
+            var filePath = $"{Environment.CurrentDirectory}\\Images\\Products\\";
+            var filesNames = Directory
+                      .GetFiles(filePath)
+                      .Select(Path.GetFileName)
+                      .ToArray();
+
+ 
+            
+            var folder = Path.Combine(Directory.GetCurrentDirectory(), "Images", "Products");
+
+            var images = new List<ProductImage>();
+            foreach (var item in products)
+            {
+
+                int index = Array.FindIndex(filesNames, name => name.StartsWith(item.Name, StringComparison.OrdinalIgnoreCase));
+                if (index == -1) break;
+
+                for (int i = 0; i < 3; i++)
+                {
+                                                
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(item.Name);                    
+                    images.Add(new ProductImage
+                    {
+                        Id = Guid.NewGuid(),
+                        ImageUrl = _configuration["urlBackEnd"] + "/Images/" + filesNames[index + i],
+                        IdProduct = item.Id,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+
+                    });
+                }
+            }
+
+            ProductImage[] imageArr = images.ToArray();
+            
+            await _context.ProductImages.AddRangeAsync(imageArr);
+            await _context.SaveChangesAsync();                
+            
         }
 
         private async Task CheckImagesAsync()
@@ -487,67 +545,22 @@ namespace API.implementations.Infrastructure.Data
 
         }
 
-        private async Task CheckLocalImagesAsync()
+        private async Task CheckCountriesAsync()
         {
-            var products = await _context.Products.ToListAsync();
-            var glassBreakProduct = products.FirstOrDefault(p => p.Name == "Glass Break Sensor");
-            var smartHomeProduct = products.FirstOrDefault(p => p.Name == "Vivint Smart Home Lighting");
-            var doorbellCameraProduct = products.FirstOrDefault(p => p.Name == "Doorbell Camera Pro");
-            var smartDoorLocksProduct = products.FirstOrDefault(p => p.Name == "Smart Door Locks");
-            var sportlightProProduct = products.FirstOrDefault(p => p.Name == "Sporlight Pro - Spotlight Camera");
-            var combinSmokeandCarbonProduct = products.FirstOrDefault(p => p.Name == "Combination Smoke and Carbon Monoxide Detector");
-            var outdoorCameraProduct = products.FirstOrDefault(p => p.Name == "Outdoor Camera Pro");
-            var indoorCameraProduct = products.FirstOrDefault(p => p.Name == "Indoor Camera Pro");
-            var doorAndWindowProduct = products.FirstOrDefault(p => p.Name == "Door and Window Sensors");
-            var keypadProduct = products.FirstOrDefault(p => p.Name == "Vivint Keypad");
-            var motionSensorProduct = products.FirstOrDefault(p => p.Name == "Motion Sensor");
-            var smartHubProduct = products.FirstOrDefault(p => p.Name == "Smart Hub");
-            var playbackDvrProduct = products.FirstOrDefault(p => p.Name == "Playback DVR");
-            var smartThermoProduct = products.FirstOrDefault(p => p.Name == "Vivint Smart Thermostat");
-            var waterSensorProduct = products.FirstOrDefault(p => p.Name == "Water Sensor");
-
-            var filePath = $"{Environment.CurrentDirectory}\\Images\\Products\\";
-            var filesNames = Directory
-                      .GetFiles(filePath)
-                      .Select(Path.GetFileName)
-                      .ToArray();
-
-            var folder = Path.Combine(Directory.GetCurrentDirectory(), "Images", "Products");
-
-            var images = new List<ProductImage>();
-            foreach (var item in products)
+            if (!_context.Countries.Any())
             {
-
-                int index = Array.FindIndex(filesNames, name => name.StartsWith(item.Name, StringComparison.OrdinalIgnoreCase));
-
-                for (int i = 0; i < 3; i++)
-                {
-                    /*
-                        var fileBytes = File.ReadAllBytes(filePath + filesNames[index + i]);
-                        var imagePath = await _fileStorage.SaveFileAsync(fileBytes, "PNG", "products");
-                        
-                    */
-                    
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(item.Name);
-                    Console.WriteLine("Agregando nuevo objeto a la lista images");
-                    images.Add(new ProductImage
-                    {
-                        Id = Guid.NewGuid(),
-                        ImageUrl = _configuration["urlBackEnd"] + "/Images/" + fileName,
-                        IdProduct = item.Id,
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
-
-                    });
-                }
+                var countriesSqlScript = File.ReadAllText("implementations\\Infrastructure\\Data\\Countries.sql");
+                await _context.Database.ExecuteSqlRawAsync(countriesSqlScript);
             }
+        }
 
-            ProductImage[] imageArr = images.ToArray();
-
-            Console.WriteLine("Ejecutando SaveChangesAsync...");
-            await _context.ProductImages.AddRangeAsync(imageArr);
-            await _context.SaveChangesAsync(); // Guardar las imagenes                    
-            Console.WriteLine("Imágenes guardadas.");
+        private async Task CheckRegionsAsync()
+        {
+            if (!_context.Regions.Any())
+            {
+                var countriesSqlScript = File.ReadAllText("implementations\\Infrastructure\\Data\\Regions.sql");
+                await _context.Database.ExecuteSqlRawAsync(countriesSqlScript);
+            }
         }
     }
 }

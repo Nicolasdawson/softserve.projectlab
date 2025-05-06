@@ -21,10 +21,11 @@ namespace API.Models;
         //Navigation Properties
         [JsonIgnore] //Para evitar la referencia ciclica
         public Category? Category { get; set; } = default!;
+
         // One Product has many Images
-        [JsonIgnore] //Para evitar la referencia ciclica
+        [JsonIgnore]
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
 
-
+        [JsonIgnore] // Para evitar loops al serializar
+        public Product? Prod { get; set; }
 }
-
