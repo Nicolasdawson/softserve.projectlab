@@ -94,9 +94,16 @@ namespace API.Controllers;
         [HttpGet]
         public ActionResult<IEnumerable<Product>> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var products = _productService.GetAllProductsPaged(pageNumber, pageSize);
-            //var images = _productImageService.GetProductImagesByProductId();
-            return Ok(products.Result);
+            try
+            {
+                var products = _productService.GetAllProductsPaged(pageNumber, pageSize);
+                //var images = _productImageService.GetProductImagesByProductId();
+                return Ok(products.Result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error retrieving products.");
+            }
         }
 
         /// <summary>

@@ -19,11 +19,11 @@ namespace API.implementations.Infrastructure.Data
         }
         public async Task SeedAsync()
         {
-            //_context.ClearDatabase(); // Borra los datos sin eliminar la base de datos
-            //await CheckCategoriesAsync();
-            //await CheckProductsAsync();
-            //await CheckLocalImagesAsync();
-
+            _context.ClearDatabase(); // Borra los datos sin eliminar la base de datos
+            await CheckCategoriesAsync();
+            await CheckProductsAsync();
+            await CheckLocalImagesAsync();
+            await CheckCountriesAsync();
 
             //await CheckImagesAsync();
             /*
@@ -133,12 +133,10 @@ namespace API.implementations.Infrastructure.Data
 
         private async Task CheckCategoriesAsync()
         {
-
             // Verifica si ya existen categorías para evitar duplicados
             if (!_context.Categories.Any())
             {
-                // Crear las categorías primero
-                // Agregar categorías
+                // Adding categories
                 var category1 = new Category
                 {
                     Id = Guid.NewGuid(),
@@ -198,7 +196,7 @@ namespace API.implementations.Infrastructure.Data
             // Verifica si ya existen Productos para evitar duplicados
             if (!_context.Products.Any())
             {
-                // Agregar productos
+                // Adding products
                 _context.Products.AddRange(
                     new Product
                     {
@@ -427,7 +425,7 @@ namespace API.implementations.Infrastructure.Data
                     }
                 );
             }
-            _context.SaveChanges(); // Guardar los productos
+            _context.SaveChanges(); // Saving products
         }
 
         private async Task CheckLocalImagesAsync()
@@ -455,6 +453,8 @@ namespace API.implementations.Infrastructure.Data
                       .Select(Path.GetFileName)
                       .ToArray();
 
+ 
+            
             var folder = Path.Combine(Directory.GetCurrentDirectory(), "Images", "Products");
 
             var images = new List<ProductImage>();
@@ -462,21 +462,20 @@ namespace API.implementations.Infrastructure.Data
             {
 
                 int index = Array.FindIndex(filesNames, name => name.StartsWith(item.Name, StringComparison.OrdinalIgnoreCase));
+                if (index == -1) break;
 
                 for (int i = 0; i < 3; i++)
                 {
-                    /*
-                        var fileBytes = File.ReadAllBytes(filePath + filesNames[index + i]);
-                        var imagePath = await _fileStorage.SaveFileAsync(fileBytes, "PNG", "products");
-                        
-                    */
                     
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(item.Name);
-                    Console.WriteLine("Agregando nuevo objeto a la lista images");
+                     Console.WriteLine(filesNames[index+i]);
+                    //var fileBytes = File.ReadAllBytes(filePath + filesNames[index + i]);
+                    //var imagePath = await _fileStorage.SaveFileAsync(fileBytes, "PNG", "products");
+                                           
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(item.Name);                    
                     images.Add(new ProductImage
                     {
                         Id = Guid.NewGuid(),
-                        ImageUrl = _configuration["urlBackEnd"] + "/Images/" + fileName,
+                        ImageUrl = _configuration["urlBackEnd"] + "/Images/" + filesNames[index + i],
                         IdProduct = item.Id,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
@@ -548,6 +547,16 @@ namespace API.implementations.Infrastructure.Data
             Console.WriteLine("Imágenes guardadas.");
 
 
+        }
+
+        private async Task CheckCountriesAsync()
+        {
+            if (!_context.Countries.Any())
+            {
+                var countriesSqlScript = File.ReadAllText("implementations\\Infrastructure\\Data\\Countries.sql");
+                await _context.Database.ExecuteSqlRawAsync(countriesSqlScript);
+            }
+            
         }
     }
 }

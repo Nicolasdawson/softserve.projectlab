@@ -3,34 +3,93 @@
 @using Frontend.Services
 @inject ProductService ProductService
 
-<h3>Product List</h3>
+<style>
+    /*
+    .mud-card {
+        flex-direction: initial !important;
+        box-shadow: 12px 6px 20px rgba(0, 0, 0, 0.4);
+    }
 
-@if (products == null)
-{
-    <p>Loading...</p>
-}
-else if (products.Length == 0)
-{
-   
-    <p>No products available.</p>
-}
-else
-{
+    .product-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;  // espacio entre tarjetas 
+        justify-content: space-between;
+    }
 
-    <ul>
+    .product-card {
+        width: calc(33.33% - 13.33px); // ✅ 3 tarjetas por fila con espacio 
+        // box-shadow: 12px 6px 20px rgba(0, 0, 0, 0.4); ✅ Sombra bonita 
+        display: flex; // ⚠️ Solo si quieres que el contenido esté en fila horizontal 
+        max-height: 400px; // ✅ Altura máxima 
+        overflow: hidden; // ✅ Oculta contenido que se desborde 
+    }
+    */
+    .mud-elevation-1 {
+        box-shadow: var(--mud-elevation-0);
+    }
+</style>
+<script>
+        window.scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+</script>
+<h1 name="top"></h1>
+<MudPaper Class="d-flex flex-row flex-grow-1" >
+    <MudPaper Style="margin-bottom: 10px;">
+        <MudText Style="padding-left:5px; padding-bottom: 15px;margin-top: 20px;" Typo="Typo.h3">Catalog </MudText>
+    </MudPaper>
+     
+    <MudSpacer />
+
+    <MudPaper Style="margin-bottom: 10px;">
+        <div class="pagination-settings" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 20px;">
+            <MudText Typo="Typo.body1">Show:</MudText>
+            <MudSelect T="int" Label="Qty. items"
+                       Value="@pageSize"
+                       ValueChanged="@(async (int newSize) => await OnPageSizeChanged(newSize))">
+                @foreach (var size in pageSizeOptions)
+                {
+                    <MudSelectItem T="int" Value="@size">@size</MudSelectItem>
+                }
+            </MudSelect>
+
+        </div>
+        <div class="pagination-controls" style="margin-top: 20px; display: flex; justify-content: center;">
+            <MudButton OnClick="@PreviousPage" Disabled="@((currentPage == 1))">Previous</MudButton>
+            <MudText style="margin-top: 5px;" Class="mx-2" Typo="Typo.body1">Page @currentPage</MudText>
+            <MudButton OnClick="@NextPage" Disabled="@(currentPage == 2)">Next</MudButton>
+        </div>
+    
+    </MudPaper>
+</MudPaper>
+
+@if (products != null && products.Length > 0)
+{
+    <MudPaper Class="flex-row">
         @foreach (var product in products)
         {
-            <li>
-                <MudCard>
-                    <MudCardMedia Image="https://localhost:7153/Images/Combination Smoke And Carbon Monoxide Detector_1.PNG" Height="200" Width="200" />
-                    <MudCardContent>
-                        <MudText Typo="Typo.h5">@product.Name - @product.Price</MudText>
-                        <MudText Typo="Typo.body2">Old paint found on a stone house door.</MudText>
-                        <MudText Typo="Typo.body2">This photo was taken in a small village in Istra Croatia.</MudText>
-                    </MudCardContent>
-                </MudCard>
-            </li>
+
+            <MudCard Elevation="4" Outlined="true" Class="d-inline-flex   " MaxWidth="400px" Style="width: calc(33.33% - 13.33px); margin-left: 15px; margin-bottom: 60px;">
+                <MudCardMedia Image="@product.ImageUrls[0]" Height="400" />
+                <MudCardContent>
+                    <MudText Typo="Typo.body1"><b>@product.Name</b></MudText>
+                    <MudText Typo="Typo.h5">S @product.Price</MudText>
+                    <MudText Typo="Typo.body2"><strong>Stock </strong>: @product.Stock</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary">
+                        <MudText Typo="Typo.button">Add to cart</MudText>
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
         }
-    </ul>
+    </MudPaper>
+
+     <div class="pagination-controls" style="margin-top: 20px; display: flex; justify-content: center;">
+        <MudButton OnClick="@PreviousPage" Disabled="@((currentPage == 1))">Previous</MudButton>
+        <MudText style="margin-top: 5px;" Class="mx-2" Typo="Typo.body1">Page @currentPage</MudText>
+        <MudButton OnClick="@NextPage" Disabled="@(currentPage == 4)">Next</MudButton>
+    </div>
 }
 

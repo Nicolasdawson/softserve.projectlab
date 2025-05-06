@@ -65,7 +65,7 @@ namespace API.Services
                         Stock = p.Stock,
                         ImageUrls = p.Images.Select(img => img.ImageUrl).ToList()
                     })
-                    .ToListAsync(); // Espera la ejecución de la consulta
+                    .ToListAsync();
 
                 Console.WriteLine($"Cantidad de productos en memoria: {products.Count}");
 
