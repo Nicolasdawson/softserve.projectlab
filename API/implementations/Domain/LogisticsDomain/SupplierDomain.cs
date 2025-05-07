@@ -1,25 +1,22 @@
-﻿using API.Data.Entities;
-using API.Models;
+﻿using API.Models;
+using API.Models.IntAdmin;
 using Logistics.Models;
 using softserve.projectlabs.Shared.Utilities;
 
-
 namespace API.Implementations.Domain
 {
+    
     public class SupplierDomain
     {
-        private readonly List<Supplier> _suppliers = new List<Supplier>(); // Example in-memory storage for suppliers
-
-        /// <summary>
-        /// Creates a new supplier.
-        /// </summary>
-        /// <param name="supplier">The supplier to create.</param>
-        /// <returns>A result containing the created supplier or an error message.</returns>
-        public async Task<Result<Supplier>> CreateSupplier(Supplier supplier)
+        public Result<Supplier> CreateSupplier(Supplier supplier)
         {
             try
             {
-                _suppliers.Add(supplier);
+                if (string.IsNullOrWhiteSpace(supplier.GetSupplierData().Name))
+                {
+                    return Result<Supplier>.Failure("Supplier name cannot be empty.");
+                }
+
                 return Result<Supplier>.Success(supplier);
             }
             catch (Exception ex)
@@ -28,17 +25,15 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Retrieves a supplier by their ID.
-        /// </summary>
-        /// <param name="supplierId">The ID of the supplier to retrieve.</param>
-        /// <returns>A result containing the supplier or an error message.</returns>
-        public async Task<Result<Supplier>> GetSupplierById(int supplierId)
+        public Result<Supplier> GetSupplierById(int supplierId, List<Supplier> suppliers)
         {
             try
             {
-                var supplier = _suppliers.FirstOrDefault(s => s.SupplierId == supplierId);
-                return supplier != null ? Result<Supplier>.Success(supplier) : Result<Supplier>.Failure("Supplier not found.");
+                var supplier = suppliers.FirstOrDefault(s => s.GetSupplierData().SupplierId == supplierId);
+
+                return supplier != null
+                    ? Result<Supplier>.Success(supplier)
+                    : Result<Supplier>.Failure("Supplier not found.");
             }
             catch (Exception ex)
             {
@@ -46,15 +41,13 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Retrieves all suppliers.
-        /// </summary>
-        /// <returns>A result containing the list of suppliers or an error message.</returns>
-        public async Task<Result<List<Supplier>>> GetAllSuppliers()
+        public Result<List<Supplier>> GetAllSuppliers(List<Supplier> suppliers)
         {
             try
             {
-                return Result<List<Supplier>>.Success(_suppliers);
+                return suppliers.Any()
+                    ? Result<List<Supplier>>.Success(suppliers)
+                    : Result<List<Supplier>>.Failure("No suppliers found.");
             }
             catch (Exception ex)
             {
@@ -62,28 +55,24 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Updates an existing supplier.
-        /// </summary>
-        /// <param name="supplier">The supplier with updated information.</param>
-        /// <returns>A result containing the updated supplier or an error message.</returns>
-        public async Task<Result<Supplier>> UpdateSupplier(Supplier supplier)
+        public Result<Supplier> UpdateSupplier(Supplier existingSupplier, Supplier updatedSupplier)
         {
             try
             {
-                var existingSupplier = _suppliers.FirstOrDefault(s => s.SupplierId == supplier.SupplierId);
-                if (existingSupplier != null)
+                if (string.IsNullOrWhiteSpace(updatedSupplier.GetSupplierData().Name))
                 {
-                    existingSupplier.SupplierName = supplier.SupplierName;
-                    existingSupplier.SupplierName = supplier.SupplierName;
-                    existingSupplier.SupplierName = supplier.SupplierName;
-                    // Update any other properties here
-                    return Result<Supplier>.Success(existingSupplier);
+                    return Result<Supplier>.Failure("Supplier name cannot be empty.");
                 }
-                else
-                {
-                    return Result<Supplier>.Failure("Supplier not found.");
-                }
+
+                var existingSupplierData = existingSupplier.GetSupplierData();
+                var updatedSupplierData = updatedSupplier.GetSupplierData();
+
+                existingSupplierData.Name = updatedSupplierData.Name;
+                existingSupplierData.ContactNumber = updatedSupplierData.ContactNumber;
+                existingSupplierData.ContactEmail = updatedSupplierData.ContactEmail;
+                existingSupplierData.Address = updatedSupplierData.Address;
+
+                return Result<Supplier>.Success(existingSupplier);
             }
             catch (Exception ex)
             {
@@ -91,30 +80,35 @@ namespace API.Implementations.Domain
             }
         }
 
-        /// <summary>
-        /// Removes a supplier by their ID.
-        /// </summary>
-        /// <param name="supplierId">The ID of the supplier to remove.</param>
-        /// <returns>A result indicating success or failure.</returns>
-        public async Task<Result<bool>> RemoveSupplier(int supplierId)
+        public Result<bool> RemoveSupplier(Supplier supplier)
         {
             try
             {
-                var supplierToRemove = _suppliers.FirstOrDefault(s => s.SupplierId == supplierId);
-                if (supplierToRemove != null)
-                {
-                    _suppliers.Remove(supplierToRemove);
-                    return Result<bool>.Success(true);
-                }
-                else
+                if (supplier == null)
                 {
                     return Result<bool>.Failure("Supplier not found.");
                 }
+
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
                 return Result<bool>.Failure($"Failed to remove supplier: {ex.Message}");
             }
+        }
+
+        public Result<bool> ValidateAddItemToSupplier(Supplier supplier, Item item, int quantity)
+        {
+            if (supplier == null)
+                return Result<bool>.Failure("Supplier does not exist.");
+
+            if (item == null)
+                return Result<bool>.Failure("Item does not exist.");
+
+            if (quantity <= 0)
+                return Result<bool>.Failure("Quantity must be greater than zero.");
+
+            return Result<bool>.Success(true);
         }
     }
 }

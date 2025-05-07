@@ -1,5 +1,4 @@
-﻿using API.Domain.Logistics;
-using API.Implementations.Domain;
+﻿using API.Implementations.Domain;
 using API.Models.Logistics;
 using API.Models.Logistics.Interfaces;
 using API.Services;
@@ -49,14 +48,6 @@ public static class ServiceExtensions
         services.AddScoped<ISupplierService, SupplierService>();
         services.AddScoped<ISupplier, Supplier>();
         services.AddScoped<SupplierDomain>();
-        return services;
-    }
-
-    public static IServiceCollection AddSupplierOrderServices(this IServiceCollection services)
-    {
-        // Register the supplier order services
-        services.AddScoped<ISupplierOrderService, SupplierOrderService>();
-        services.AddScoped<SupplierOrderDomain>();
         return services;
     }
 }

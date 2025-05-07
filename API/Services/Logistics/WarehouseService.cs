@@ -5,6 +5,7 @@ using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.DTOs;
 using API.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 public class WarehouseService : IWarehouseService
 {
@@ -23,9 +24,13 @@ public class WarehouseService : IWarehouseService
         if (!result.IsSuccess)
             return new List<WarehouseResponseDto>();
 
-        var warehouseDtos = result.Data.Select(warehouse => new WarehouseResponseDto
+        var warehouseDtos = result.Data.Select(warehouse =>
         {
-            WarehouseId = warehouse.WarehouseId,
+            var warehouseData = warehouse.GetWarehouseData();
+            return new WarehouseResponseDto
+            {
+                WarehouseId = warehouseData.WarehouseId,
+            };
         }).ToList();
 
         return warehouseDtos;
@@ -37,17 +42,39 @@ public class WarehouseService : IWarehouseService
         if (!result.IsSuccess)
             return Result<WarehouseResponseDto>.Failure(result.ErrorMessage, result.ErrorCode);
 
+        var warehouseData = result.Data.GetWarehouseData();
         var warehouseDto = new WarehouseResponseDto
         {
-            WarehouseId = result.Data.WarehouseId,
+            WarehouseId = warehouseData.WarehouseId,
         };
 
         return Result<WarehouseResponseDto>.Success(warehouseDto);
     }
 
-    public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto)
+    public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, int sku)
     {
-        var result = await _warehouseDomain.AddItemToWarehouseAsync(warehouseId, itemDto);
+        // Retrieve the current stock from the ItemEntity table
+        var item = await _context.ItemEntities.FirstOrDefaultAsync(i => i.Sku == sku);
+
+        if (item == null)
+        {
+            return Result<bool>.Failure($"Item with SKU {sku} does not exist in the system.");
+        }
+
+        // Use the item's CurrentStock value
+        var currentStock = item.CurrentStock;
+
+        // Construct the AddItemToWarehouseDto
+        var addItemDto = new AddItemToWarehouseDto
+        {
+            WarehouseId = warehouseId,
+            Sku = sku,
+            CurrentStock = currentStock // Use the actual stock value
+        };
+
+        // Call the domain layer
+        var result = await _warehouseDomain.AddItemToWarehouseAsync(addItemDto);
+
         return result.IsSuccess
             ? Result<bool>.Success(true)
             : Result<bool>.Failure(result.ErrorMessage, result.ErrorCode);
@@ -93,10 +120,10 @@ public class WarehouseService : IWarehouseService
     }
 
     public async Task<Result<bool>> TransferItemAsync(
-        int sourceWarehouseId,
-        int sku,
-        int quantity,
-        int targetWarehouseId)
+     int sourceWarehouseId,
+     int sku,
+     int quantity,
+     int targetWarehouseId)
     {
         var sourceResult = await _warehouseDomain.GetWarehouseByIdAsync(sourceWarehouseId);
         var targetResult = await _warehouseDomain.GetWarehouseByIdAsync(targetWarehouseId);
@@ -104,7 +131,8 @@ public class WarehouseService : IWarehouseService
         if (!sourceResult.IsSuccess || !targetResult.IsSuccess)
             return Result<bool>.Failure("One or both warehouses not found", 404);
 
-        var transferResult = await sourceResult.Data.TransferItemAsync(
+        var transferResult = await _warehouseDomain.TransferItemAsync(
+            sourceResult.Data,
             sku,
             quantity,
             targetResult.Data);
@@ -122,6 +150,7 @@ public class WarehouseService : IWarehouseService
         return valueResult;
     }
 
+
     public async Task<Result<string>> GenerateInventoryReportAsync(int warehouseId)
     {
         var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
@@ -131,6 +160,7 @@ public class WarehouseService : IWarehouseService
         var reportResult = await result.Data.GenerateInventoryReportAsync();
         return reportResult;
     }
+
 
     public async Task<Result<bool>> DeleteWarehouseAsync(int warehouseId)
     {
