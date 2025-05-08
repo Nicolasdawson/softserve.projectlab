@@ -27,9 +27,10 @@ namespace API.Services.Logistics
         public async Task<Result<SupplierDto>> CreateSupplierAsync(SupplierDto supplierDto)
         {
             var supplier = new Supplier(supplierDto);
-            supplierDto.IsDeleted = false; 
+            supplierDto.IsDeleted = false;
 
-            var domainResult = _supplierDomain.CreateSupplier(supplier);
+            // Await the result of the asynchronous method
+            var domainResult = await _supplierDomain.CreateSupplier(supplier);
             if (!domainResult.IsSuccess)
                 return Result<SupplierDto>.Failure(domainResult.ErrorMessage);
 
@@ -69,7 +70,8 @@ namespace API.Services.Logistics
 
             var updatedSupplier = new Supplier(supplierDto);
 
-            var domainResult = _supplierDomain.UpdateSupplier(new Supplier(_mapper.Map<SupplierDto>(entity)), updatedSupplier);
+            // Await the result of the asynchronous method
+            var domainResult = await _supplierDomain.UpdateSupplier(new Supplier(_mapper.Map<SupplierDto>(entity)), updatedSupplier);
             if (!domainResult.IsSuccess)
                 return Result<SupplierDto>.Failure(domainResult.ErrorMessage);
 

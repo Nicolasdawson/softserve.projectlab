@@ -7,7 +7,7 @@ namespace softserve.projectlabs.Shared.Interfaces
 {
     public interface IWarehouseService
     {
-        Task<List<WarehouseResponseDto>> GetWarehousesAsync();
+        Task<List<WarehouseResponseDto>> GetAllWarehousesAsync();
         Task<Result<WarehouseResponseDto>> GetWarehouseByIdAsync(int warehouseId);
         Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, int sku);
         Task<Result<bool>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId);
@@ -18,7 +18,11 @@ namespace softserve.projectlabs.Shared.Interfaces
         Task<Result<string>> GenerateInventoryReportAsync(int warehouseId);
         Task<Result<bool>> DeleteWarehouseAsync(int warehouseId);
         Task<Result<bool>> UndeleteWarehouseAsync(int warehouseId);
-        Task<Result<bool>> CreateWarehouseAsync(WarehouseDto warehouseDto);
+        Task<Result<WarehouseResponseDto>> CreateWarehouseAsync(WarehouseDto warehouseDto);
+        Task<Result<bool>> SoftDeleteWarehouseAsync(int warehouseId);
+
+
 
     }
+
 }

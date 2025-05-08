@@ -1,6 +1,9 @@
-﻿using API.Models;
+﻿using API.Data.Entities;
+using API.Models;
 using API.Models.IntAdmin;
+using API.Repositories.LogisticsRepositories.Interfaces;
 using Logistics.Models;
+using softserve.projectlabs.Shared.DTOs;
 using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Implementations.Domain
@@ -8,7 +11,14 @@ namespace API.Implementations.Domain
     
     public class SupplierDomain
     {
-        public Result<Supplier> CreateSupplier(Supplier supplier)
+        private readonly ISupplierRepository _supplierRepository;
+
+        public SupplierDomain(ISupplierRepository supplierRepository)
+        {
+            _supplierRepository = supplierRepository;
+        }
+
+        public async Task<Result<Supplier>> CreateSupplier(Supplier supplier)
         {
             try
             {
@@ -16,6 +26,17 @@ namespace API.Implementations.Domain
                 {
                     return Result<Supplier>.Failure("Supplier name cannot be empty.");
                 }
+
+                var supplierEntity = new SupplierEntity
+                {
+                    SupplierName = supplier.GetSupplierData().Name,
+                    SupplierAddress = supplier.GetSupplierData().Address,
+                    SupplierContactNumber = supplier.GetSupplierData().ContactNumber,
+                    SupplierContactEmail = supplier.GetSupplierData().ContactEmail,
+                    IsDeleted = false
+                };
+
+                await _supplierRepository.AddAsync(supplierEntity);
 
                 return Result<Supplier>.Success(supplier);
             }
@@ -25,15 +46,25 @@ namespace API.Implementations.Domain
             }
         }
 
-        public Result<Supplier> GetSupplierById(int supplierId, List<Supplier> suppliers)
+        public async Task<Result<Supplier>> GetSupplierByIdAsync(int supplierId)
         {
             try
             {
-                var supplier = suppliers.FirstOrDefault(s => s.GetSupplierData().SupplierId == supplierId);
+                var supplierEntity = await _supplierRepository.GetByIdAsync(supplierId);
+                if (supplierEntity == null)
+                    return Result<Supplier>.Failure("Supplier not found.");
 
-                return supplier != null
-                    ? Result<Supplier>.Success(supplier)
-                    : Result<Supplier>.Failure("Supplier not found.");
+                var supplierDto = new SupplierDto
+                {
+                    SupplierId = supplierEntity.SupplierId,
+                    Name = supplierEntity.SupplierName,
+                    Address = supplierEntity.SupplierAddress,
+                    ContactNumber = supplierEntity.SupplierContactNumber,
+                    ContactEmail = supplierEntity.SupplierContactEmail
+                };
+
+                var supplier = new Supplier(supplierDto);
+                return Result<Supplier>.Success(supplier);
             }
             catch (Exception ex)
             {
@@ -41,13 +72,26 @@ namespace API.Implementations.Domain
             }
         }
 
-        public Result<List<Supplier>> GetAllSuppliers(List<Supplier> suppliers)
+        public async Task<Result<List<Supplier>>> GetAllSuppliersAsync()
         {
             try
             {
-                return suppliers.Any()
-                    ? Result<List<Supplier>>.Success(suppliers)
-                    : Result<List<Supplier>>.Failure("No suppliers found.");
+                var supplierEntities = await _supplierRepository.GetAllAsync();
+                var suppliers = supplierEntities.Select(entity =>
+                {
+                    var supplierDto = new SupplierDto
+                    {
+                        SupplierId = entity.SupplierId,
+                        Name = entity.SupplierName,
+                        Address = entity.SupplierAddress,
+                        ContactNumber = entity.SupplierContactNumber,
+                        ContactEmail = entity.SupplierContactEmail
+                    };
+
+                    return new Supplier(supplierDto);
+                }).ToList();
+
+                return Result<List<Supplier>>.Success(suppliers);
             }
             catch (Exception ex)
             {
@@ -55,7 +99,7 @@ namespace API.Implementations.Domain
             }
         }
 
-        public Result<Supplier> UpdateSupplier(Supplier existingSupplier, Supplier updatedSupplier)
+        public async Task<Result<Supplier>> UpdateSupplier(Supplier existingSupplier, Supplier updatedSupplier)
         {
             try
             {
@@ -64,15 +108,19 @@ namespace API.Implementations.Domain
                     return Result<Supplier>.Failure("Supplier name cannot be empty.");
                 }
 
-                var existingSupplierData = existingSupplier.GetSupplierData();
-                var updatedSupplierData = updatedSupplier.GetSupplierData();
+                var supplierEntity = new SupplierEntity
+                {
+                    SupplierId = existingSupplier.GetSupplierData().SupplierId,
+                    SupplierName = updatedSupplier.GetSupplierData().Name,
+                    SupplierAddress = updatedSupplier.GetSupplierData().Address,
+                    SupplierContactNumber = updatedSupplier.GetSupplierData().ContactNumber,
+                    SupplierContactEmail = updatedSupplier.GetSupplierData().ContactEmail,
+                    IsDeleted = false
+                };
 
-                existingSupplierData.Name = updatedSupplierData.Name;
-                existingSupplierData.ContactNumber = updatedSupplierData.ContactNumber;
-                existingSupplierData.ContactEmail = updatedSupplierData.ContactEmail;
-                existingSupplierData.Address = updatedSupplierData.Address;
+                await _supplierRepository.UpdateAsync(supplierEntity);
 
-                return Result<Supplier>.Success(existingSupplier);
+                return Result<Supplier>.Success(updatedSupplier);
             }
             catch (Exception ex)
             {
@@ -80,15 +128,11 @@ namespace API.Implementations.Domain
             }
         }
 
-        public Result<bool> RemoveSupplier(Supplier supplier)
+        public async Task<Result<bool>> RemoveSupplierAsync(int supplierId)
         {
             try
             {
-                if (supplier == null)
-                {
-                    return Result<bool>.Failure("Supplier not found.");
-                }
-
+                await _supplierRepository.DeleteAsync(supplierId);
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)

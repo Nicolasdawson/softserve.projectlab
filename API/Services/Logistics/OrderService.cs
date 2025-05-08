@@ -38,7 +38,7 @@ namespace API.Services.OrderService
 
         public async Task<Result<List<OrderDto>>> GetAllOrdersAsync()
         {
-            var result = await _orderDomain.GetAllOrders();
+            var result = await _orderDomain.GetAllOrders(_context, _mapper);
 
             if (!result.IsSuccess)
                 return Result<List<OrderDto>>.Failure(result.ErrorMessage);

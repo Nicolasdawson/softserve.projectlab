@@ -16,6 +16,8 @@ using System.Text.Json;
 using API.Mappings;
 using API.Services;
 using softserve.projectlabs.Shared.DTOs;
+using API.Repositories.LogisticsRepositories.Interfaces;
+using API.Repositories.LogisticsRepositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -123,6 +125,13 @@ builder.Services.AddScoped<WarehouseDto>();
 builder.Services.AddScoped<BranchDto>();
 builder.Services.AddScoped<OrderDto>();
 builder.Services.AddScoped<SupplierDto>();
+
+// 6. Repository registrations
+builder.Services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+builder.Services.AddScoped<IBranchRepository, BranchRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+
 
 
 
