@@ -318,6 +318,9 @@ namespace API.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid?>("ProdId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
@@ -335,6 +338,8 @@ namespace API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IdCategory");
+
+                    b.HasIndex("ProdId");
 
                     b.ToTable("Products", (string)null);
 
@@ -648,7 +653,13 @@ namespace API.Migrations
                         .HasForeignKey("IdCategory")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("API.Models.Product", "Prod")
+                        .WithMany()
+                        .HasForeignKey("ProdId");
+
                     b.Navigation("Category");
+
+                    b.Navigation("Prod");
                 });
 
             modelBuilder.Entity("API.Models.ProductImage", b =>

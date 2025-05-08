@@ -34,7 +34,7 @@ public class StripeWebhookController : ControllerBase
                 json,
                 Request.Headers["Stripe-Signature"],
                 endpointSecret,
-                60000 // Tolerancia  (solo para desarrollo)
+                60000 // Tolerancia  (just for dev)
             );
 
             Console.WriteLine($"Stripe event received: {stripeEvent.Type}");
@@ -62,10 +62,10 @@ public class StripeWebhookController : ControllerBase
 
                     if (session.CustomerEmail != null)
                     {
-                        var emailBody = $"Gracias por tu compra. El total fue: {(session.AmountTotal ?? 0) / 100.0m} {session.Currency.ToUpper()}";
+                        var emailBody = $"Thank you for your purchase! Your total was: {(session.AmountTotal ?? 0) / 100.0m} {session.Currency.ToUpper()}";
                         await _emailService.SendPaymentConfirmationEmail(
                             session.CustomerEmail,
-                            "Confirmación de pago",
+                            "Payment Confirmation",
                             emailBody
                         );
                     }

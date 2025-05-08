@@ -42,7 +42,11 @@ namespace API.implementations.Infrastructure.Data
                 .IsRequired()
                 .HasMaxLength(255);
                 
-                entity.Property(u => u.Password)
+                entity.Property(u => u.PasswordHash)
+                .IsRequired()
+                .HasMaxLength(255);
+
+                entity.Property(u => u.PasswordSalt)
                 .IsRequired()
                 .HasMaxLength(255);
 
@@ -301,14 +305,14 @@ namespace API.implementations.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Cascade); // Define la acción de eliminación en cascada
             });
 
-            //Insert Data
-            modelBuilder.SeedProducts();
         }
 
         public void ClearDatabase()
         {
             Products.RemoveRange(Products);
             Categories.RemoveRange(Categories);
+            Countries.RemoveRange(Countries);
+            Regions.RemoveRange(Regions);
             SaveChanges();
         }
     }
