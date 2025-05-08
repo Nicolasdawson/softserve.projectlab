@@ -662,9 +662,14 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.UserLastName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.UserPassword)
-                .HasMaxLength(255)
-                .IsUnicode(false);
+            entity.Property(e => e.PasswordHash)
+                .IsRequired()
+                .HasColumnType("varbinary(max)");
+
+            entity.Property(e => e.PasswordSalt)
+                .IsRequired()
+                .HasColumnType("varbinary(max)");
+
 
             entity.HasOne(d => d.Branch).WithMany(p => p.UserEntities)
                 .HasForeignKey(d => d.BranchId)

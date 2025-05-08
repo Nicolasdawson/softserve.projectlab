@@ -14,6 +14,14 @@ using softserve.projectlabs.Shared.Interfaces;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using API.Mappings;
+using API.Data.Repositories.IntAdministrationRepository.Interfaces;
+using API.Data.Repositories.IntAdministrationRepository;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using API.Services;
 using softserve.projectlabs.Shared.DTOs;
 using API.Repositories.LogisticsRepositories.Interfaces;
@@ -31,7 +39,36 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Description = "Standard Authorization header using the Bearer scheme (\"bearer {token}\")",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
+
+var tokenString = builder.Configuration["AppSettings:Token"]
+                  ?? throw new InvalidOperationException("JWT Token is missing from configuration.");
+
+var keyBytes = Convert.FromBase64String(tokenString);
+var key = new SymmetricSecurityKey(keyBytes);
+
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = key,
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
+
 builder.Services.AddRazorPages();
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -95,6 +132,7 @@ builder.Services.AddScoped<UserDomain>();
 builder.Services.AddScoped<LineOfCreditDomain>();
 builder.Services.AddScoped<CartDomain>();
 builder.Services.AddScoped<PackageDomain>();
+builder.Services.AddScoped<TokenGenerator>();
 
 // 3. Interface services
 builder.Services.AddScoped<ICustomerService, API.Services.CustomerService>();
@@ -111,8 +149,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILineOfCreditService, LineOfCreditService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
-
-
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // 4. Model implementations
 builder.Services.AddScoped<IWarehouse, Warehouse>();
@@ -120,31 +157,27 @@ builder.Services.AddScoped<IBranch, Branch>();
 builder.Services.AddScoped<IOrder, Order>();
 builder.Services.AddScoped<ISupplier, Supplier>();
 
-//5. Logistics DTOs
-builder.Services.AddScoped<WarehouseDto>();
-builder.Services.AddScoped<BranchDto>();
-builder.Services.AddScoped<OrderDto>();
-builder.Services.AddScoped<SupplierDto>();
-
-// 6. Repository registrations
+// 5. Repositorios (Data layer)
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IWarehouseRepository, WarehouseRepository>();
 builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
 
-
+//6. Logistics DTOs
+builder.Services.AddScoped<WarehouseDto>();
+builder.Services.AddScoped<BranchDto>();
+builder.Services.AddScoped<OrderDto>();
+builder.Services.AddScoped<SupplierDto>();
 
 
 //-------------------------------------------------------------------------------
 // AutoMapper Configuration
 //-------------------------------------------------------------------------------
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddProfile<LogisticsMapping>();
-    cfg.AddProfile<CustomerMapping>();
-    cfg.AddProfile<IntAdminMapping>();
-    cfg.AddProfile<BaseMapping>();
-});
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 //-------------------------------------------------------------------------------
 // HttpClient Configuration for API communication

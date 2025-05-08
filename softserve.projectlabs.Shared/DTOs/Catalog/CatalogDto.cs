@@ -1,4 +1,4 @@
-﻿namespace softserve.projectlabs.Shared.DTOs
+﻿namespace softserve.projectlabs.Shared.DTOs.Catalog
 {
     public class CatalogDto : BaseDto
     {

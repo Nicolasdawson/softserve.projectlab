@@ -65,7 +65,12 @@ namespace API.Controllers.IntAdmin
         public async Task<IActionResult> DeleteItem(int itemId)
         {
             var result = await _itemService.DeleteItemAsync(itemId);
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.ErrorMessage);
+            }
+
+            return NoContent();
         }
 
         /// <summary>

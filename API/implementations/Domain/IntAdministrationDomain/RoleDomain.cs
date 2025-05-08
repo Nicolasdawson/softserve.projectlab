@@ -3,7 +3,7 @@ using API.Data.Entities;
 using API.Models;
 using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
-using API.Models.IntAdmin.Interfaces;
+using API.Models.IntAdmin.AdminInterfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

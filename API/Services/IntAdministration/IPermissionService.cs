@@ -1,21 +1,15 @@
-﻿using API.Data.Entities;
-using API.Models;
-using API.Models.IntAdmin;
+﻿namespace API.Services.IntAdmin;
+
+using softserve.projectlabs.Shared.DTOs;
+using softserve.projectlabs.Shared.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.Utilities;
 
-namespace API.Services.IntAdmin
+public interface IPermissionService
 {
-    /// <summary>
-    /// Service interface for permission operations.
-    /// </summary>
-    public interface IPermissionService
-    {
-        Task<Result<Permission>> CreatePermissionAsync(Permission permission);
-        Task<Result<Permission>> UpdatePermissionAsync(Permission permission);
-        Task<Result<Permission>> GetPermissionByIdAsync(int permissionId);
-        Task<Result<List<Permission>>> GetAllPermissionsAsync();
-        Task<Result<bool>> DeletePermissionAsync(int permissionId);
-    }
+    Task<Result<PermissionDto>> CreatePermissionAsync(PermissionDto dto);
+    Task<Result<PermissionDto>> UpdatePermissionAsync(PermissionDto dto);
+    Task<Result<PermissionDto>> GetPermissionByIdAsync(int permissionId);
+    Task<Result<List<PermissionDto>>> GetAllPermissionsAsync();
+    Task<Result<PermissionDto>> DeletePermissionAsync(int permissionId);
 }
