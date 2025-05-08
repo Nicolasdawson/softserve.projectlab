@@ -3,6 +3,7 @@ using Stripe;
 using Stripe.Checkout;
 using API.Services;
 using API.Models;
+using System.Text.Json;
 
 namespace API.Controllers;
 
@@ -12,7 +13,6 @@ public class StripeWebhookController : ControllerBase
 {
     private readonly PaymentService _paymentService;
     private readonly IConfiguration _configuration;
-
     private readonly EmailService _emailService;
 
     public StripeWebhookController(PaymentService paymentService, IConfiguration configuration, EmailService emailService)
@@ -25,8 +25,13 @@ public class StripeWebhookController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post()
     {
-        var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
         var endpointSecret = _configuration["Stripe:WebhookSecret"];
+        string json;
+
+        using (var reader = new StreamReader(HttpContext.Request.Body))
+        {
+            json = await reader.ReadToEndAsync();
+        }
 
         try
         {
@@ -34,44 +39,65 @@ public class StripeWebhookController : ControllerBase
                 json,
                 Request.Headers["Stripe-Signature"],
                 endpointSecret,
-                60000 // Tolerancia  (just for dev)
+                60000
             );
 
             Console.WriteLine($"Stripe event received: {stripeEvent.Type}");
 
-            if (stripeEvent.Type == "checkout.session.completed")
+            switch (stripeEvent.Type)
             {
-                Console.WriteLine("Procesando checkout.session.completed");
+                case "checkout.session.completed":
+                    Console.WriteLine("Processing checkout.session.completed");
+                    var session = stripeEvent.Data.Object as Session;
 
-                var session = stripeEvent.Data.Object as Session;
-
-                if (session != null)
-                {
-                    var payment = new Payment
+                    if (session != null)
                     {
-                        Id = Guid.NewGuid(),
-                        StripeSessionId  = session.Id,
-                        PaymentIntentId = session.PaymentIntentId,
-                        Status = "paid",
-                        Amount = session.AmountTotal.HasValue ? session.AmountTotal.Value / 100m : 0,
-                        Currency = session.Currency,
-                        CreatedAt = DateTime.UtcNow,
-                    };
+                        var payment = new Payment
+                        {
+                            Id = Guid.NewGuid(),
+                            StripeSessionId = session.Id,
+                            PaymentIntentId = session.PaymentIntentId,
+                            Status = "succeeded",
+                            Amount = session.AmountTotal.HasValue ? session.AmountTotal.Value / 100m : 0,
+                            Currency = session.Currency,
+                            CreatedAt = DateTime.UtcNow,
+                        };
 
-                    _paymentService.CreatePayment(payment);
+                        _paymentService.CreatePayment(payment);
 
-                    if (session.CustomerEmail != null)
-                    {
-                        var emailBody = $"Thank you for your purchase! Your total was: {(session.AmountTotal ?? 0) / 100.0m} {session.Currency.ToUpper()}";
-                        await _emailService.SendPaymentConfirmationEmail(
-                            session.CustomerEmail,
-                            "Payment Confirmation",
-                            emailBody
-                        );
+                        if (!string.IsNullOrEmpty(session.CustomerEmail))
+                        {
+                            var emailBody = $"Thank you for your purchase! Your total was: {(session.AmountTotal ?? 0) / 100.0m} {session.Currency.ToUpper()}";
+                            await _emailService.SendPaymentConfirmationEmail(
+                                session.CustomerEmail,
+                                "Payment Confirmation",
+                                emailBody
+                            );
+                        }
                     }
-                }
+                    break;
 
-                
+                case "payment_intent.payment_failed":
+                    Console.WriteLine("Processing payment_intent.payment_failed");
+                    var failedIntent = stripeEvent.Data.Object as PaymentIntent;
+                    if (failedIntent != null)
+                    {
+                        _paymentService.SavePaymentStatus(failedIntent.Id, "failed");
+                    }
+                    break;
+
+                case "payment_intent.canceled":
+                    Console.WriteLine("Processing payment_intent.canceled");
+                    var canceledIntent = stripeEvent.Data.Object as PaymentIntent;
+                    if (canceledIntent != null)
+                    {
+                        _paymentService.SavePaymentStatus(canceledIntent.Id, "canceled");
+                    }
+                    break;
+
+                default:
+                    Console.WriteLine($"Unhandled event type: {stripeEvent.Type}");
+                    break;
             }
 
             return Ok();
@@ -80,6 +106,11 @@ public class StripeWebhookController : ControllerBase
         {
             Console.WriteLine($"Stripe error: {e.Message}");
             return BadRequest(new { error = e.Message });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error: {ex.Message}");
+            return StatusCode(500, new { error = "Internal server error", details = ex.Message });
         }
     }
 }
