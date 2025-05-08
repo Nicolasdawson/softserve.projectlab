@@ -1,13 +1,15 @@
-﻿using softserve.projectlabs.Shared.DTOs;
-using API.Services.IntAdmin;
+﻿using API.Services.IntAdmin;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using softserve.projectlabs.Shared.DTOs.Catalog;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers.IntAdmin
 {
     [ApiController]
     [Route("api/catalogs")]
+    [Authorize]
     public class CatalogController : ControllerBase
     {
         private readonly ICatalogService _catalogService;
@@ -17,14 +19,14 @@ namespace API.Controllers.IntAdmin
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCatalog([FromBody] CatalogDto catalogDto)
+        public async Task<IActionResult> CreateCatalog([FromBody] CatalogCreateDto catalogDto)
         {
             var result = await _catalogService.CreateCatalogAsync(catalogDto);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
         }
 
         [HttpPut("{catalogId}")]
-        public async Task<IActionResult> UpdateCatalog(int catalogId, [FromBody] CatalogDto catalogDto)
+        public async Task<IActionResult> UpdateCatalog(int catalogId, [FromBody] CatalogUpdateDto catalogDto)
         {
             var result = await _catalogService.UpdateCatalogAsync(catalogId, catalogDto);
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);

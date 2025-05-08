@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace API.Data.Entities;
 
-public partial class UserEntity
+public partial class UserEntity : BaseEntity
 {
     public int UserId { get; set; }
 
@@ -15,17 +15,12 @@ public partial class UserEntity
 
     public string UserContactNumber { get; set; } = null!;
 
-    public string UserPassword { get; set; } = null!;
+    public byte[] PasswordHash { get; set; } = null!;
+    public byte[] PasswordSalt { get; set; } = null!;
 
     public bool UserStatus { get; set; }
 
     public int BranchId { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime UpdatedAt { get; set; }
-
-    public bool IsDeleted { get; set; }
 
     public virtual BranchEntity Branch { get; set; } = null!;
 

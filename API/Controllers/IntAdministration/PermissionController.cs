@@ -2,8 +2,6 @@
 using API.Models.IntAdmin;
 using API.Services.IntAdmin;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace API.Controllers.IntAdmin
 {
@@ -27,27 +25,41 @@ namespace API.Controllers.IntAdmin
         /// <summary>
         /// Adds a new permission.
         /// </summary>
-        /// <param name="permission">Permission object to add</param>
+        /// <param name=permissionDto">Permission object to add</param>
         /// <returns>HTTP response with the created permission or error message</returns>
         [HttpPost]
         public async Task<IActionResult> CreatePermission([FromBody] PermissionDto permissionDto)
         {
-            var permission = ConvertToPermission(permissionDto);
-            var result = await _permissionService.CreatePermissionAsync(permission);
-            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
+            var result = await _permissionService.CreatePermissionAsync(permissionDto);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+                
+
+            // RESTful: 201 Created con location al recurso nuevo
+            return CreatedAtAction(nameof(GetPermissionById),
+                new { permissionId = result.Data.PermissionId },
+                result.Data);
         }
 
         /// <summary>
         /// Updates an existing permission.
         /// </summary>
-        /// <param name="permission">Permission object with updated data</param>
+        /// <param name="permissionDto">Permission object with updated data</param>
         /// <returns>HTTP response with the updated permission or error message</returns>
         [HttpPut("{PermissionId}")]
-        public async Task<IActionResult> UpdatePermission(int PermissionId, [FromBody] Permission permission)
+        public async Task<IActionResult> UpdatePermission(int permissionId, [FromBody] PermissionDto permissionDto)
         {
-            permission.PermissionId = PermissionId;
-            var result = await _permissionService.UpdatePermissionAsync(permission);
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            permissionDto.PermissionId = permissionId;
+            var result = await _permissionService.UpdatePermissionAsync(permissionDto);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.ErrorMessage);
+            }
+                
+
+            return Ok(result.Data);
         }
 
         /// <summary>
@@ -56,10 +68,16 @@ namespace API.Controllers.IntAdmin
         /// <param name="permissionId">Unique identifier of the permission</param>
         /// <returns>HTTP response with the permission or error message</returns>
         [HttpGet("{PermissionId}")]
-        public async Task<IActionResult> GetPermissionById(int PermissionId)
+        public async Task<IActionResult> GetPermissionById(int permissionId)
         {
-            var result = await _permissionService.GetPermissionByIdAsync(PermissionId);
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            var result = await _permissionService.GetPermissionByIdAsync(permissionId);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.ErrorMessage);
+            }
+                
+
+            return Ok(result.Data);
         }
 
         /// <summary>
@@ -70,7 +88,12 @@ namespace API.Controllers.IntAdmin
         public async Task<IActionResult> GetAllPermissions()
         {
             var result = await _permissionService.GetAllPermissionsAsync();
-            return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
+            if (!result.IsSuccess)
+            {  
+                return BadRequest(result.ErrorMessage); 
+            }
+
+            return Ok(result.Data);
         }
 
         /// <summary>
@@ -79,29 +102,15 @@ namespace API.Controllers.IntAdmin
         /// <param name="permissionId">Unique identifier of the permission to remove</param>
         /// <returns>HTTP response indicating success or failure</returns>
         [HttpDelete("{permissionId}")]
-        public async Task<IActionResult> RemovePermission(int permissionId)
+        public async Task<IActionResult> DeletePermission(int permissionId)
         {
             var result = await _permissionService.DeletePermissionAsync(permissionId);
-            if (result.IsNoContent)
+            if (!result.IsSuccess)
             {
-                return NoContent();
+                return NotFound(result.ErrorMessage);
             }
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
-        }
 
-        /// <summary>
-        /// Convierte el DTO a la entidad Permission.
-        /// </summary>
-        /// <param name="dto">El DTO recibido</param>
-        /// <returns>Una instancia de Permission</returns>
-        private Permission ConvertToPermission(PermissionDto dto)
-        {
-            return new Permission
-            {
-                PermissionName = dto.PermissionName,
-                PermissionDescription = dto.PermissionDescription
-                // No se asigna el PermissionId ya que este se gestiona (por la URL o la base de datos)
-            };
+            return NoContent();
         }
     }
 }
