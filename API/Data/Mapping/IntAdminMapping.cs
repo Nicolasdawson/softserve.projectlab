@@ -3,6 +3,9 @@ using AutoMapper;
 using softserve.projectlabs.Shared.DTOs;
 using API.Data.Entities;
 using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.DTOs.Catalog;
+using softserve.projectlabs.Shared.DTOs.Category;
+using softserve.projectlabs.Shared.DTOs.User;
 
 namespace API.Mappings
 {
@@ -15,20 +18,33 @@ namespace API.Mappings
             // =========================
             CreateMap<CategoryEntity, CategoryDto>()
                 .ReverseMap()
+                .ForMember(dest => dest.CategoryId, opt => opt.Ignore()) // 🔒 no sobreescribimos la PK
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
-
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.CatalogCategoryEntities, opt => opt.Ignore());
 
             // =========================
             // Category | Entity ↔ Domain model
             // =========================
             CreateMap<CategoryEntity, Category>();
             CreateMap<Category, CategoryEntity>()
+                .ForMember(dest => dest.CategoryId, opt => opt.Ignore()) // ⚠️ evitar conflictos en Update
+                .ForMember(dest => dest.CatalogCategoryEntities, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-                .ForMember(dest => dest.CatalogCategoryEntities, opt => opt.Ignore());
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+
+            // =========================
+            // Category | DTO ↔ Domain
+            // =========================
+            CreateMap<CategoryDto, Category>().ReverseMap();
+
+            // Create ↔ Domain
+            CreateMap<CategoryCreateDto, Category>();
+
+            // Update ↔ Domain
+            CreateMap<CategoryUpdateDto, Category>();
 
             // =========================
             // Catalog | DTO ↔ Entity
@@ -44,14 +60,57 @@ namespace API.Mappings
                 .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
 
             // =========================
+            // CatalogCategoryEntity → Category (usado en Catalog → Domain)
+            // =========================
+            CreateMap<CatalogCategoryEntity, Category>()
+                .ConvertUsing(src => new Category
+                {
+                    CategoryId = src.Category.CategoryId,
+                    CategoryName = src.Category.CategoryName,
+                    CategoryStatus = src.Category.CategoryStatus
+                });
+
+            // =========================
             // Catalog | Entity ↔ Domain model
             // =========================
-            CreateMap<CatalogEntity, Catalog>();
+            CreateMap<CatalogEntity, Catalog>()
+    .ForMember(dest => dest.Categories, opt => opt.MapFrom(src =>
+        src.CatalogCategoryEntities
+            .Where(cc => cc.Category != null && !cc.Category.IsDeleted)
+            .Select(cc => new Category  // <--- aquí el mapeo manual
+            {
+                CategoryId = cc.Category.CategoryId,
+                CategoryName = cc.Category.CategoryName,
+                CategoryStatus = cc.Category.CategoryStatus
+            })
+    ));
+
+
             CreateMap<Catalog, CatalogEntity>()
+                .ForMember(dest => dest.CatalogId, opt => opt.Ignore())
+                .ForMember(dest => dest.CatalogCategoryEntities, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-                .ForMember(dest => dest.CatalogCategoryEntities, opt => opt.Ignore());
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+
+            // =========================
+            // Catalog | DTO ↔ Domain
+            // =========================
+            CreateMap<CatalogDto, Catalog>().ReverseMap();
+
+            // Create ↔ Domain
+            CreateMap<CatalogCreateDto, Catalog>()
+                .ForMember(dest => dest.Categories, opt => opt.Ignore()); // se cargan desde CategoryIds
+
+            // Update ↔ Domain
+            CreateMap<CatalogUpdateDto, Catalog>()
+                .ForMember(dest => dest.Categories, opt => opt.Ignore());
+
+            // Read (Domain → DTO)
+            CreateMap<Catalog, CatalogDto>()
+                .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(
+                    src => src.Categories.Select(c => c.CategoryId)
+                ));
 
             // =========================
             // Item | DTO ↔ Entity
@@ -121,17 +180,41 @@ namespace API.Mappings
                 ))
                 .ReverseMap()
                 .IncludeBase<BaseDto, BaseEntity>()
-                .ForMember(dest => dest.UserRoleEntities, opt => opt.Ignore());
+                .ForMember(dest => dest.UserRoleEntities, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
 
             // =========================
             // User | Entity ↔ Domain model
             // =========================
-            CreateMap<UserEntity, User>();
-            CreateMap<User, UserEntity>()
+            CreateMap<UserEntity, User>()
+                .ReverseMap()
+                .ForMember(dest => dest.UserRoleEntities, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-                .ForMember(dest => dest.UserRoleEntities, opt => opt.Ignore());
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+
+            // =========================
+            // User | DTO ↔ Domain
+            // =========================
+            CreateMap<UserDto, User>().ReverseMap();
+
+            // =========================
+            // Create ↔ Domain
+            // =========================
+            CreateMap<UserCreateDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // hash se genera en el Domain
+                .ForMember(dest => dest.PasswordSalt, opt => opt.Ignore())
+                .ForMember(dest => dest.Roles, opt => opt.Ignore()); // se cargan desde RoleIds
+
+            // =========================
+            // Update ↔ Domain
+            // =========================
+            CreateMap<UserUpdateDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.PasswordSalt, opt => opt.Ignore())
+                .ForMember(dest => dest.Roles, opt => opt.Ignore());
         }
     }
 }
