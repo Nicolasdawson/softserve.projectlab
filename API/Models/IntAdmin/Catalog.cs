@@ -3,7 +3,7 @@ using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Models.IntAdmin;
 
-public class Catalog : ICatalog
+public class Catalog : BaseEntity, ICatalog
 {
     public int CatalogID { get; set; }
     public string CatalogName { get; set; } = string.Empty;
@@ -11,4 +11,5 @@ public class Catalog : ICatalog
     public bool CatalogStatus { get; set; }
 
     public List<ICategory> Categories { get; set; } = new List<ICategory>();
+
 }

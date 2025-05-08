@@ -1,51 +1,76 @@
-﻿using API.Data.Entities;
+﻿namespace API.Services.IntAdmin;
+
+using AutoMapper;
+using softserve.projectlabs.Shared.DTOs;
+using softserve.projectlabs.Shared.Utilities;
 using API.Implementations.Domain;
-using API.Models;
 using API.Models.IntAdmin;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.Utilities;
 
-namespace API.Services.IntAdmin
+public class PermissionService : IPermissionService
 {
-    /// <summary>
-    /// Service class for permission operations. Delegates business logic to the PermissionDomain.
-    /// </summary>
-    public class PermissionService : IPermissionService
+    private readonly PermissionDomain _domain;
+    private readonly IMapper _mapper;
+
+    public PermissionService(PermissionDomain domain, IMapper mapper)
     {
-        private readonly PermissionDomain _permissionDomain;
+        _domain = domain;
+        _mapper = mapper;
+    }
 
-        /// <summary>
-        /// Constructor with dependency injection for PermissionDomain.
-        /// </summary>
-        public PermissionService(PermissionDomain permissionDomain)
-        {
-            _permissionDomain = permissionDomain;
-        }
+    public async Task<Result<PermissionDto>> CreatePermissionAsync(PermissionDto dto)
+    {
+        var modelResult = await _domain.CreatePermissionAsync(_mapper.Map<Permission>(dto));
+        if (!modelResult.IsSuccess)
+            return Result<PermissionDto>.Failure(modelResult.ErrorMessage);
 
-        public async Task<Result<Permission>> CreatePermissionAsync(Permission permission)
-        {
-            return await _permissionDomain.CreatePermissionAsync(permission);
-        }
+        return Result<PermissionDto>.Success(
+            _mapper.Map<PermissionDto>(modelResult.Data)
+        );
+    }
 
-        public async Task<Result<Permission>> UpdatePermissionAsync(Permission permission)
-        {
-            return await _permissionDomain.UpdatePermissionAsync(permission);
-        }
+    public async Task<Result<PermissionDto>> UpdatePermissionAsync(PermissionDto dto)
+    {
+        var modelResult = await _domain.UpdatePermissionAsync(_mapper.Map<Permission>(dto));
+        if (!modelResult.IsSuccess)
+            return Result<PermissionDto>.Failure(modelResult.ErrorMessage);
 
-        public async Task<Result<Permission>> GetPermissionByIdAsync(int permissionId)
-        {
-            return await _permissionDomain.GetPermissionByIdAsync(permissionId);
-        }
+        return Result<PermissionDto>.Success(
+            _mapper.Map<PermissionDto>(modelResult.Data)
+        );
+    }
 
-        public async Task<Result<List<Permission>>> GetAllPermissionsAsync()
-        {
-            return await _permissionDomain.GetAllPermissionsAsync();
-        }
+    public async Task<Result<PermissionDto>> GetPermissionByIdAsync(int permissionId)
+    {
+        var modelResult = await _domain.GetPermissionByIdAsync(permissionId);
+        if (!modelResult.IsSuccess)
+            return Result<PermissionDto>.Failure(modelResult.ErrorMessage);
 
-        public async Task<Result<bool>> DeletePermissionAsync(int permissionId)
-        {
-            return await _permissionDomain.DeletePermissionAsync(permissionId);
-        }
+        return Result<PermissionDto>.Success(
+            _mapper.Map<PermissionDto>(modelResult.Data)
+        );
+    }
+
+    public async Task<Result<List<PermissionDto>>> GetAllPermissionsAsync()
+    {
+        var modelResult = await _domain.GetAllPermissionsAsync();
+        if (!modelResult.IsSuccess)
+            return Result<List<PermissionDto>>.Failure(modelResult.ErrorMessage);
+
+        return Result<List<PermissionDto>>.Success(
+            _mapper.Map<List<PermissionDto>>(modelResult.Data)
+        );
+    }
+
+    public async Task<Result<PermissionDto>> DeletePermissionAsync(int permissionId)
+    {
+        var modelResult = await _domain.DeletePermissionAsync(permissionId);
+        if (!modelResult.IsSuccess)
+            return Result<PermissionDto>.Failure(modelResult.ErrorMessage);
+
+        return Result<PermissionDto>.Success(
+            _mapper.Map<PermissionDto>(modelResult.Data)
+        );
     }
 }

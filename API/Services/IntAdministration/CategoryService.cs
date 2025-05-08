@@ -1,43 +1,50 @@
-﻿using API.Data.Entities;
+﻿using AutoMapper;
 using API.Implementations.Domain;
-using API.Models;
 using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.DTOs.Category;
+using softserve.projectlabs.Shared.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.Utilities;
-using softserve.projectlabs.Shared.DTOs;
 
 namespace API.Services.IntAdmin
 {
-    /// <summary>
-    /// Service class for category operations. Delegates business logic to the CategoryDomain.
-    /// </summary>
     public class CategoryService : ICategoryService
     {
         private readonly CategoryDomain _categoryDomain;
-        public CategoryService(CategoryDomain categoryDomain)
+        private readonly IMapper _mapper;
+
+        public CategoryService(CategoryDomain categoryDomain, IMapper mapper)
         {
             _categoryDomain = categoryDomain;
+            _mapper = mapper;
         }
-        public async Task<Result<Category>> CreateCategoryAsync(CategoryDto categoryDto)
+
+        public async Task<Result<Category>> CreateCategoryAsync(CategoryCreateDto categoryDto)
         {
-            return await _categoryDomain.CreateCategoryAsync(categoryDto);
+            var model = _mapper.Map<Category>(categoryDto);
+            model.CategoryStatus = true; // o dejarlo en el dominio
+            return await _categoryDomain.CreateCategoryAsync(model);
         }
-        public async Task<Result<Category>> UpdateCategoryAsync(int categoryId, CategoryDto categoryDto)
+
+        public async Task<Result<Category>> UpdateCategoryAsync(int categoryId, CategoryUpdateDto categoryDto)
         {
-            return await _categoryDomain.UpdateCategoryAsync(categoryId, categoryDto);
+            var model = _mapper.Map<Category>(categoryDto);
+            return await _categoryDomain.UpdateCategoryAsync(categoryId, model);
         }
-        public async Task<Result<Category>> GetCategoryByIdAsync(int categoryId)
+
+        public Task<Result<Category>> GetCategoryByIdAsync(int categoryId)
         {
-            return await _categoryDomain.GetCategoryByIdAsync(categoryId);
+            return _categoryDomain.GetCategoryByIdAsync(categoryId);
         }
-        public async Task<Result<List<Category>>> GetAllCategoriesAsync()
+
+        public Task<Result<List<Category>>> GetAllCategoriesAsync()
         {
-            return await _categoryDomain.GetAllCategoriesAsync();
+            return _categoryDomain.GetAllCategoriesAsync();
         }
-        public async Task<Result<bool>> DeleteCategoryAsync(int categoryId)
+
+        public Task<Result<bool>> DeleteCategoryAsync(int categoryId)
         {
-            return await _categoryDomain.DeleteCategoryAsync(categoryId);
+            return _categoryDomain.DeleteCategoryAsync(categoryId);
         }
     }
 }
