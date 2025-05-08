@@ -6,7 +6,6 @@ using Logistics.Models;
 using API.Services.Interfaces;
 using API.Services.IntAdmin;
 using API.Implementations.Domain;
-using API.Domain.Logistics;
 using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
 using API.Data.Mapping;
@@ -23,6 +22,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using API.Services;
+using softserve.projectlabs.Shared.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -113,14 +114,12 @@ builder.Services.AddWarehouseServices();
 builder.Services.AddBranchServices();
 builder.Services.AddOrderServices();
 builder.Services.AddSupplierServices();
-builder.Services.AddSupplierOrderServices();
 
 // 2. Domain services
 builder.Services.AddScoped<CustomerDomain>();
 builder.Services.AddScoped<BranchDomain>();
 builder.Services.AddScoped<OrderDomain>();
 builder.Services.AddScoped<SupplierDomain>();
-builder.Services.AddScoped<SupplierOrderDomain>();
 builder.Services.AddScoped<WarehouseDomain>();
 builder.Services.AddScoped<CatalogDomain>();
 builder.Services.AddScoped<CategoryDomain>();
@@ -128,6 +127,9 @@ builder.Services.AddScoped<ItemDomain>();
 builder.Services.AddScoped<PermissionDomain>();
 builder.Services.AddScoped<RoleDomain>();
 builder.Services.AddScoped<UserDomain>();
+builder.Services.AddScoped<LineOfCreditDomain>();
+builder.Services.AddScoped<CartDomain>();
+builder.Services.AddScoped<PackageDomain>();
 builder.Services.AddScoped<TokenGenerator>();
 
 // 3. Interface services
@@ -136,13 +138,15 @@ builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
-builder.Services.AddScoped<ISupplierOrderService, SupplierOrderService>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILineOfCreditService, LineOfCreditService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // 4. Model implementations
@@ -156,6 +160,12 @@ builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+//6. Logistics DTOs
+builder.Services.AddScoped<WarehouseDto>();
+builder.Services.AddScoped<BranchDto>();
+builder.Services.AddScoped<OrderDto>();
+builder.Services.AddScoped<SupplierDto>();
 
 //-------------------------------------------------------------------------------
 // AutoMapper Configuration

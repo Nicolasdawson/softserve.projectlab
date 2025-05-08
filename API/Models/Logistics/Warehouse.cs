@@ -6,33 +6,26 @@ using API.Models;
 using API.Models.IntAdmin;
 using API.Models.Logistics.Interfaces;
 using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.DTOs;
 
 namespace API.Models.Logistics
 {
     public class Warehouse : IWarehouse
     {
-        public int WarehouseId { get; set; }
-        public string Name { get; set; }
-        public string Location { get; set; }
-        public int Capacity { get; set; }
-        public List<Item> Items { get; set; } = new List<Item>();
-        public int BranchId { get; internal set; }
-        public Data.Entities.BranchEntity Branch { get; internal set; }
+        private readonly WarehouseDto _warehouseDto;
 
-        // Parameterless constructor for Dependency Injection (DI) & serialization
-        public Warehouse() { }
-
-        public Warehouse(int warehouseId, string name, string location, int capacity)
+        public Warehouse(WarehouseDto warehouseDto)
         {
-            WarehouseId = warehouseId;
-            Name = name;
-            Location = location;
-            Capacity = capacity;
+            _warehouseDto = warehouseDto;
         }
+
+        public List<Item> Items { get; set; } = new List<Item>();
+
+        public WarehouseDto GetWarehouseData() => _warehouseDto;
 
         public async Task<Result<IWarehouse>> AddItemAsync(Item item)
         {
-            await Task.CompletedTask; 
+            await Task.CompletedTask;
             Items.Add(item);
             return Result<IWarehouse>.Success(this);
         }
@@ -72,11 +65,11 @@ namespace API.Models.Logistics
 
         public async Task<Result<int>> CheckItemStockAsync(int sku)
         {
-            await Task.CompletedTask;
             var item = Items.FirstOrDefault(i => i.Sku == sku);
-            return item != null
-                ? Result<int>.Success(item.CurrentStock)
-                : Result<int>.Failure("Item not found");
+            if (item == null)
+                return Result<int>.Failure("Item not found in warehouse", 404);
+
+            return Result<int>.Success(item.CurrentStock);
         }
 
         public async Task<Result<bool>> IsItemInStockAsync(int sku, int requiredQuantity)
@@ -171,7 +164,6 @@ namespace API.Models.Logistics
             return Result<string>.Success(report);
         }
 
-        // Sync versions for backwards compatibility (if needed)
         public Result<decimal> GetTotalInventoryValue() => GetTotalInventoryValueAsync().GetAwaiter().GetResult();
         public Result<string> GenerateInventoryReport() => GenerateInventoryReportAsync().GetAwaiter().GetResult();
     }

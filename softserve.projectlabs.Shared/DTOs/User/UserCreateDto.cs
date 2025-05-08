@@ -12,7 +12,7 @@ public class UserCreateDto
     public string UserLastName { get; set; } = string.Empty;
     public string UserContactEmail { get; set; } = null!;
     public string UserContactNumber { get; set; } = null!;
-    public string UserPassword { get; set; } = string.Empty; // Plain password
+    public string UserPassword { get; set; } = string.Empty;
     public int BranchId { get; set; }
 
     public List<int> RoleIds { get; set; } = new List<int>();

@@ -9,7 +9,7 @@ namespace softserve.projectlabs.Shared.Interfaces
     {
         Task<List<WarehouseResponseDto>> GetWarehousesAsync();
         Task<Result<WarehouseResponseDto>> GetWarehouseByIdAsync(int warehouseId);
-        Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto);
+        Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, int sku);
         Task<Result<bool>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId);
         Task<Result<int>> CheckWarehouseStockAsync(int warehouseId, int sku);
         Task<Result<bool>> TransferItemAsync(int sourceWarehouseId, int sku, int quantity, int targetWarehouseId);

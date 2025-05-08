@@ -3,7 +3,6 @@
     public class UserDto : BaseDto
     {
         public int? UserId { get; set; }
-        public string UserEmail { get; set; } = string.Empty;
         public string UserFirstName { get; set; } = string.Empty;
         public string UserLastName { get; set; } = string.Empty;
         public string UserContactEmail { get; set; } = null!;

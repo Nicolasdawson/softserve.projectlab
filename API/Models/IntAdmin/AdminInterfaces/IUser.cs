@@ -6,7 +6,6 @@ namespace API.Models.IntAdmin.AdminInterfaces;
 public interface IUser
 {
     int UserId { get; set; }
-    string UserEmail { get; set; }
     string UserFirstName { get; set; }
     string UserLastName { get; set; }
     string UserContactEmail { get; set; }

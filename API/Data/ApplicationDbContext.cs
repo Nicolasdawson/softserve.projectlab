@@ -70,7 +70,10 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<WarehouseItemEntity> WarehouseItemEntities { get; set; }
 
-  
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=softserve-chile.database.windows.net;Initial Catalog=RanAwayDB;Persist Security Info=True;User ID=softserve;Password=Admin123;Trust Server Certificate=True");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BranchEntity>(entity =>
@@ -617,6 +620,10 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => new { e.SupplierId, e.Sku }).HasName("PK__Supplier__17479B889BD9D329");
 
             entity.ToTable("SupplierItemEntity");
+
+            entity.Property(e => e.ExpectedDeliveryDate).HasColumnType("datetime");
+            entity.Property(e => e.OrderDate).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(50);
 
             entity.HasOne(d => d.SkuNavigation).WithMany(p => p.SupplierItemEntities)
                 .HasForeignKey(d => d.Sku)
