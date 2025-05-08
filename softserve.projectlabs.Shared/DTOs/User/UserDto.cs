@@ -1,4 +1,4 @@
-﻿namespace softserve.projectlabs.Shared.DTOs
+﻿namespace softserve.projectlabs.Shared.DTOs.User
 {
     public class UserDto : BaseDto
     {
@@ -6,8 +6,10 @@
         public string UserEmail { get; set; } = string.Empty;
         public string UserFirstName { get; set; } = string.Empty;
         public string UserLastName { get; set; } = string.Empty;
-        public string UserPhone { get; set; } = string.Empty;
-        public string UserPassword { get; set; } = string.Empty;
+        public string UserContactEmail { get; set; } = null!;
+        public string UserContactNumber { get; set; } = null!;
+        public byte[] PasswordHash { get; set; } = null!;
+        public byte[] PasswordSalt { get; set; } = null!;
         public bool UserStatus { get; set; }
         public string? UserImage { get; set; }
         public int BranchId { get; set; }

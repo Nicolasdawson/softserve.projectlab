@@ -9,9 +9,13 @@ public interface IUser
     string UserEmail { get; set; }
     string UserFirstName { get; set; }
     string UserLastName { get; set; }
-    string UserPhone { get; set; }
-    string UserPassword { get; set; }
+    string UserContactEmail { get; set; }
+    string UserContactNumber { get; set; }
+    byte[] PasswordHash { get; set; }
+    byte[] PasswordSalt { get; set; }
     bool UserStatus { get; set; }
     string UserImage { get; set; }
     int BranchId { get; set; }
+
+    List<IRole> Roles { get; set; }
 }
