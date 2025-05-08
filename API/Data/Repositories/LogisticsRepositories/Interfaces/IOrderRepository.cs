@@ -1,6 +1,6 @@
 ﻿using API.Data.Entities;
 
-namespace API.Repositories.LogisticsRepositories.Interfaces
+namespace API.Data.Repositories.LogisticsRepositories.Interfaces
 {
     public interface IOrderRepository
     {

@@ -24,8 +24,8 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using API.Services;
 using softserve.projectlabs.Shared.DTOs;
-using API.Repositories.LogisticsRepositories.Interfaces;
-using API.Repositories.LogisticsRepositories;
+using API.Data.Repositories.LogisticsRepositories;
+using API.Data.Repositories.LogisticsRepositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

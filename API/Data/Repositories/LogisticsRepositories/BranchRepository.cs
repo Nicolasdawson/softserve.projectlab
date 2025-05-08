@@ -1,9 +1,9 @@
 ﻿using API.Data;
 using API.Data.Entities;
-using API.Repositories.LogisticsRepositories.Interfaces;
+using API.Data.Repositories.LogisticsRepositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Repositories.LogisticsRepositories
+namespace API.Data.Repositories.LogisticsRepositories
 {
     public class BranchRepository : IBranchRepository
     {

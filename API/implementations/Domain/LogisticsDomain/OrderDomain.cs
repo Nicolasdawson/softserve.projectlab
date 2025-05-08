@@ -1,10 +1,10 @@
 ﻿using API.Models.Logistics;
 using API.Data.Entities;
-using API.Repositories.LogisticsRepositories.Interfaces;
 using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.DTOs;
 using AutoMapper;
 using API.Data;
+using API.Data.Repositories.LogisticsRepositories.Interfaces;
 
 namespace API.Implementations.Domain
 {
