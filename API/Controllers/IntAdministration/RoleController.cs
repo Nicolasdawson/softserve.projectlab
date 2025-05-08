@@ -68,14 +68,15 @@ namespace API.Controllers.IntAdmin
         /// Removes a role by its unique ID.
         /// </summary>
         [HttpDelete("{roleId}")]
-        public async Task<IActionResult> RemoveRole(int roleId)
+        public async Task<IActionResult> DeleteRole(int roleId)
         {
             var result = await _roleService.DeleteRoleAsync(roleId);
-            if (result.IsNoContent)
+            if (!result.IsSuccess)
             {
-                return NoContent();
+                return NotFound(result.ErrorMessage);
             }
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+
+            return NoContent();
         }
 
         /// <summary>

@@ -1,26 +1,15 @@
-﻿using API.Data.Entities;
-using API.Models;
-using API.Models.IntAdmin;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.DTOs.User;
 using softserve.projectlabs.Shared.Utilities;
-using softserve.projectlabs.Shared.DTOs;
 
-namespace API.Services.IntAdmin
+namespace API.Services.IntAdmin;
+
+public interface IUserService
 {
-    /// <summary>
-    /// Service interface for user operations.
-    /// </summary>
-    public interface IUserService
-    {
-        Task<Result<User>> CreateUserAsync(UserDto userDto);
-        Task<Result<User>> UpdateUserAsync(int userId, UserDto userDto);
-        Task<Result<User>> GetUserByIdAsync(int userId);
-        Task<Result<List<User>>> GetAllUsersAsync();
-        Task<Result<bool>> DeleteUserAsync(int userId);
-
-        Task<Result<bool>> AuthenticateAsync(string email, string password);
-        Task<Result<bool>> UpdatePasswordAsync(int userId, string newPassword);
-        Task<Result<bool>> AssignRolesAsync(int userId, List<int> roleIds);
-    }
+    Task<Result<User>> GetUserByIdAsync(int userId);
+    Task<Result<List<User>>> GetAllUsersAsync();
+    Task<Result<User>> UpdateUserAsync(int userId, UserUpdateDto dto);
+    Task<Result<bool>> DeleteUserAsync(int userId);
+    Task<Result<bool>> UpdatePasswordAsync(int userId, string newPassword);
+    Task<Result<bool>> AssignRolesAsync(int userId, List<int> roleIds);
 }

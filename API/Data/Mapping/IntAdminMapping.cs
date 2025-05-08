@@ -1,7 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using softserve.projectlabs.Shared.DTOs;
 using API.Data.Entities;
-using System.Linq;
+using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.DTOs.Catalog;
+using softserve.projectlabs.Shared.DTOs.Category;
+using softserve.projectlabs.Shared.DTOs.User;
 
 namespace API.Mappings
 {
@@ -9,70 +13,208 @@ namespace API.Mappings
     {
         public IntAdminMapping()
         {
-            // Mapeo de CategoryDto a CategoryEntity
-            CreateMap<CategoryDto, CategoryEntity>()
-                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId.HasValue ? src.CategoryId.Value : 0))
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.CategoryName))
-                .ForMember(dest => dest.CategoryStatus, opt => opt.MapFrom(src => src.CategoryStatus));
-
-            // Mapeo de CatalogDto a CatalogEntity
-            CreateMap<CatalogDto, CatalogEntity>()
-                .ForMember(dest => dest.CatalogId, opt => opt.MapFrom(src => src.CatalogId.HasValue ? src.CatalogId.Value : 0))
-                .ForMember(dest => dest.CatalogName, opt => opt.MapFrom(src => src.CatalogName))
-                .ForMember(dest => dest.CatalogDescription, opt => opt.MapFrom(src => src.CatalogDescription))
-                .ForMember(dest => dest.CatalogStatus, opt => opt.MapFrom(src => src.CatalogStatus))
-                // Si deseas mapear los CategoryIds a la colección de CatalogCategoryEntities,
-                // necesitarás implementar una transformación o resolver personalizado.
+            // =========================
+            // Category | DTO ↔ Entity
+            // =========================
+            CreateMap<CategoryEntity, CategoryDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.CategoryId, opt => opt.Ignore()) // 🔒 no sobreescribimos la PK
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
                 .ForMember(dest => dest.CatalogCategoryEntities, opt => opt.Ignore());
 
-            // Mapeo de ItemDto a ItemEntity
-            CreateMap<ItemDto, ItemEntity>()
-                .ForMember(dest => dest.ItemId, opt => opt.MapFrom(src => src.ItemId.HasValue ? src.ItemId.Value : 0))
-                .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.Sku))
-                .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.ItemName))
-                .ForMember(dest => dest.ItemDescription, opt => opt.MapFrom(src => src.ItemDescription))
-                .ForMember(dest => dest.OriginalStock, opt => opt.MapFrom(src => src.OriginalStock))
-                .ForMember(dest => dest.CurrentStock, opt => opt.MapFrom(src => src.CurrentStock))
-                .ForMember(dest => dest.ItemCurrency, opt => opt.MapFrom(src => src.ItemCurrency))
-                .ForMember(dest => dest.ItemUnitCost, opt => opt.MapFrom(src => src.ItemUnitCost))
-                .ForMember(dest => dest.ItemMarginGain, opt => opt.MapFrom(src => src.ItemMarginGain))
-                .ForMember(dest => dest.ItemDiscount, opt => opt.MapFrom(src => src.ItemDiscount))
-                .ForMember(dest => dest.ItemAdditionalTax, opt => opt.MapFrom(src => src.ItemAdditionalTax))
-                .ForMember(dest => dest.ItemPrice, opt => opt.MapFrom(src => src.ItemPrice))
-                .ForMember(dest => dest.ItemStatus, opt => opt.MapFrom(src => src.ItemStatus))
-                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
-                .ForMember(dest => dest.ItemImage, opt => opt.MapFrom(src => src.ItemImage));
+            // =========================
+            // Category | Entity ↔ Domain model
+            // =========================
+            CreateMap<CategoryEntity, Category>();
+            CreateMap<Category, CategoryEntity>()
+                .ForMember(dest => dest.CategoryId, opt => opt.Ignore()) // ⚠️ evitar conflictos en Update
+                .ForMember(dest => dest.CatalogCategoryEntities, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
 
-            // Mapeo de PermissionDto a PermissionEntity
-            CreateMap<PermissionDto, PermissionEntity>()
-                .ForMember(dest => dest.PermissionName, opt => opt.MapFrom(src => src.PermissionName))
-                .ForMember(dest => dest.PermissionDescription, opt => opt.MapFrom(src => src.PermissionDescription));
+            // =========================
+            // Category | DTO ↔ Domain
+            // =========================
+            CreateMap<CategoryDto, Category>().ReverseMap();
 
-            // Mapeo de RoleDto a RoleEntity
-            CreateMap<RoleDto, RoleEntity>()
-                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.RoleName))
-                .ForMember(dest => dest.RoleDescription, opt => opt.MapFrom(src => src.RoleDescription))
-                .ForMember(dest => dest.RoleStatus, opt => opt.MapFrom(src => src.RoleStatus))
-                // Para la relación de permisos, se puede necesitar mapear la lista de IDs
-                // a la colección de RolePermissionEntities; en este ejemplo se omite ese mapping
+            // Create ↔ Domain
+            CreateMap<CategoryCreateDto, Category>();
+
+            // Update ↔ Domain
+            CreateMap<CategoryUpdateDto, Category>();
+
+            // =========================
+            // Catalog | DTO ↔ Entity
+            // =========================
+            CreateMap<CatalogEntity, CatalogDto>()
+                .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(
+                    src => src.CatalogCategoryEntities.Select(cc => cc.CategoryId)
+                ))
+                .ReverseMap()
+                .ForMember(dest => dest.CatalogCategoryEntities, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+
+            // =========================
+            // CatalogCategoryEntity → Category (usado en Catalog → Domain)
+            // =========================
+            CreateMap<CatalogCategoryEntity, Category>()
+                .ConvertUsing(src => new Category
+                {
+                    CategoryId = src.Category.CategoryId,
+                    CategoryName = src.Category.CategoryName,
+                    CategoryStatus = src.Category.CategoryStatus
+                });
+
+            // =========================
+            // Catalog | Entity ↔ Domain model
+            // =========================
+            CreateMap<CatalogEntity, Catalog>()
+    .ForMember(dest => dest.Categories, opt => opt.MapFrom(src =>
+        src.CatalogCategoryEntities
+            .Where(cc => cc.Category != null && !cc.Category.IsDeleted)
+            .Select(cc => new Category  // <--- aquí el mapeo manual
+            {
+                CategoryId = cc.Category.CategoryId,
+                CategoryName = cc.Category.CategoryName,
+                CategoryStatus = cc.Category.CategoryStatus
+            })
+    ));
+
+
+            CreateMap<Catalog, CatalogEntity>()
+                .ForMember(dest => dest.CatalogId, opt => opt.Ignore())
+                .ForMember(dest => dest.CatalogCategoryEntities, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+
+            // =========================
+            // Catalog | DTO ↔ Domain
+            // =========================
+            CreateMap<CatalogDto, Catalog>().ReverseMap();
+
+            // Create ↔ Domain
+            CreateMap<CatalogCreateDto, Catalog>()
+                .ForMember(dest => dest.Categories, opt => opt.Ignore()); // se cargan desde CategoryIds
+
+            // Update ↔ Domain
+            CreateMap<CatalogUpdateDto, Catalog>()
+                .ForMember(dest => dest.Categories, opt => opt.Ignore());
+
+            // Read (Domain → DTO)
+            CreateMap<Catalog, CatalogDto>()
+                .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(
+                    src => src.Categories.Select(c => c.CategoryId)
+                ));
+
+            // =========================
+            // Item | DTO ↔ Entity
+            // =========================
+            CreateMap<ItemEntity, ItemDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+
+            // =========================
+            // Item | Entity ↔ Domain model
+            // =========================
+            CreateMap<ItemEntity, Item>();
+            CreateMap<Item, ItemEntity>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+
+            // =========================
+            // Permission | DTO ↔ Entity
+            // =========================
+            CreateMap<PermissionEntity, PermissionDto>()
+                .IncludeBase<BaseEntity, BaseDto>()
+                .ReverseMap()
+                .IncludeBase<BaseDto, BaseEntity>();
+
+            // =========================
+            // Permission | Entity ↔ Domain model
+            // =========================
+            CreateMap<PermissionEntity, Permission>();
+            CreateMap<Permission, PermissionEntity>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.RolePermissionEntities, opt => opt.Ignore());
+
+            // =========================
+            // Role | DTO ↔ Entity
+            // =========================
+            CreateMap<RoleEntity, RoleDto>()
+                .IncludeBase<BaseEntity, BaseDto>()
+                .ForMember(dest => dest.PermissionIds, opt => opt.MapFrom(
+                    src => src.RolePermissionEntities.Select(rp => rp.PermissionId)
+                ))
+                .ReverseMap()
+                .IncludeBase<BaseDto, BaseEntity>();
+
+            // =========================
+            // Role | Entity ↔ Domain model
+            // =========================
+            CreateMap<RoleEntity, Role>();
+            CreateMap<Role, RoleEntity>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
                 .ForMember(dest => dest.RolePermissionEntities, opt => opt.Ignore())
-                // Igualmente, se ignoran otras propiedades de relación que se gestionan aparte.
                 .ForMember(dest => dest.UserRoleEntities, opt => opt.Ignore());
 
-            // Mapeo de UserDto a UserEntity
-            CreateMap<UserDto, UserEntity>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId.HasValue ? src.UserId.Value : 0))
-                .ForMember(dest => dest.UserFirstName, opt => opt.MapFrom(src => src.UserFirstName))
-                .ForMember(dest => dest.UserLastName, opt => opt.MapFrom(src => src.UserLastName))
-                // La propiedad UserEmail en el DTO se mapea a UserContactEmail en la entidad
-                .ForMember(dest => dest.UserContactEmail, opt => opt.MapFrom(src => src.UserEmail))
-                // Similarmente, UserPhone se mapea a UserContactNumber
-                .ForMember(dest => dest.UserContactNumber, opt => opt.MapFrom(src => src.UserPhone))
-                .ForMember(dest => dest.UserPassword, opt => opt.MapFrom(src => src.UserPassword))
-                .ForMember(dest => dest.UserStatus, opt => opt.MapFrom(src => src.UserStatus))
-                .ForMember(dest => dest.BranchId, opt => opt.MapFrom(src => src.BranchId))
-                // El mapeo de las relaciones de roles (UserRoleEntities) se deja pendiente de resolver
-                .ForMember(dest => dest.UserRoleEntities, opt => opt.Ignore());
+            // =========================
+            // User | DTO ↔ Entity
+            // =========================
+            CreateMap<UserEntity, UserDto>()
+                .IncludeBase<BaseEntity, BaseDto>()
+                .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(
+                    src => src.UserRoleEntities.Select(ur => ur.RoleId)
+                ))
+                .ReverseMap()
+                .IncludeBase<BaseDto, BaseEntity>()
+                .ForMember(dest => dest.UserRoleEntities, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+
+            // =========================
+            // User | Entity ↔ Domain model
+            // =========================
+            CreateMap<UserEntity, User>()
+                .ReverseMap()
+                .ForMember(dest => dest.UserRoleEntities, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+
+            // =========================
+            // User | DTO ↔ Domain
+            // =========================
+            CreateMap<UserDto, User>().ReverseMap();
+
+            // =========================
+            // Create ↔ Domain
+            // =========================
+            CreateMap<UserCreateDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // hash se genera en el Domain
+                .ForMember(dest => dest.PasswordSalt, opt => opt.Ignore())
+                .ForMember(dest => dest.Roles, opt => opt.Ignore()); // se cargan desde RoleIds
+
+            // =========================
+            // Update ↔ Domain
+            // =========================
+            CreateMap<UserUpdateDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.PasswordSalt, opt => opt.Ignore())
+                .ForMember(dest => dest.Roles, opt => opt.Ignore());
         }
     }
 }

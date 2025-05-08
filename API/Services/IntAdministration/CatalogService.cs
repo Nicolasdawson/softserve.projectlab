@@ -1,47 +1,59 @@
-﻿using API.Implementations.Domain;
-using API.Models;
-using softserve.projectlabs.Shared.DTOs;
+﻿using AutoMapper;
+using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.Utilities;
-using API.Models.IntAdmin;
+using API.Implementations.Domain;
+using softserve.projectlabs.Shared.DTOs.Catalog;
 
 namespace API.Services.IntAdmin
 {
     public class CatalogService : ICatalogService
     {
         private readonly CatalogDomain _catalogDomain;
-        public CatalogService(CatalogDomain catalogDomain)
+        private readonly IMapper _mapper;
+
+        public CatalogService(CatalogDomain catalogDomain, IMapper mapper)
         {
             _catalogDomain = catalogDomain;
+            _mapper = mapper;
         }
-        public async Task<Result<Catalog>> CreateCatalogAsync(CatalogDto catalogDto)
+
+        public async Task<Result<Catalog>> CreateCatalogAsync(CatalogCreateDto catalogDto)
         {
-            return await _catalogDomain.CreateCatalogAsync(catalogDto);
+            var domainModel = _mapper.Map<Catalog>(catalogDto); // ✅ DTO → Domain
+            return await _catalogDomain.CreateCatalogAsync(domainModel);
         }
-        public async Task<Result<Catalog>> UpdateCatalogAsync(int catalogId, CatalogDto catalogDto)
+
+        public async Task<Result<Catalog>> UpdateCatalogAsync(int catalogId, CatalogUpdateDto catalogDto)
         {
-            return await _catalogDomain.UpdateCatalogAsync(catalogId, catalogDto);
+            var domainModel = _mapper.Map<Catalog>(catalogDto);
+            return await _catalogDomain.UpdateCatalogAsync(catalogId, domainModel);
         }
-        public async Task<Result<Catalog>> GetCatalogByIdAsync(int catalogId)
+
+        public Task<Result<Catalog>> GetCatalogByIdAsync(int catalogId)
         {
-            return await _catalogDomain.GetCatalogByIdAsync(catalogId);
+            return _catalogDomain.GetCatalogByIdAsync(catalogId);
         }
-        public async Task<Result<List<Catalog>>> GetAllCatalogsAsync()
+
+        public Task<Result<List<Catalog>>> GetAllCatalogsAsync()
         {
-            return await _catalogDomain.GetAllCatalogsAsync();
+            return _catalogDomain.GetAllCatalogsAsync();
         }
-        public async Task<Result<bool>> DeleteCatalogAsync(int catalogId)
+
+        public Task<Result<bool>> DeleteCatalogAsync(int catalogId)
         {
-            return await _catalogDomain.DeleteCatalogAsync(catalogId);
+            return _catalogDomain.DeleteCatalogAsync(catalogId);
         }
-        public async Task<Result<bool>> AddCategoriesToCatalogAsync(int catalogId, List<int> categoryIds)
+
+        public Task<Result<bool>> AddCategoriesToCatalogAsync(int catalogId, List<int> categoryIds)
         {
-            return await _catalogDomain.AddCategoriesToCatalogAsync(catalogId, categoryIds);
+            return _catalogDomain.AddCategoriesToCatalogAsync(catalogId, categoryIds);
         }
-        public async Task<Result<bool>> RemoveCategoryFromCatalogAsync(int catalogId, int categoryId)
+
+        public Task<Result<bool>> RemoveCategoryFromCatalogAsync(int catalogId, int categoryId)
         {
-            return await _catalogDomain.RemoveCategoryFromCatalogAsync(catalogId, categoryId);
+            return _catalogDomain.RemoveCategoryFromCatalogAsync(catalogId, categoryId);
         }
     }
 }

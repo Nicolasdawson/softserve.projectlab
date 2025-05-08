@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace API.Data.Entities;
 
-public partial class ItemEntity
+public partial class ItemEntity : BaseEntity
 {
     public int ItemId { get; set; }
 
@@ -35,11 +35,6 @@ public partial class ItemEntity
 
     public string? ItemImage { get; set; }
 
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime UpdatedAt { get; set; }
-
-    public bool IsDeleted { get; set; }
 
     public virtual ICollection<CartItemEntity> CartItemEntities { get; set; } = new List<CartItemEntity>();
 
