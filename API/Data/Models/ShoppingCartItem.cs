@@ -8,13 +8,13 @@ namespace API.Data.Models
         public int Id { get; set; }
 
         [Required]
-        public double Price { get; set; }
+        public decimal Price { get; set; }
 
         [Required]
         public int Qty { get; set; }
 
         [Required]
-        public double TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
 
         [Required]
         public int ProductId { get; set; }

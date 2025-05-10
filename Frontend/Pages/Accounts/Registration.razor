@@ -1,0 +1,112 @@
+﻿@page "/registration"
+@using System.Text.Json
+@using System.Text
+@using System.Net
+@inject NavigationManager _navigationManager
+@inject IHttpClientFactory _httpClientFactory
+
+<div class="ma-6 d-flex justify-center">
+    <h3>Crea tu cuenta</h3>
+</div>
+
+<div class="ma-6 d-flex justify-center">
+    <MudCard width = "500px">
+        <MudForm Model="registrationModel" @ref="form" Validation="validationModel.ValidateValue">
+            <MudCardContent>
+                @if (!string.IsNullOrEmpty(APIErrorMessages))
+                {
+                    <MudAlert Severity="MudBlazor.Severity.Error" Variant="Variant.Outlined" Class="mb-6">
+                        @APIErrorMessages
+                    </MudAlert>
+                }
+                @if (success)
+                {
+                    <MudAlert Severity="MudBlazor.Severity.Success" Variant="Variant.Outlined" Class="mb-6">
+                       Registration Success. Please Login!
+                    </MudAlert>
+                }
+                <MudTextField @bind-Value="registrationModel.Name" 
+                For="@(() => registrationModel.Name)"
+                Inmediate ="true"
+                Label ="Name" />
+                <MudTextField @bind-Value="registrationModel.Email"
+                For="@(() => registrationModel.Email)"
+                Inmediate="true"
+                Label="Email" />
+                <MudTextField @bind-Value="registrationModel.Password"
+                For="@(() => registrationModel.Password)"
+                Inmediate="true"
+                Label="Password" InputType="InputType.Password"/>
+                <MudTextField @bind-Value="registrationModel.ConfirmPassword"
+                For="@(() => registrationModel.ConfirmPassword)"
+                Inmediate="true"
+                Label="Confirm Password" InputType="InputType.Password" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="RegisterAsync" >Register</MudButton>
+            </MudCardActions>
+        </MudForm>
+    </MudCard>
+</div>
+
+
+@code {
+    RegistrationVM registrationModel = new RegistrationVM();
+
+    RegistrationValidationVM validationModel = new RegistrationValidationVM();
+
+    MudForm form;
+
+    string APIErrorMessages;
+
+    bool success = false;
+
+    private async Task RegisterAsync()
+    {
+        APIErrorMessages = null;
+        success = false;
+
+        await form.Validate();
+        if (form.IsValid)
+        {
+            // Call your registration API here
+            var jsonPayLoad = JsonSerializer.Serialize(registrationModel);
+            var requestContent = new StringContent(jsonPayLoad, Encoding.UTF8, "application/json");
+            var httpClient = _httpClientFactory.CreateClient("ApiEcommerce");
+            var response = await httpClient.PostAsync("/api/Users/Register", requestContent);
+
+            if(response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>();
+                if (errors.Count>0)
+                {
+                    foreach (var item in errors)
+                    {
+                        foreach (var errorMessage in item.Value)
+                        {
+                            APIErrorMessages = $"{APIErrorMessages} {errorMessage}";
+                        }
+                    }
+                }
+            }
+
+            else if (response.StatusCode == HttpStatusCode.OK)
+            {
+                //_navigationManager.NavigateTo
+                success = true;
+                StateHasChanged();
+                await Task.Delay(3000);
+                _navigationManager.NavigateTo("/");
+
+            }
+
+            else
+
+            {
+                APIErrorMessages = "An error occurred while processing your request.";
+            }
+
+        }
+
+    }
+}

@@ -23,7 +23,7 @@ namespace API.Data.Models
         public string ImageUrl { get; set; }
 
         [Required]
-        public double Price { get; set; }
+        public decimal Price { get; set; }
 
         [Required]
         public bool IsTrending { get; set; } = false;
@@ -36,6 +36,7 @@ namespace API.Data.Models
 
         [Required]
         public int CategoryId { get; set; }
+        public Category Category { get; set; }
 
         [NotMapped]
         public IFormFile Image { get; set; }

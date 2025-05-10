@@ -1,4 +1,24 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿<link href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" rel="stylesheet">
+
+
+<MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
+    <MudNavMenu Class="mud-width-full">
+        <MudNavLink Href="" Icon="@Icons.Material.Filled.Dashboard">home</MudNavLink>
+        <MudNavLink Href="/counter" Icon="@Icons.Material.Filled.Storage">counter</MudNavLink>
+        <AuthorizeView>
+            <Authorized>
+                <AuthorizeView Roles="Admin" Context="roleContext">
+                    <Authorized>
+                        <MudNavLink Href="/orders" Icon="@Icons.Material.Filled.ShoppingCart">Ordenes</MudNavLink>     
+                      </Authorized>
+                </AuthorizeView>
+                @* <MudNavLink Href="/orders" Icon="@Icons.Material.Filled.ShoppingCart">Ordenes</MudNavLink> *@
+            </Authorized>
+        </AuthorizeView> 
+    </MudNavMenu>
+</MudPaper>
+
+@* <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Frontend</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -37,4 +57,4 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-}
+} *@

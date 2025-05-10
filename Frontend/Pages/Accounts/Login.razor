@@ -1,0 +1,130 @@
+﻿@page "/login"
+@using System.Text.Json
+@using System.Text
+@using System.Net
+@using Frontend.Layout.Providers
+@using System.Security.Claims
+@inject IHttpClientFactory _httpClientFactory
+@inject ILocalStorageService _localStorageService;
+@inject AuthenticationStateProvider _authenticationStateProvider;
+@inject NavigationManager _navigationManager
+
+<div class="ma-6 d-flex justify-center">
+    <h3>Iniciar Sesión</h3>
+</div>
+
+<div class="ma-6 d-flex justify-center">
+    <MudCard width="500px">
+        <MudForm Model="loginModel" @ref="form" Validation="validationModel.ValidateValue">
+            <MudCardContent>
+                @if (!string.IsNullOrEmpty(APIErrorMessages))
+                {
+                    <MudAlert Severity="MudBlazor.Severity.Error" Variant="Variant.Outlined" Class="mb-6">
+                        @APIErrorMessages
+                    </MudAlert>
+                }
+                @if (success)
+                {
+                    <MudAlert Severity="MudBlazor.Severity.Success" Variant="Variant.Outlined" Class="mb-6">
+                        Login Success!
+                    </MudAlert>
+                }
+                <MudTextField @bind-Value="loginModel.Email"
+                For="@(() => loginModel.Email)"
+                Inmediate="true"
+                Label="Email" />
+                <MudTextField @bind-Value="loginModel.Password"
+                For="@(() => loginModel.Password)"
+                Inmediate="true"
+                Label="Password" InputType="InputType.Password" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="LoginAsync">Iniciar Sesion</MudButton>
+            </MudCardActions>
+        </MudForm>
+    </MudCard>
+</div>
+
+
+@code {
+    LoginVM loginModel = new LoginVM();
+
+    LoginValidationVm validationModel = new LoginValidationVm();
+
+    MudForm form;
+
+    string APIErrorMessages;
+
+    bool success = false;
+
+    private async Task LoginAsync ()
+    {
+        APIErrorMessages = null;
+        success = false;
+
+        await form.Validate();
+
+        if(form.IsValid)
+        {
+            // Call your registration API here
+            var jsonPayLoad = JsonSerializer.Serialize(loginModel);
+            var requestContent = new StringContent(jsonPayLoad, Encoding.UTF8, "application/json");
+            var httpClient = _httpClientFactory.CreateClient("ApiEcommerce");
+            var response = await httpClient.PostAsync("/api/Users/login", requestContent);
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>();
+                if (errors.Count > 0)
+                {
+                    foreach (var item in errors)
+                    {
+                        foreach (var errorMessage in item.Value)
+                        {
+                            APIErrorMessages = $"{APIErrorMessages} {errorMessage}";
+                        }
+                    }
+                }
+            }
+
+            else if (response.StatusCode == HttpStatusCode.OK)
+            {
+                //_navigationManager.NavigateTo
+                success = true;
+                var tokenResponse = await response.Content.ReadFromJsonAsync<JwtTokenResponseVm>();
+                await _localStorageService.SetItemAsync<string>("jwt-access-token", tokenResponse.AccessToken);
+                (_authenticationStateProvider as CustomAuthProvider).NotifyAuthState();
+
+                // Obtener el estado de autenticación para extraer el rol
+                var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+                var role = user.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+                // Redirigir según el rol
+                if (role == "Admin")
+                {
+                    _navigationManager.NavigateTo("/orders");
+                }
+                else if (role == "User")
+                {
+                    _navigationManager.NavigateTo("/");
+                }
+                else
+                {
+                    // Si el rol no es reconocido, redirigir a una página por defecto
+                    _navigationManager.NavigateTo("/counter");
+                }
+                
+ 
+                // _navigationManager.NavigateTo("/");
+
+            }
+
+            else
+
+            {
+                APIErrorMessages = "Login Failed";
+            }
+        }
+    }
+}

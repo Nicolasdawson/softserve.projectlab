@@ -50,15 +50,15 @@ namespace API.Data.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<DateTime>("OrderPlaced")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("OrderTotal")
+                    b.Property<decimal>("OrderTotal")
                         .HasMaxLength(200)
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -81,8 +81,8 @@ namespace API.Data.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -90,8 +90,8 @@ namespace API.Data.Migrations
                     b.Property<int>("Qty")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalAmount")
-                        .HasColumnType("float");
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -137,8 +137,8 @@ namespace API.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -155,8 +155,8 @@ namespace API.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -164,8 +164,8 @@ namespace API.Data.Migrations
                     b.Property<int>("Qty")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalAmount")
-                        .HasColumnType("float");
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
