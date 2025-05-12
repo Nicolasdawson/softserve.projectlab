@@ -1,8 +1,8 @@
-﻿using softserve.projectlabs.Shared.DTOs;
-using API.Models.IntAdmin;
+﻿using API.Models.IntAdmin;
 using API.Services.IntAdmin;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using softserve.projectlabs.Shared.DTOs.Role;
 
 namespace API.Controllers.IntAdmin
 {

@@ -1,9 +1,9 @@
 ﻿using API.Data;
 using API.Data.Entities;
-using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
 using Microsoft.EntityFrameworkCore;
 using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.DTOs.Item;
 
 namespace API.Implementations.Domain
 {

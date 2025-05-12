@@ -3,6 +3,7 @@ using API.Models.IntAdmin;
 using API.Models.Logistics;
 using AutoMapper;
 using softserve.projectlabs.Shared.DTOs;
+using softserve.projectlabs.Shared.DTOs.Item;
 
 public class LogisticsMapping : Profile
 {
