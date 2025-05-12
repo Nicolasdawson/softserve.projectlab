@@ -106,6 +106,16 @@ public class LogisticsMapping : Profile
         // Map OrderDto to Order (domain model)
         CreateMap<OrderDto, Order>()
             .ConstructUsing(src => new Order(src));
+
+        CreateMap<OrderEntity, OrderDto>()
+    .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderItemEntities));
+        CreateMap<OrderItemEntity, OrderItemDto>();
+        CreateMap<OrderDto, OrderEntity>()
+    .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.CustomerId))
+    .ForMember(dest => dest.OrderItemEntities, opt => opt.MapFrom(src => src.Items));
+
+        CreateMap<OrderItemDto, OrderItemEntity>();
+
     }
 }
 

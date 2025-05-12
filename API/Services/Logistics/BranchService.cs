@@ -19,12 +19,6 @@ namespace API.Services.Logistics
 
         public async Task<Result<BranchDto>> AddBranchAsync(BranchDto branchDto)
         {
-            var existingBranch = await _branchDomain.GetBranchByNameAndCityAsync(branchDto.BranchName, branchDto.BranchCity);
-            if (existingBranch != null)
-            {
-                return Result<BranchDto>.Failure($"A branch with the name '{branchDto.BranchName}' already exists in the city '{branchDto.BranchCity}'.");
-            }
-
             var result = await _branchDomain.CreateBranchAsync(branchDto);
 
             if (!result.IsSuccess)
@@ -35,6 +29,7 @@ namespace API.Services.Logistics
 
             return Result<BranchDto>.Success(branchData);
         }
+
 
 
         public async Task<Result<BranchDto>> UpdateBranchAsync(BranchDto branchDto)

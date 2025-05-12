@@ -19,6 +19,13 @@ namespace API.Implementations.Domain
         {
             try
             {
+                // Check if a branch with the same name and city already exists
+                var existingBranch = await _branchRepository.GetByNameAndCityAsync(branchDto.BranchName, branchDto.BranchCity);
+                if (existingBranch != null)
+                {
+                    return Result<Branch>.Failure("A branch with the same name and city already exists.");
+                }
+
                 var branchEntity = new BranchEntity
                 {
                     BranchName = branchDto.BranchName,
@@ -52,35 +59,6 @@ namespace API.Implementations.Domain
             catch (Exception ex)
             {
                 return Result<Branch>.Failure($"Failed to create branch: {ex.Message}");
-            }
-        }
-
-        public async Task<Result<Branch>> GetBranchByNameAndCityAsync(string name, string city)
-        {
-            try
-            {
-                var branchEntity = await _branchRepository.GetByNameAndCityAsync(name, city);
-                if (branchEntity == null)
-                    return Result<Branch>.Failure("Branch not found.");
-
-                var branchDto = new BranchDto
-                {
-                    BranchId = branchEntity.BranchId,
-                    BranchName = branchEntity.BranchName,
-                    BranchCity = branchEntity.BranchCity,
-                    BranchRegion = branchEntity.BranchRegion,
-                    BranchContactNumber = branchEntity.BranchContactNumber,
-                    BranchContactEmail = branchEntity.BranchContactEmail,
-                    BranchAddress = branchEntity.BranchAddress
-                };
-
-                var branch = new Branch(branchDto);
-
-                return Result<Branch>.Success(branch);
-            }
-            catch (Exception ex)
-            {
-                return Result<Branch>.Failure($"Failed to retrieve branch: {ex.Message}");
             }
         }
 

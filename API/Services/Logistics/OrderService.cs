@@ -36,23 +36,41 @@ namespace API.Services.OrderService
             return Result<OrderDto>.Success(orderData);
         }
 
+        public async Task<Result<OrderDto>> RetrieveOrderByCartIdAsync(int cartId)
+        {
+            var result = await _orderDomain.RetrieveOrderByCartId(cartId);
+
+            if (!result.IsSuccess)
+                return Result<OrderDto>.Failure(result.ErrorMessage);
+
+            return Result<OrderDto>.Success(result.Data.GetOrderData());
+        }
+
         public async Task<Result<List<OrderDto>>> GetAllOrdersAsync()
         {
-            var result = await _orderDomain.GetAllOrders(_context, _mapper);
+            var result = await _orderDomain.GetAllOrders();
 
             if (!result.IsSuccess)
                 return Result<List<OrderDto>>.Failure(result.ErrorMessage);
 
-            var orderDtos = result.Data.Select(order => order.GetOrderData()).ToList();
+            var orderDtos = result.Data.Select(order => _mapper.Map<OrderDto>(order.GetOrderData())).ToList();
 
             return Result<List<OrderDto>>.Success(orderDtos);
         }
 
+        public async Task<Result<bool>> RetrieveAndSaveAllUnsavedOrdersAsync()
+        {
+            var result = await _orderDomain.RetrieveAndSaveAllUnsavedOrders();
+
+            if (!result.IsSuccess)
+                return Result<bool>.Failure(result.ErrorMessage);
+
+            return Result<bool>.Success(true);
+        }
+
         public async Task<Result<OrderDto>> UpdateOrderAsync(OrderDto orderDto)
         {
-            var order = new Order(orderDto);
-
-            var result = await _orderDomain.UpdateOrder(order);
+            var result = await _orderDomain.UpdateOrderFromCart(orderDto.OrderId);
 
             if (!result.IsSuccess)
                 return Result<OrderDto>.Failure(result.ErrorMessage);
@@ -67,23 +85,14 @@ namespace API.Services.OrderService
             return await _orderDomain.DeleteOrder(orderId);
         }
 
-        public async Task<Result<OrderDto>> RetrieveOrderByCartIdAsync(int cartId)
+        public async Task<Result<bool>> SaveUnsavedOrdersAsync()
         {
-            var cart = await _context.CartEntities
-                .Include(c => c.CartItemEntities)
-                .ThenInclude(ci => ci.SkuNavigation) // Ensure SkuNavigation is loaded
-                .FirstOrDefaultAsync(c => c.CartId == cartId);
-
-
-            if (cart == null)
-                return Result<OrderDto>.Failure("Cart not found.");
-
-            var result = await _orderDomain.RetrieveOrderByCartId(cartId, cart);
+            var result = await _orderDomain.SaveUnsavedOrders();
 
             if (!result.IsSuccess)
-                return Result<OrderDto>.Failure(result.ErrorMessage);
+                return Result<bool>.Failure(result.ErrorMessage);
 
-            return Result<OrderDto>.Success(result.Data.GetOrderData());
+            return Result<bool>.Success(true);
         }
 
         public async Task<Result<bool>> FulfillOrderAsync(int orderId)

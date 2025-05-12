@@ -54,7 +54,10 @@ namespace API.Data.Repositories.LogisticsRepositories
         public async Task<BranchEntity?> GetByNameAndCityAsync(string name, string city)
         {
             return await _context.BranchEntities
-                .FirstOrDefaultAsync(b => b.BranchName == name && b.BranchCity == city && !b.IsDeleted);
+                .Where(b => !b.IsDeleted &&
+                            b.BranchName.ToLower() == name.ToLower() &&
+                            b.BranchCity.ToLower() == city.ToLower())
+                .FirstOrDefaultAsync();
         }
     }
 }
