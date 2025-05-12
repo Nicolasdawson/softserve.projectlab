@@ -1,70 +1,57 @@
-﻿using API.Models.Logistics.Interfaces;
-using softserve.projectlabs.Shared.Utilities;
-using softserve.projectlabs.Shared.DTOs;
-
-namespace API.Models.Logistics
+﻿namespace API.Models.Logistics
 {
-    public class Branch : IBranch
+    public class Branch
     {
-        private readonly BranchDto _branchDto;
+        public int BranchId { get; private set; }
+        public string BranchName { get; private set; }
+        public string BranchCity { get; private set; }
+        public string BranchRegion { get; private set; }
+        public string BranchAddress { get; private set; }
+        public string BranchContactNumber { get; private set; }
+        public string BranchContactEmail { get; private set; }
+        public DateTime CreatedAt { get; private set; }
+        public DateTime UpdatedAt { get; private set; }
+        public bool IsDeleted { get; private set; }
 
-        public Branch(BranchDto branchDto)
+        public Branch(
+            int branchId,
+            string branchName,
+            string branchCity,
+            string branchRegion,
+            string branchAddress,
+            string branchContactNumber,
+            string branchContactEmail,
+            DateTime createdAt,
+            DateTime updatedAt,
+            bool isDeleted = false)
         {
-            _branchDto = branchDto;
+            BranchId = branchId;
+            BranchName = branchName;
+            BranchCity = branchCity;
+            BranchRegion = branchRegion;
+            BranchAddress = branchAddress;
+            BranchContactNumber = branchContactNumber;
+            BranchContactEmail = branchContactEmail;
+            CreatedAt = createdAt;
+            UpdatedAt = updatedAt;
+            IsDeleted = isDeleted;
         }
 
-        public BranchDto GetBranchData() => _branchDto;
-
-        public Result<IBranch> AddBranch(IBranch branch)
+        public void UpdateDetails(string name, string city, string region, string address, string contactNumber, string contactEmail)
         {
-            return Result<IBranch>.Success(branch);
+            BranchName = name;
+            BranchCity = city;
+            BranchRegion = region;
+            BranchAddress = address;
+            BranchContactNumber = contactNumber;
+            BranchContactEmail = contactEmail;
+            UpdatedAt = DateTime.UtcNow;
         }
 
-        public Result<IBranch> UpdateBranch(IBranch branch)
+        public void MarkAsDeleted()
         {
-            return Result<IBranch>.Success(branch);
-        }
-
-        public Result<IBranch> GetBranchById(int branchId)
-        {
-            var branch = new Branch(new BranchDto
-            {
-                BranchId = branchId,
-                BranchName = "Main Branch",
-                BranchCity = "New York",
-                BranchRegion = "NY",
-                BranchContactNumber = "555-1234"
-            });
-            return Result<IBranch>.Success(branch);
-        }
-
-        public Result<List<IBranch>> GetAllBranches()
-        {
-            var branches = new List<IBranch>
-            {
-                new Branch(new BranchDto
-                {
-                    BranchId = 1,
-                    BranchName = "Main Branch",
-                    BranchCity = "New York",
-                    BranchRegion = "NY",
-                    BranchContactNumber = "555-1234"
-                }),
-                new Branch(new BranchDto
-                {
-                    BranchId = 2,
-                    BranchName = "Secondary Branch",
-                    BranchCity = "Los Angeles",
-                    BranchRegion = "CA",
-                    BranchContactNumber = "555-5678"
-                })
-            };
-            return Result<List<IBranch>>.Success(branches);
-        }
-
-        public Result<bool> RemoveBranch(int branchId)
-        {
-            return Result<bool>.Success(true); 
+            IsDeleted = true;
+            UpdatedAt = DateTime.UtcNow;
         }
     }
 }

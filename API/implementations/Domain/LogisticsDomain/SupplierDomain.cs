@@ -1,44 +1,29 @@
 ﻿using API.Data.Entities;
+using API.Data.Repositories.IntAdministrationRepository.Interfaces;
 using API.Data.Repositories.LogisticsRepositories.Interfaces;
-using API.Models;
-using API.Models.IntAdmin;
-using Logistics.Models;
-using softserve.projectlabs.Shared.DTOs;
+using API.Models.Logistics;
 using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Implementations.Domain
 {
-    
     public class SupplierDomain
     {
         private readonly ISupplierRepository _supplierRepository;
+        private readonly IItemRepository _itemRepository;
 
-        public SupplierDomain(ISupplierRepository supplierRepository)
+        public SupplierDomain(ISupplierRepository supplierRepository, IItemRepository itemRepository)
         {
             _supplierRepository = supplierRepository;
+            _itemRepository = itemRepository;
         }
 
         public async Task<Result<Supplier>> CreateSupplier(Supplier supplier)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(supplier.GetSupplierData().Name))
-                {
-                    return Result<Supplier>.Failure("Supplier name cannot be empty.");
-                }
-
-                var supplierEntity = new SupplierEntity
-                {
-                    SupplierName = supplier.GetSupplierData().Name,
-                    SupplierAddress = supplier.GetSupplierData().Address,
-                    SupplierContactNumber = supplier.GetSupplierData().ContactNumber,
-                    SupplierContactEmail = supplier.GetSupplierData().ContactEmail,
-                    IsDeleted = false
-                };
-
-                await _supplierRepository.AddAsync(supplierEntity);
-
-                return Result<Supplier>.Success(supplier);
+                var entity = supplier.ToEntity();
+                await _supplierRepository.AddAsync(entity);
+                return Result<Supplier>.Success(entity.ToDomain());
             }
             catch (Exception ex)
             {
@@ -50,25 +35,15 @@ namespace API.Implementations.Domain
         {
             try
             {
-                var supplierEntity = await _supplierRepository.GetByIdAsync(supplierId);
-                if (supplierEntity == null)
+                var entity = await _supplierRepository.GetByIdAsync(supplierId);
+                if (entity == null)
                     return Result<Supplier>.Failure("Supplier not found.");
 
-                var supplierDto = new SupplierDto
-                {
-                    SupplierId = supplierEntity.SupplierId,
-                    Name = supplierEntity.SupplierName,
-                    Address = supplierEntity.SupplierAddress,
-                    ContactNumber = supplierEntity.SupplierContactNumber,
-                    ContactEmail = supplierEntity.SupplierContactEmail
-                };
-
-                var supplier = new Supplier(supplierDto);
-                return Result<Supplier>.Success(supplier);
+                return Result<Supplier>.Success(entity.ToDomain());
             }
             catch (Exception ex)
             {
-                return Result<Supplier>.Failure($"Failed to retrieve supplier: {ex.Message}");
+                return Result<Supplier>.Failure($"Failed to get supplier: {ex.Message}");
             }
         }
 
@@ -76,21 +51,8 @@ namespace API.Implementations.Domain
         {
             try
             {
-                var supplierEntities = await _supplierRepository.GetAllAsync();
-                var suppliers = supplierEntities.Select(entity =>
-                {
-                    var supplierDto = new SupplierDto
-                    {
-                        SupplierId = entity.SupplierId,
-                        Name = entity.SupplierName,
-                        Address = entity.SupplierAddress,
-                        ContactNumber = entity.SupplierContactNumber,
-                        ContactEmail = entity.SupplierContactEmail
-                    };
-
-                    return new Supplier(supplierDto);
-                }).ToList();
-
+                var entities = await _supplierRepository.GetAllAsync();
+                var suppliers = entities.Select(e => e.ToDomain()).ToList();
                 return Result<List<Supplier>>.Success(suppliers);
             }
             catch (Exception ex)
@@ -99,28 +61,23 @@ namespace API.Implementations.Domain
             }
         }
 
-        public async Task<Result<Supplier>> UpdateSupplier(Supplier existingSupplier, Supplier updatedSupplier)
+        public async Task<Result<Supplier>> UpdateSupplier(Supplier updatedSupplier)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(updatedSupplier.GetSupplierData().Name))
-                {
-                    return Result<Supplier>.Failure("Supplier name cannot be empty.");
-                }
+                var entity = await _supplierRepository.GetByIdAsync(updatedSupplier.SupplierId);
+                if (entity == null)
+                    return Result<Supplier>.Failure("Supplier not found.");
 
-                var supplierEntity = new SupplierEntity
-                {
-                    SupplierId = existingSupplier.GetSupplierData().SupplierId,
-                    SupplierName = updatedSupplier.GetSupplierData().Name,
-                    SupplierAddress = updatedSupplier.GetSupplierData().Address,
-                    SupplierContactNumber = updatedSupplier.GetSupplierData().ContactNumber,
-                    SupplierContactEmail = updatedSupplier.GetSupplierData().ContactEmail,
-                    IsDeleted = false
-                };
+                entity.SupplierName = updatedSupplier.Name;
+                entity.SupplierContactNumber = updatedSupplier.ContactNumber;
+                entity.SupplierContactEmail = updatedSupplier.ContactEmail;
+                entity.SupplierAddress = updatedSupplier.Address;
+                entity.UpdatedAt = DateTime.UtcNow;
 
-                await _supplierRepository.UpdateAsync(supplierEntity);
+                await _supplierRepository.UpdateAsync(entity);
 
-                return Result<Supplier>.Success(updatedSupplier);
+                return Result<Supplier>.Success(entity.ToDomain());
             }
             catch (Exception ex)
             {
@@ -141,17 +98,32 @@ namespace API.Implementations.Domain
             }
         }
 
-        public Result<bool> ValidateAddItemToSupplier(Supplier supplier, Item item, int quantity)
+        public async Task<bool> SupplierHasItem(int supplierId, int sku)
         {
+            return await _supplierRepository.SupplierHasItem(supplierId, sku);
+            throw new NotImplementedException();
+        }
+
+        public async Task<Result<bool>> LinkItemToSupplier(int supplierId, int sku)
+        {
+            // Validate supplier existence
+            var supplier = await _supplierRepository.GetByIdAsync(supplierId);
             if (supplier == null)
-                return Result<bool>.Failure("Supplier does not exist.");
+                return Result<bool>.Failure("Supplier not found.");
 
+            
+            var item = await _itemRepository.GetBySkuAsync(sku);
             if (item == null)
-                return Result<bool>.Failure("Item does not exist.");
+                return Result<bool>.Failure("Item not found.");
 
-            if (quantity <= 0)
-                return Result<bool>.Failure("Quantity must be greater than zero.");
+            // Check if link already exists
+            var linkExists = await SupplierHasItem(supplierId, sku);
+            if (linkExists)
+                return Result<bool>.Failure("Item is already linked to this supplier.");
 
+            await _supplierRepository.LinkItemToSupplier(supplierId, sku);
+
+            // For now, return success as a placeholder
             return Result<bool>.Success(true);
         }
     }

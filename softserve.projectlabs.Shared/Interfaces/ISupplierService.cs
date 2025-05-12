@@ -11,7 +11,7 @@ namespace softserve.projectlabs.Shared.Interfaces
         Task<Result<List<SupplierDto>>> GetAllSuppliersAsync();
         Task<Result<SupplierDto>> UpdateSupplierAsync(SupplierDto supplier);
         Task<Result<bool>> DeleteSupplierAsync(int supplierId);
-        Task<Result<bool>> AddItemToSupplierAsync(int supplierId, int sku, int quantity);
+        Task<Result<bool>> AddItemToSupplierAsync(int supplierId, int sku);
         Task<Result<bool>> UndeleteSupplierAsync(int supplierId);
 
 

@@ -49,5 +49,23 @@ namespace API.Data.Repositories.LogisticsRepositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<bool> SupplierHasItem(int supplierId, int sku)
+        {
+            return await _context.SupplierItemEntities
+                .AnyAsync(si => si.SupplierId == supplierId && si.Sku == sku);
+        }
+
+        public async Task LinkItemToSupplier(int supplierId, int sku)
+        {
+            var entity = new SupplierItemEntity
+            {
+                SupplierId = supplierId,
+                Sku = sku
+            };
+            _context.SupplierItemEntities.Add(entity);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

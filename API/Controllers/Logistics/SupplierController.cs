@@ -1,6 +1,4 @@
-﻿using API.Services.Logistics;
-using Logistics.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using softserve.projectlabs.Shared.DTOs;
 using AutoMapper;
 using softserve.projectlabs.Shared.Interfaces;
@@ -125,7 +123,7 @@ namespace API.Controllers.Logistics
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _supplierService.AddItemToSupplierAsync(supplierId, dto.Sku, dto.Quantity);
+            var result = await _supplierService.AddItemToSupplierAsync(supplierId, dto.Sku);
             return result.IsSuccess ? Ok(new { Message = "Item successfully added to supplier." }) : BadRequest(result.ErrorMessage);
         }
     }
