@@ -12,5 +12,6 @@ namespace softserve.projectlabs.Shared.Interfaces
         Task<Result<bool>> DeleteOrderAsync(int orderId);
         Task<Result<OrderDto>> RetrieveOrderByCartIdAsync(int cartId);
         Task<Result<bool>> FulfillOrderAsync(int orderId);
+        Task<Result<bool>> RetrieveAndSaveAllUnsavedOrdersAsync();
     }
 }

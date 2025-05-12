@@ -21,8 +21,6 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using API.Services;
 using softserve.projectlabs.Shared.DTOs;
 using API.Data.Repositories.LogisticsRepositories;
