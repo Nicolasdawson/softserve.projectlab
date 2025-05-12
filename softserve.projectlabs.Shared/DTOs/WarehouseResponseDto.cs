@@ -1,4 +1,6 @@
-﻿namespace softserve.projectlabs.Shared.DTOs
+﻿using softserve.projectlabs.Shared.DTOs.Item;
+
+namespace softserve.projectlabs.Shared.DTOs
 {
     public class WarehouseResponseDto
     {
