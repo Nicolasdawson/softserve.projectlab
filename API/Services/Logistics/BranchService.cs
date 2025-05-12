@@ -1,10 +1,8 @@
 ﻿using API.Implementations.Domain;
 using API.Models.Logistics;
-using API.Data.Entities;
-using API.Models;
 using softserve.projectlabs.Shared.Utilities;
-using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.DTOs;
+using softserve.projectlabs.Shared.Interfaces;
 
 namespace API.Services.Logistics
 {
@@ -24,30 +22,24 @@ namespace API.Services.Logistics
             if (!result.IsSuccess)
                 return Result<BranchDto>.Failure(result.ErrorMessage, result.ErrorCode);
 
-            // Use GetBranchData() to retrieve BranchDto
-            var branchData = result.Data.GetBranchData();
+            var branchData = result.Data.ToDto();
 
             return Result<BranchDto>.Success(branchData);
         }
 
-
-
         public async Task<Result<BranchDto>> UpdateBranchAsync(BranchDto branchDto)
         {
-            // Create a new Branch instance using BranchDto
-            var branch = new Branch(branchDto);
+            var branch = branchDto.ToDomain();
 
             var result = await _branchDomain.UpdateBranch(branch);
 
             if (!result.IsSuccess)
                 return Result<BranchDto>.Failure(result.ErrorMessage);
 
-            // Use GetBranchData() to retrieve BranchDto
-            var updatedBranchData = result.Data.GetBranchData();
+            var updatedBranchData = result.Data.ToDto();
 
             return Result<BranchDto>.Success(updatedBranchData);
         }
-
 
         public async Task<Result<BranchDto>> GetBranchByIdAsync(int branchId)
         {
@@ -56,12 +48,10 @@ namespace API.Services.Logistics
             if (!result.IsSuccess)
                 return Result<BranchDto>.Failure(result.ErrorMessage);
 
-            // Use GetBranchData() to retrieve BranchDto
-            var branchData = result.Data.GetBranchData();
+            var branchData = result.Data.ToDto();
 
             return Result<BranchDto>.Success(branchData);
         }
-
 
         public async Task<Result<List<BranchDto>>> GetAllBranchesAsync()
         {
@@ -70,12 +60,10 @@ namespace API.Services.Logistics
             if (!result.IsSuccess)
                 return Result<List<BranchDto>>.Failure(result.ErrorMessage);
 
-            // Use GetBranchData() to map List<Branch> to List<BranchDto>
-            var branchDtos = result.Data.Select(branch => branch.GetBranchData()).ToList();
+            var branchDtos = result.Data.Select(branch => branch.ToDto()).ToList();
 
             return Result<List<BranchDto>>.Success(branchDtos);
         }
-
 
         public async Task<Result<bool>> RemoveBranchAsync(int branchId)
         {

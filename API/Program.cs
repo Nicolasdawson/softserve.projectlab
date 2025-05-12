@@ -2,18 +2,15 @@ using API.Models.Logistics.Interfaces;
 using API.Models.Logistics;
 using API.Services.Logistics;
 using API.Services.OrderService;
-using Logistics.Models;
 using API.Services.Interfaces;
 using API.Services.IntAdmin;
 using API.Implementations.Domain;
 using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
-using API.Data.Mapping;
 using API.Data;
 using softserve.projectlabs.Shared.Interfaces;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using API.Mappings;
 using API.Data.Repositories.IntAdministrationRepository.Interfaces;
 using API.Data.Repositories.IntAdministrationRepository;
 using Microsoft.OpenApi.Models;
@@ -151,9 +148,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 // 4. Model implementations
 builder.Services.AddScoped<IWarehouse, Warehouse>();
-builder.Services.AddScoped<IBranch, Branch>();
+//builder.Services.AddScoped<IBranch, Branch>();
 builder.Services.AddScoped<IOrder, Order>();
-builder.Services.AddScoped<ISupplier, Supplier>();
+//builder.Services.AddScoped<ISupplier, Supplier>();
 
 // 5. Repositorios (Data layer)
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
@@ -205,7 +202,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    //app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }

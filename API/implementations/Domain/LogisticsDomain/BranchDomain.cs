@@ -4,6 +4,7 @@ using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.DTOs;
 using API.Data.Repositories.LogisticsRepositories.Interfaces;
 
+
 namespace API.Implementations.Domain
 {
     public class BranchDomain
@@ -19,13 +20,6 @@ namespace API.Implementations.Domain
         {
             try
             {
-                // Check if a branch with the same name and city already exists
-                var existingBranch = await _branchRepository.GetByNameAndCityAsync(branchDto.BranchName, branchDto.BranchCity);
-                if (existingBranch != null)
-                {
-                    return Result<Branch>.Failure("A branch with the same name and city already exists.");
-                }
-
                 var branchEntity = new BranchEntity
                 {
                     BranchName = branchDto.BranchName,
@@ -41,18 +35,7 @@ namespace API.Implementations.Domain
 
                 await _branchRepository.AddAsync(branchEntity);
 
-                var newBranchDto = new BranchDto
-                {
-                    BranchId = branchEntity.BranchId,
-                    BranchName = branchEntity.BranchName,
-                    BranchCity = branchEntity.BranchCity,
-                    BranchRegion = branchEntity.BranchRegion,
-                    BranchContactNumber = branchEntity.BranchContactNumber,
-                    BranchContactEmail = branchEntity.BranchContactEmail,
-                    BranchAddress = branchEntity.BranchAddress
-                };
-
-                var branch = new Branch(newBranchDto);
+                var branch = branchEntity.ToDomain();
 
                 return Result<Branch>.Success(branch);
             }
@@ -70,18 +53,7 @@ namespace API.Implementations.Domain
                 if (branchEntity == null)
                     return Result<Branch>.Failure("Branch not found.");
 
-                var branchDto = new BranchDto
-                {
-                    BranchId = branchEntity.BranchId,
-                    BranchName = branchEntity.BranchName,
-                    BranchCity = branchEntity.BranchCity,
-                    BranchRegion = branchEntity.BranchRegion,
-                    BranchContactNumber = branchEntity.BranchContactNumber,
-                    BranchContactEmail = branchEntity.BranchContactEmail,
-                    BranchAddress = branchEntity.BranchAddress
-                };
-
-                var branch = new Branch(branchDto);
+                var branch = branchEntity.ToDomain();
 
                 return Result<Branch>.Success(branch);
             }
@@ -96,21 +68,7 @@ namespace API.Implementations.Domain
             try
             {
                 var branchEntities = await _branchRepository.GetAllAsync();
-                var branches = branchEntities.Select(branchEntity =>
-                {
-                    var branchDto = new BranchDto
-                    {
-                        BranchId = branchEntity.BranchId,
-                        BranchName = branchEntity.BranchName,
-                        BranchCity = branchEntity.BranchCity,
-                        BranchRegion = branchEntity.BranchRegion,
-                        BranchContactNumber = branchEntity.BranchContactNumber,
-                        BranchContactEmail = branchEntity.BranchContactEmail,
-                        BranchAddress = branchEntity.BranchAddress
-                    };
-
-                    return new Branch(branchDto);
-                }).ToList();
+                var branches = branchEntities.Select(be => be.ToDomain()).ToList();
 
                 return Result<List<Branch>>.Success(branches);
             }
@@ -124,22 +82,21 @@ namespace API.Implementations.Domain
         {
             try
             {
-                var existingBranchEntity = await _branchRepository.GetByIdAsync(branch.GetBranchData().BranchId);
+                var existingBranchEntity = await _branchRepository.GetByIdAsync(branch.BranchId);
                 if (existingBranchEntity == null)
                     return Result<Branch>.Failure("Branch not found.");
 
-                var branchData = branch.GetBranchData();
-                existingBranchEntity.BranchName = branchData.BranchName;
-                existingBranchEntity.BranchCity = branchData.BranchCity;
-                existingBranchEntity.BranchRegion = branchData.BranchRegion;
-                existingBranchEntity.BranchContactNumber = branchData.BranchContactNumber;
-                existingBranchEntity.BranchContactEmail = branchData.BranchContactEmail;
-                existingBranchEntity.BranchAddress = branchData.BranchAddress;
+                existingBranchEntity.BranchName = branch.BranchName;
+                existingBranchEntity.BranchCity = branch.BranchCity;
+                existingBranchEntity.BranchRegion = branch.BranchRegion;
+                existingBranchEntity.BranchContactNumber = branch.BranchContactNumber;
+                existingBranchEntity.BranchContactEmail = branch.BranchContactEmail;
+                existingBranchEntity.BranchAddress = branch.BranchAddress;
                 existingBranchEntity.UpdatedAt = DateTime.UtcNow;
 
                 await _branchRepository.UpdateAsync(existingBranchEntity);
 
-                var updatedBranch = new Branch(branchData);
+                var updatedBranch = existingBranchEntity.ToDomain();
 
                 return Result<Branch>.Success(updatedBranch);
             }

@@ -1,11 +1,8 @@
 ﻿using API.Implementations.Domain;
 using API.Models.Logistics;
 using API.Models.Logistics.Interfaces;
-using API.Services;
-using API.Services.Interfaces;
 using API.Services.Logistics;
 using API.Services.OrderService;
-using Logistics.Models;
 using softserve.projectlabs.Shared.Interfaces;
 
 namespace API.Utils.Extensions;
@@ -28,7 +25,7 @@ public static class ServiceExtensions
     {
         // Register the branch services
         services.AddScoped<IBranchService, BranchService>();
-        services.AddScoped<IBranch, Branch>();
+        //services.AddScoped<IBranch, Branch>();
         services.AddScoped<BranchDomain>();
         return services;
     }
@@ -46,7 +43,7 @@ public static class ServiceExtensions
     {
         // Register the supplier services
         services.AddScoped<ISupplierService, SupplierService>();
-        services.AddScoped<ISupplier, Supplier>();
+        //services.AddScoped<ISupplier, Supplier>();
         services.AddScoped<SupplierDomain>();
         return services;
     }
