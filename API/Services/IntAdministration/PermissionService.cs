@@ -1,12 +1,12 @@
 ﻿namespace API.Services.IntAdmin;
 
 using AutoMapper;
-using softserve.projectlabs.Shared.DTOs;
 using softserve.projectlabs.Shared.Utilities;
 using API.Implementations.Domain;
 using API.Models.IntAdmin;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using softserve.projectlabs.Shared.DTOs.Permission;
 
 public class PermissionService : IPermissionService
 {

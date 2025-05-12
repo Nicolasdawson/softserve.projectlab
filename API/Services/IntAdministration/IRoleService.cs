@@ -1,9 +1,9 @@
 ﻿using API.Models;
-using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.DTOs.Role;
 
 namespace API.Services.IntAdmin
 {

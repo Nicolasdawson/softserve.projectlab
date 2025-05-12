@@ -1,7 +1,6 @@
 ﻿using API.Data;
 using API.Data.Entities;
 using API.Models;
-using softserve.projectlabs.Shared.DTOs;
 using API.Models.IntAdmin;
 using API.Models.IntAdmin.AdminInterfaces;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.Utilities;
+using softserve.projectlabs.Shared.DTOs.Role;
 
 namespace API.Implementations.Domain
 {

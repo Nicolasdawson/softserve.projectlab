@@ -2,6 +2,7 @@
 using API.Models.IntAdmin;
 using API.Models.Logistics;
 using softserve.projectlabs.Shared.DTOs;
+using softserve.projectlabs.Shared.DTOs.Item;
 using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.Utilities;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-using API.Models.Logistics.Interfaces;
+﻿using API.Models.Logistics.Interfaces;
 using API.Models.Logistics;
 using API.Services.Logistics;
 using API.Services.OrderService;
@@ -7,6 +7,9 @@ using API.Services.IntAdmin;
 using API.Implementations.Domain;
 using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
+using API.Data.Mapping;
+using AutoMapper.EquivalencyExpression;
+
 using API.Data;
 using softserve.projectlabs.Shared.Interfaces;
 using System.Text.Json.Serialization;
@@ -172,7 +175,16 @@ builder.Services.AddScoped<SupplierDto>();
 //-------------------------------------------------------------------------------
 // AutoMapper Configuration
 //-------------------------------------------------------------------------------
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+builder.Services.AddAutoMapper(cfg =>
+{ 
+    cfg.AddCollectionMappers();
+
+    cfg.AddProfile<IntAdminMapping>();
+    cfg.AddProfile<LogisticsMapping>();
+    cfg.AddProfile<CustomerMapping>();
+}, assemblies);
 
 //-------------------------------------------------------------------------------
 // HttpClient Configuration for API communication

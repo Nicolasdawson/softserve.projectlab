@@ -69,7 +69,7 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<WarehouseEntity> WarehouseEntities { get; set; }
 
     public virtual DbSet<WarehouseItemEntity> WarehouseItemEntities { get; set; }
-   
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BranchEntity>(entity =>
