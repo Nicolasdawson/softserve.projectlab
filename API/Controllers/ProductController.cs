@@ -92,18 +92,17 @@ public class ProductController : ControllerBase
         /// </summary>
         /// <returns>A list of all products.</returns>
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<ProductWithImagesDTO>>> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var products = _productService.GetAllProductsPaged(pageNumber, pageSize);
-                //var images = _productImageService.GetProductImagesByProductId();
-                return Ok(products.Result);
+                var products = await _productService.GetAllProductsPaged(pageNumber, pageSize);
+                return Ok(products);
             }
             catch (Exception ex)
             {
-                
-                return StatusCode(500, $"Error retrieving products. \n {ex}");
+                //Is needed a Logger for printing the error ex
+                return StatusCode(500, $"Error retrieving products.");
             }
         }
 

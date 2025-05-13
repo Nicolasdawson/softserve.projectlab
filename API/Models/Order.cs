@@ -4,7 +4,7 @@ namespace API.Models
 {
     public class Order : Base
     {
-        public Guid IdCustomer { get; set; }
+        public int IdCustomer { get; set; }
         public Guid IdDeliveryAddress { get; set; }
         public Guid IdPayment { get; set; }
         public string OrderNumber { get; set; } = default!;

@@ -1,6 +1,8 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using API.DTO;
+using API.Helpers;
 using API.implementations.Infrastructure.Data;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +16,8 @@ namespace API.Controllers;
 [ApiController]
 public class UsersController : ControllerBase
 {
-    public static User user = new User();
+    public static Customer user = new Customer();
+    public static Credential credential = new Credential();
     private readonly AppDbContext _context;
     private readonly IConfiguration _configuration;
 
@@ -25,12 +28,13 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<User>> Register(UserDTO request)
+    public async Task<ActionResult<Customer>> Register(UserDTO request)
     {
-        CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+        PasswordHashHelper.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);        
+
         user.Email = request.Email;
-        user.PasswordHash = passwordHash;
-        user.PasswordSalt = passwordSalt;
+        credential.PasswordHash = passwordHash;
+        credential.PasswordSalt = passwordSalt;
 
         return Ok(user);          
     }
@@ -43,17 +47,17 @@ public class UsersController : ControllerBase
             return BadRequest("User not found");
         }
 
-        if(!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+        if(!PasswordHashHelper.VerifyPasswordHash(request.Password, credential.PasswordHash, credential.PasswordSalt))
         {
             return BadRequest("Wrong password.");
         }
 
         string token = CreateToken(user);
 
-        return Ok("TOKEN");
+        return Ok(token);
     }
 
-    private string CreateToken(User user)
+    private string CreateToken(Customer user)
     {
         List<Claim> claims = new List<Claim>
         {
@@ -63,24 +67,16 @@ public class UsersController : ControllerBase
         var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
             _configuration.GetSection("AppSettings:Token").Value));
 
-        return string.Empty;
-    }
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-    private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-    {
-        using (var hmac = new HMACSHA512())
-        {
-            passwordSalt = hmac.Key;
-            passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-        }
-    }
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.Now.AddDays(1),
+            signingCredentials: creds
+            );
 
-    private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-    {
-        using (var hmac = new HMACSHA512(passwordSalt))
-        {
-            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            return computedHash.SequenceEqual(passwordHash);
-        }
+        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return jwt;
     }
 }

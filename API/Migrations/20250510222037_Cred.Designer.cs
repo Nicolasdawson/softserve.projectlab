@@ -4,6 +4,7 @@ using API.implementations.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250510222037_Cred")]
+    partial class Cred
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -144,33 +147,25 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Customer", b =>
                 {
-                    b.Property<int>("VersionId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VersionId"));
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2(7)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
                     b.Property<Guid?>("IdCredentials")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsCurrent")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsGuest")
                         .HasColumnType("bit");
@@ -185,16 +180,12 @@ namespace API.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2(7)");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasKey("VersionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("IdCredentials");
-
-                    b.HasIndex("Id", "IsCurrent");
-
-                    b.HasIndex("Id", "StartDate", "EndDate");
 
                     b.ToTable("Customers", (string)null);
                 });
@@ -250,8 +241,8 @@ namespace API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdCustomer")
-                        .HasColumnType("int");
+                    b.Property<Guid>("IdCustomer")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IdDeliveryAddress")
                         .HasColumnType("uniqueidentifier");

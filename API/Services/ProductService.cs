@@ -49,33 +49,21 @@ namespace API.Services
         /// <returns>A collection of all products.</returns>
         public async Task<IEnumerable<ProductWithImagesDTO>> GetAllProductsPaged(int pageNumber, int pageSize)
         {
-            try
-            {
-                var products = await _context.Products
-                    .Include(p => p.Images)
-                    .OrderBy(p => p.Id)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(p => new ProductWithImagesDTO
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        Description = p.Description,
-                        Price = p.Price,
-                        Stock = p.Stock,
-                        ImageUrls = p.Images.Select(img => img.ImageUrl).ToList()
-                    })
-                    .ToListAsync();
-
-                Console.WriteLine($"Cantidad de productos en memoria: {products.Count}");
-
-                return products; // No es necesario usar Task.FromResult
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al obtener los productos: {ex.Message}");
-                return new List<ProductWithImagesDTO>(); // Retornar una lista vac�a en caso de error
-            }
+            return await _context.Products
+                .Include(p => p.Images)
+                .OrderBy(p => p.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductWithImagesDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    Stock = p.Stock,
+                    ImageUrls = p.Images.Select(img => img.ImageUrl).ToList()
+                })
+                .ToListAsync();
         }
 
         /// <summary>

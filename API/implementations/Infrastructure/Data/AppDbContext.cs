@@ -8,7 +8,7 @@ namespace API.implementations.Infrastructure.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<Credential> Credentials { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -36,55 +36,50 @@ namespace API.implementations.Infrastructure.Data
             base.OnModelCreating(modelBuilder);
 
             //Entity User configuration
-            modelBuilder.Entity<User>(entity =>
+            modelBuilder.Entity<Credential>(entity =>
             {
-                entity.Property(u => u.Email)
-                .IsRequired()
-                .HasMaxLength(255);
                 
-                entity.Property(u => u.PasswordHash)
-                .IsRequired()
-                .HasMaxLength(255);
+                entity.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
+                entity.Property(u => u.PasswordSalt).HasMaxLength(255).IsRequired();
 
-                entity.Property(u => u.PasswordSalt)
-                .IsRequired()
-                .HasMaxLength(255);
+                entity.Property(c => c.RefreshToken).HasDefaultValue(string.Empty);
+                entity.Property(c => c.TokenCreated).HasColumnType("datetime2(7)");
+                entity.Property(c => c.TokenExpires).HasColumnType("datetime2(7)");
 
                 //Defining the Foreign key relationship
                 entity.HasOne(u => u.Role)
-                .WithMany(r => r.Users)
+                .WithMany(r => r.credentials)
                 .HasForeignKey(u => u.IdRole)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
             });
-            
+
             //Entity Role configuration
-            modelBuilder.Entity<Role>(entity => 
-            { 
-                entity.Property(r => r.Name)
-                .IsRequired()
-                .HasMaxLength(50);
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Roles");
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.Name).HasMaxLength(50).IsRequired();
             });
 
             //Entity Customer configuration
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.ToTable("Customers");
+                entity.HasKey(c => c.VersionId);
+                entity.HasAlternateKey(c => c.Id);
+                entity.Property(u => u.Email).HasMaxLength(50).IsRequired();
+                entity.Property(c => c.FirstName).HasMaxLength(100).IsRequired();
+                entity.Property(c => c.LastName).HasMaxLength(100).IsRequired();
+                entity.Property(c => c.PhoneNumber).HasMaxLength(20).IsRequired();
+                entity.Property(c => c.IsGuest).HasColumnType("bit");
+                entity.Property(c => c.StartDate).HasColumnType("datetime2(7)").IsRequired();
+                entity.Property(c => c.EndDate).HasColumnType("datetime2(7)"); // EndDate can be null
+                entity.HasIndex(c => new { c.Id, c.IsCurrent });
+                entity.HasIndex(c => new { c.Id, c.StartDate, c.EndDate });
 
-                entity.Property(c => c.FirstName)
-                    .IsRequired()
-                    .HasMaxLength(100);
-
-                entity.Property(c => c.LastName)
-                    .IsRequired()
-                    .HasMaxLength(100);
-
-                entity.Property(c => c.PhoneNumber)
-                    .IsRequired()
-                    .HasMaxLength(20);
-
-                entity.HasOne(c => c.User)
+                entity.HasOne(c => c.credential)
                     .WithMany() 
-                    .HasForeignKey(c => c.IdUser)
+                    .HasForeignKey(c => c.IdCredentials)
                     .OnDelete(DeleteBehavior.Cascade);
             });
             
@@ -192,23 +187,15 @@ namespace API.implementations.Infrastructure.Data
             {
                 entity.ToTable("Orders");
 
-                entity.Property(o => o.OrderNumber)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(o => o.Status)
-                    .IsRequired()
-                    .HasMaxLength(20);
-
-                entity.Property(o => o.TotalPrice)
-                    .IsRequired()
-                    .HasColumnType("decimal(10,2)");
+                entity.Property(o => o.OrderNumber).HasMaxLength(50).IsRequired();
+                entity.Property(o => o.Status).HasMaxLength(20).IsRequired();
+                entity.Property(o => o.TotalPrice).HasColumnType("decimal(10,2)").IsRequired();
 
                 // Relaciones
                 entity.HasOne(o => o.Customer)
                     .WithMany()
                     .HasForeignKey(o => o.IdCustomer)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict);          
                 
                 entity.HasOne(o => o.DeliveryAddress)
                     .WithMany()
