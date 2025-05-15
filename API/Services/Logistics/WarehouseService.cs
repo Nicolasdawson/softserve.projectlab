@@ -20,7 +20,6 @@ namespace API.Services.Logistics
             _warehouseDomain = warehouseDomain;
         }
 
-        // Get All Warehouses
         public async Task<List<WarehouseResponseDto>> GetAllWarehousesAsync()
         {
             var result = await _warehouseDomain.GetAllWarehousesAsync();
@@ -29,14 +28,13 @@ namespace API.Services.Logistics
 
             return result.Data.Select(warehouse =>
             {
-                var warehouseData = warehouse.GetWarehouseData();
                 return new WarehouseResponseDto
                 {
-                    WarehouseId = warehouseData.WarehouseId,
-                    Name = warehouseData.Name,
-                    Location = warehouseData.Location,
-                    Capacity = warehouseData.Capacity,
-                    BranchId = warehouseData.BranchId,
+                    WarehouseId = warehouse.WarehouseId,
+                    Name = warehouse.Name,
+                    Location = warehouse.Location,
+                    Capacity = warehouse.Capacity,
+                    BranchId = warehouse.BranchId,
                     Items = warehouse.Items.Select(item => new ItemDto
                     {
                         ItemId = item.ItemId,
@@ -49,22 +47,21 @@ namespace API.Services.Logistics
             }).ToList();
         }
 
-        // Get Warehouse by ID
         public async Task<Result<WarehouseResponseDto>> GetWarehouseByIdAsync(int warehouseId)
         {
             var result = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
             if (!result.IsSuccess)
                 return Result<WarehouseResponseDto>.Failure(result.ErrorMessage, result.ErrorCode);
 
-            var warehouseData = result.Data.GetWarehouseData();
+            var warehouse = result.Data;
             var warehouseDto = new WarehouseResponseDto
             {
-                WarehouseId = warehouseData.WarehouseId,
-                Name = warehouseData.Name,
-                Location = warehouseData.Location,
-                Capacity = warehouseData.Capacity,
-                BranchId = warehouseData.BranchId,
-                Items = result.Data.Items.Select(item => new ItemDto
+                WarehouseId = warehouse.WarehouseId,
+                Name = warehouse.Name,
+                Location = warehouse.Location,
+                Capacity = warehouse.Capacity,
+                BranchId = warehouse.BranchId,
+                Items = warehouse.Items.Select(item => new ItemDto
                 {
                     ItemId = item.ItemId,
                     Sku = item.Sku,
@@ -77,7 +74,6 @@ namespace API.Services.Logistics
             return Result<WarehouseResponseDto>.Success(warehouseDto);
         }
 
-        // Add Item to Warehouse
         public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, int sku, int quantity)
         {
             var warehouseResult = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
@@ -90,7 +86,6 @@ namespace API.Services.Logistics
             return await _warehouseDomain.UpdateWarehouseAsync(warehouse);
         }
 
-        // Remove Item from Warehouse
         public async Task<Result<bool>> RemoveItemFromWarehouseAsync(int warehouseId, int sku)
         {
             var warehouseResult = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
@@ -103,7 +98,6 @@ namespace API.Services.Logistics
             return await _warehouseDomain.UpdateWarehouseAsync(warehouse);
         }
 
-        // Transfer Item Between Warehouses
         public async Task<Result<bool>> TransferItemAsync(int sourceWarehouseId, int sku, int quantity, int targetWarehouseId)
         {
             var sourceResult = await _warehouseDomain.GetWarehouseByIdAsync(sourceWarehouseId);
@@ -123,7 +117,6 @@ namespace API.Services.Logistics
             return Result<bool>.Success(true);
         }
 
-        // Get Low Stock Items
         public async Task<Result<List<ItemDto>>> GetLowStockItemsAsync(int warehouseId, int threshold)
         {
             var result = await _warehouseDomain.GetLowStockItemsAsync(warehouseId, threshold);
@@ -140,57 +133,50 @@ namespace API.Services.Logistics
             }).ToList());
         }
 
-        // Get Total Inventory Value
         public async Task<Result<decimal>> CalculateTotalInventoryValueAsync(int warehouseId)
         {
             return await _warehouseDomain.GetTotalInventoryValueAsync(warehouseId);
         }
 
-        // Generate Inventory Report
         public async Task<Result<string>> GenerateInventoryReportAsync(int warehouseId)
         {
             return await _warehouseDomain.GenerateInventoryReportAsync(warehouseId);
         }
 
-        // Soft Delete Warehouse
         public async Task<Result<bool>> SoftDeleteWarehouseAsync(int warehouseId)
         {
             return await _warehouseDomain.SoftDeleteWarehouseAsync(warehouseId);
         }
 
-        // Undelete Warehouse
         public async Task<Result<bool>> UndeleteWarehouseAsync(int warehouseId)
         {
             return await _warehouseDomain.UndeleteWarehouseAsync(warehouseId);
         }
 
-        // Delete Warehouse
         public async Task<Result<bool>> DeleteWarehouseAsync(int warehouseId)
         {
             return await _warehouseDomain.SoftDeleteWarehouseAsync(warehouseId);
         }
 
-        // Create Warehouse
         public async Task<Result<WarehouseResponseDto>> CreateWarehouseAsync(WarehouseDto warehouseDto)
         {
             var result = await _warehouseDomain.CreateWarehouseAsync(warehouseDto);
             if (!result.IsSuccess)
                 return Result<WarehouseResponseDto>.Failure(result.ErrorMessage);
 
-            var warehouseData = result.Data.GetWarehouseData();
+            var warehouse = result.Data;
             var warehouseResponse = new WarehouseResponseDto
             {
-                WarehouseId = warehouseData.WarehouseId,
-                Name = warehouseData.Name,
-                Location = warehouseData.Location,
-                Capacity = warehouseData.Capacity,
-                BranchId = warehouseData.BranchId
+                WarehouseId = warehouse.WarehouseId,
+                Name = warehouse.Name,
+                Location = warehouse.Location,
+                Capacity = warehouse.Capacity,
+                BranchId = warehouse.BranchId
             };
 
             return Result<WarehouseResponseDto>.Success(warehouseResponse);
         }
 
-        // Check Warehouse Stock
         public async Task<Result<int>> CheckWarehouseStockAsync(int warehouseId, int sku)
         {
             var warehouseResult = await _warehouseDomain.GetWarehouseByIdAsync(warehouseId);
@@ -203,7 +189,5 @@ namespace API.Services.Logistics
 
             return Result<int>.Success(item.CurrentStock);
         }
-
     }
 }
-

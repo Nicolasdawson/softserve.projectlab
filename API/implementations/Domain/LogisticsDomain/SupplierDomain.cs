@@ -2,6 +2,7 @@
 using API.Data.Repositories.IntAdministrationRepository.Interfaces;
 using API.Data.Repositories.LogisticsRepositories.Interfaces;
 using API.Models.Logistics;
+using API.Models.Logistics.Supplier;
 using softserve.projectlabs.Shared.Utilities;
 
 namespace API.Implementations.Domain
@@ -106,25 +107,46 @@ namespace API.Implementations.Domain
 
         public async Task<Result<bool>> LinkItemToSupplier(int supplierId, int sku)
         {
-            // Validate supplier existence
             var supplier = await _supplierRepository.GetByIdAsync(supplierId);
             if (supplier == null)
                 return Result<bool>.Failure("Supplier not found.");
 
-            
+
             var item = await _itemRepository.GetBySkuAsync(sku);
             if (item == null)
                 return Result<bool>.Failure("Item not found.");
 
-            // Check if link already exists
             var linkExists = await SupplierHasItem(supplierId, sku);
             if (linkExists)
                 return Result<bool>.Failure("Item is already linked to this supplier.");
 
             await _supplierRepository.LinkItemToSupplier(supplierId, sku);
 
-            // For now, return success as a placeholder
             return Result<bool>.Success(true);
         }
+
+        public async Task<Result<bool>> UndeleteSupplierAsync(int supplierId)
+        {
+            try
+            {
+                var entity = await _supplierRepository.GetByIdAsync(supplierId);
+                if (entity == null)
+                    return Result<bool>.Failure("Supplier not found.");
+
+                if (!entity.IsDeleted)
+                    return Result<bool>.Failure("Supplier is already active.");
+
+                entity.IsDeleted = false;
+                entity.UpdatedAt = DateTime.UtcNow;
+                await _supplierRepository.UpdateAsync(entity);
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure($"Failed to restore supplier: {ex.Message}");
+            }
+        }
+
     }
 }

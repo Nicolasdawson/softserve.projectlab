@@ -1,6 +1,4 @@
-﻿using API.Models.Logistics.Interfaces;
-using API.Models.Logistics;
-using API.Services.Logistics;
+﻿using API.Services.Logistics;
 using API.Services.OrderService;
 using API.Services.Interfaces;
 using API.Services.IntAdmin;
@@ -9,7 +7,6 @@ using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
 using API.Data.Mapping;
 using AutoMapper.EquivalencyExpression;
-
 using API.Data;
 using softserve.projectlabs.Shared.Interfaces;
 using System.Text.Json.Serialization;
@@ -24,6 +21,7 @@ using API.Services;
 using softserve.projectlabs.Shared.DTOs;
 using API.Data.Repositories.LogisticsRepositories;
 using API.Data.Repositories.LogisticsRepositories.Interfaces;
+using API.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -150,9 +148,9 @@ builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // 4. Model implementations
-builder.Services.AddScoped<IWarehouse, Warehouse>();
+//builder.Services.AddScoped<IWarehouse, Warehouse>();
 //builder.Services.AddScoped<IBranch, Branch>();
-builder.Services.AddScoped<IOrder, Order>();
+//builder.Services.AddScoped<IOrder, Order>();
 //builder.Services.AddScoped<ISupplier, Supplier>();
 
 // 5. Repositorios (Data layer)

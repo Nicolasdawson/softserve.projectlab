@@ -1,8 +1,7 @@
 ﻿using API.Data.Entities;
-using API.Models.Logistics;
 using softserve.projectlabs.Shared.DTOs;
 
-namespace API.Models.Logistics
+namespace API.Models.Logistics.Branch
 {
     public static class BranchMapper
     {

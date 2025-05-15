@@ -1,6 +1,7 @@
 ﻿using API.Data.Entities;
 using API.Models.IntAdmin;
-using API.Models.Logistics;
+using API.Models.Logistics.Order;
+using API.Models.Logistics.Warehouse;
 using AutoMapper;
 using softserve.projectlabs.Shared.DTOs;
 using softserve.projectlabs.Shared.DTOs.Item;
@@ -22,20 +23,21 @@ public class LogisticsMapping : Profile
             .ForMember(dest => dest.Items, opt => opt.Ignore()); // Items are handled manually if needed
 
         // Map from Warehouse to WarehouseResponseDto
-        CreateMap<Warehouse, WarehouseResponseDto>()
-            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList()));
+        //CreateMap<Warehouse, WarehouseResponseDto>()
+        //    .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList()));
 
         // Map from WarehouseEntity to Warehouse
-        CreateMap<WarehouseEntity, Warehouse>()
-            .ConstructUsing(src => new Warehouse(new WarehouseDto
-            {
-                WarehouseId = src.WarehouseId,
-                Name = $"Warehouse {src.WarehouseId}",
-                Location = src.WarehouseLocation,
-                Capacity = src.WarehouseCapacity,
-                BranchId = src.BranchId
-            }))
-            .ForMember(dest => dest.Items, opt => opt.Ignore()); // Items are handled manually
+        //CreateMap<WarehouseEntity, Warehouse>()
+        //    .ConstructUsing(src => new Warehouse(
+        //        src.WarehouseId,
+        //        $"Warehouse {src.WarehouseId}",
+        //        src.WarehouseLocation,
+        //        src.WarehouseCapacity,
+        //        src.BranchId,
+        //        null
+        //    ))
+        //    .ForMember(dest => dest.Items, opt => opt.Ignore());
+
 
         // Map from Item to ItemDto
         CreateMap<Item, ItemDto>()
@@ -106,7 +108,14 @@ public class LogisticsMapping : Profile
 
         // Map OrderDto to Order (domain model)
         CreateMap<OrderDto, Order>()
-            .ConstructUsing(src => new Order(src));
+            .ConstructUsing(src => new Order(
+                src.OrderId,
+                src.CustomerId,
+                src.OrderDate,
+                src.OrderStatus,
+                null 
+            ));
+
 
         CreateMap<OrderEntity, OrderDto>()
     .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderItemEntities));
