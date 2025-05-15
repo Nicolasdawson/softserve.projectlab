@@ -9,7 +9,6 @@ using API.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
 using API.Data.Mapping;
 using AutoMapper.EquivalencyExpression;
-
 using API.Data;
 using softserve.projectlabs.Shared.Interfaces;
 using System.Text.Json.Serialization;
@@ -24,6 +23,7 @@ using API.Services;
 using softserve.projectlabs.Shared.DTOs;
 using API.Data.Repositories.LogisticsRepositories;
 using API.Data.Repositories.LogisticsRepositories.Interfaces;
+using API.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -181,9 +181,9 @@ builder.Services.AddAutoMapper(cfg =>
 { 
     cfg.AddCollectionMappers();
 
+    cfg.AddProfile<CustomerMapping>();
     cfg.AddProfile<IntAdminMapping>();
     cfg.AddProfile<LogisticsMapping>();
-    cfg.AddProfile<CustomerMapping>();
 }, assemblies);
 
 //-------------------------------------------------------------------------------
