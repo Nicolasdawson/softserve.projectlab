@@ -14,16 +14,21 @@ namespace API.Controllers;
 public class ProductController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly ProductService _productService;
-        private readonly ProductImageService _productImageService;
+        private readonly IProductService _productService;
+        private readonly IProductImageService _productImageService;
         private readonly AppDbContext _context;
         private readonly IFileStorage _fileStorage;
         
         /// <summary>
-        /// Injects the ProductService dependency.
+        /// Injects the dependencies.
         /// </summary>
         /// <param name="productService">The product service.</param>
-        public ProductController(IConfiguration configuration, ProductService productService, ProductImageService productImageService, IFileStorage fileStorage, AppDbContext context)
+        public ProductController(
+            IConfiguration configuration, 
+            IProductService productService, 
+            IProductImageService productImageService, 
+            IFileStorage fileStorage, 
+            AppDbContext context )
         {
             _configuration = configuration;
             _productService = productService;
@@ -94,6 +99,9 @@ public class ProductController : ControllerBase
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductWithImagesDTO>>> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
+            if (pageNumber <= 0 || pageSize <= 0)
+                return BadRequest("Page number and page size must be greater than zero.");
+
             try
             {
                 var products = await _productService.GetAllProductsPaged(pageNumber, pageSize);

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using API.Abstractions;
 
@@ -26,6 +27,7 @@ namespace API.Models;
         [JsonIgnore]
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
 
+        [NotMapped]
         [JsonIgnore] // Para evitar loops al serializar
         public Product? Prod { get; set; }
 }

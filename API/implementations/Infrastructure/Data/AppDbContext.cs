@@ -66,12 +66,13 @@ namespace API.implementations.Infrastructure.Data
             {
                 entity.ToTable("Customers");
                 entity.HasKey(c => c.VersionId);
-                entity.HasAlternateKey(c => c.Id);
+                entity.Property(c => c.Id).IsRequired();
                 entity.Property(u => u.Email).HasMaxLength(50).IsRequired();
                 entity.Property(c => c.FirstName).HasMaxLength(100).IsRequired();
                 entity.Property(c => c.LastName).HasMaxLength(100).IsRequired();
                 entity.Property(c => c.PhoneNumber).HasMaxLength(20).IsRequired();
                 entity.Property(c => c.IsGuest).HasColumnType("bit");
+                entity.Property(c => c.IsCurrent).HasColumnType("bit");
                 entity.Property(c => c.StartDate).HasColumnType("datetime2(7)").IsRequired();
                 entity.Property(c => c.EndDate).HasColumnType("datetime2(7)"); // EndDate can be null
                 entity.HasIndex(c => new { c.Id, c.IsCurrent });
@@ -88,36 +89,15 @@ namespace API.implementations.Infrastructure.Data
             {
                 entity.ToTable("Products"); // Table Name in the DB
 
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .IsUnicode();
-
-                entity.Property(e => e.Description)
-                    .IsRequired()
-                    .HasColumnType("nvarchar(MAX)")
-                    .IsUnicode();
-                
-                entity.Property(P => P.Price)
-                    .HasPrecision(18, 2);
-
-                entity.Property(e => e.Weight)
-                    .HasPrecision(10, 2);
-
-                entity.Property(e => e.Height)
-                    .HasPrecision(10, 2);
-
-                entity.Property(e => e.Width)
-                    .HasPrecision(10, 2);
-
-                entity.Property(e => e.Length)
-                    .HasPrecision(10, 2);
-
-                entity.Property(e => e.Stock)
-                    .IsRequired();
-                
-                entity.Property(p => p.CreatedAt)
-                    .HasDefaultValueSql("GETDATE()");
+                entity.Property(e => e.Name).HasMaxLength(200).IsUnicode().IsRequired();
+                entity.Property(e => e.Description).HasColumnType("nvarchar(MAX)").IsUnicode().IsRequired();
+                entity.Property(P => P.Price).HasPrecision(18, 2);
+                entity.Property(e => e.Weight).HasPrecision(10, 2);
+                entity.Property(e => e.Height).HasPrecision(10, 2);
+                entity.Property(e => e.Width).HasPrecision(10, 2);
+                entity.Property(e => e.Length).HasPrecision(10, 2);
+                entity.Property(e => e.Stock).IsRequired();                
+                entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETDATE()");
 
                 entity.HasOne(e => e.Category)              // Relation with Category
                     .WithMany(c => c.Products)              // One Category has many Products

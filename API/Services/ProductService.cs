@@ -8,7 +8,7 @@ namespace API.Services
     /// <summary>
     /// Service for managing products.
     /// </summary>
-    public class ProductService
+    public class ProductService : IProductService
     {
         private readonly AppDbContext _context; 
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Services
 {
-    public class ProductImageService
+    public class ProductImageService : IProductImageService
     {
         private readonly AppDbContext _context;
 
