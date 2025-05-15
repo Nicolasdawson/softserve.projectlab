@@ -19,6 +19,12 @@ public class ItemRepository : IItemRepository
         return await _ctx.ItemEntities.FirstOrDefaultAsync(i => i.ItemId == id);
     }
 
+    public async Task<ItemEntity?> GetBySkuAsync(int sku)
+    {
+        return await _ctx.ItemEntities
+            .FirstOrDefaultAsync(i => i.Sku == sku && !i.IsDeleted);
+    }
+
     public async Task<List<ItemEntity>> GetAllAsync()
     {
         return await _ctx.ItemEntities.ToListAsync();

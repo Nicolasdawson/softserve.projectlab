@@ -1,9 +1,9 @@
 ﻿using API.Implementations.Domain;
 using API.Models.IntAdmin;
+using softserve.projectlabs.Shared.DTOs.Item;
 using softserve.projectlabs.Shared.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.DTOs.Item;
 
 namespace API.Services.IntAdmin
 {
@@ -19,39 +19,39 @@ namespace API.Services.IntAdmin
             _itemDomain = itemDomain;
         }
 
-        public async Task<Result<Item>> CreateItemAsync(ItemDto itemDto)
+        public Task<Result<Item>> CreateItemAsync(ItemCreateDto itemDto)
         {
-            return await _itemDomain.CreateItemAsync(itemDto);
+            return _itemDomain.CreateItemAsync(itemDto);
         }
 
-        public async Task<Result<Item>> UpdateItemAsync(int itemId, ItemDto itemDto)
+        public Task<Result<Item>> UpdateItemAsync(int itemId, ItemDto itemDto)
         {
-            return await _itemDomain.UpdateItemAsync(itemId, itemDto);
+            return _itemDomain.UpdateItemAsync(itemId, itemDto);
         }
 
-        public async Task<Result<Item>> GetItemByIdAsync(int itemId)
+        public Task<Result<Item>> GetItemByIdAsync(int itemId)
         {
-            return await _itemDomain.GetItemByIdAsync(itemId);
+            return _itemDomain.GetItemByIdAsync(itemId);
         }
 
-        public async Task<Result<List<Item>>> GetAllItemsAsync()
+        public Task<Result<List<Item>>> GetAllItemsAsync()
         {
-            return await _itemDomain.GetAllItemsAsync();
+            return _itemDomain.GetAllItemsAsync();
         }
 
-        public async Task<Result<bool>> DeleteItemAsync(int itemId)
+        public Task<Result<bool>> DeleteItemAsync(int itemId)
         {
-            return await _itemDomain.DeleteItemAsync(itemId);
+            return _itemDomain.DeleteItemAsync(itemId);
         }
 
-        public async Task<Result<bool>> UpdatePriceAsync(int itemId, decimal newPrice)
+        public Task<Result<bool>> UpdatePriceAsync(int itemId, decimal newPrice)
         {
-            return await _itemDomain.UpdatePriceAsync(itemId, newPrice);
+            return _itemDomain.UpdatePriceAsync(itemId, newPrice);
         }
 
-        public async Task<Result<bool>> UpdateDiscountAsync(int itemId, decimal? newDiscount)
+        public Task<Result<bool>> UpdateDiscountAsync(int itemId, decimal? newDiscount)
         {
-            return await _itemDomain.UpdateDiscountAsync(itemId, newDiscount);
+            return _itemDomain.UpdateDiscountAsync(itemId, newDiscount);
         }
     }
 }

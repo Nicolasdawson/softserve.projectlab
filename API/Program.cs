@@ -162,6 +162,7 @@ builder.Services.AddScoped<IWarehouseRepository, WarehouseRepository>();
 builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
 
 //6. Logistics DTOs
 builder.Services.AddScoped<WarehouseDto>();

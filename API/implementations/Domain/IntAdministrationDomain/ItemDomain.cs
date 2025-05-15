@@ -18,14 +18,22 @@ public class ItemDomain
         _mapper = mapper;
     }
 
-    public async Task<Result<Item>> CreateItemAsync(ItemDto dto)
+    public async Task<Result<Item>> CreateItemAsync(ItemCreateDto dto)
     {
         try
         {
-            var entity = _mapper.Map<ItemEntity>(dto);
+            var model = _mapper.Map<Item>(dto);
+
+            model.CurrentStock = model.OriginalStock;
+            model.ItemStatus = true;
+
+            var entity = _mapper.Map<ItemEntity>(model);
+            entity.CreatedAt = DateTime.UtcNow;
+            entity.UpdatedAt = DateTime.UtcNow;
+
             var saved = await _itemRepo.AddAsync(entity);
-            var domainModel = _mapper.Map<Item>(saved);
-            return Result<Item>.Success(domainModel);
+            var result = _mapper.Map<Item>(saved);
+            return Result<Item>.Success(result);
         }
         catch (Exception ex)
         {

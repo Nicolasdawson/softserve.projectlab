@@ -6,6 +6,7 @@ public interface IItemRepository
 {
     Task<ItemEntity> AddAsync(ItemEntity entity);
     Task<ItemEntity?> GetByIdAsync(int id);
+    Task<ItemEntity?> GetBySkuAsync(int sku);
     Task<List<ItemEntity>> GetAllAsync();
     Task<ItemEntity> UpdateAsync(ItemEntity entity);
     Task<bool> DeleteAsync(int id);
