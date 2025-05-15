@@ -1,225 +1,145 @@
-﻿using API.Data;
-using API.Data.Entities;
+﻿using API.Data.Entities;
+using API.Data.Repositories.IntAdministrationRepository.Interfaces;
 using API.Models.IntAdmin;
-using Microsoft.EntityFrameworkCore;
-using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.DTOs.Item;
+using softserve.projectlabs.Shared.Utilities;
+using AutoMapper;
 
-namespace API.Implementations.Domain
+namespace API.Implementations.Domain;
+
+public class ItemDomain
 {
-    public class ItemDomain
+    private readonly IItemRepository _itemRepo;
+    private readonly IMapper _mapper;
+
+    public ItemDomain(IItemRepository itemRepo, IMapper mapper)
     {
-        private readonly ApplicationDbContext _context;
+        _itemRepo = itemRepo;
+        _mapper = mapper;
+    }
 
-        public ItemDomain(ApplicationDbContext context)
+    public async Task<Result<Item>> CreateItemAsync(ItemCreateDto dto)
+    {
+        try
         {
-            _context = context;
+            var model = _mapper.Map<Item>(dto);
+
+            model.CurrentStock = model.OriginalStock;
+            model.ItemStatus = true;
+
+            var entity = _mapper.Map<ItemEntity>(model);
+            entity.CreatedAt = DateTime.UtcNow;
+            entity.UpdatedAt = DateTime.UtcNow;
+
+            var saved = await _itemRepo.AddAsync(entity);
+            var result = _mapper.Map<Item>(saved);
+            return Result<Item>.Success(result);
         }
-
-        /// <summary>
-        /// Creates a new item in the database.
-        /// </summary>
-        public async Task<Result<Item>> CreateItemAsync(ItemDto itemDto)
+        catch (Exception ex)
         {
-            try
-            {
-                var itemEntity = new ItemEntity
-                {
-                    Sku = itemDto.Sku,
-                    ItemName = itemDto.ItemName,
-                    ItemDescription = itemDto.ItemDescription,
-                    OriginalStock = itemDto.OriginalStock,
-                    CurrentStock = itemDto.CurrentStock,
-                    ItemCurrency = itemDto.ItemCurrency,
-                    ItemUnitCost = itemDto.ItemUnitCost,
-                    ItemMarginGain = itemDto.ItemMarginGain,
-                    ItemDiscount = itemDto.ItemDiscount,
-                    ItemAdditionalTax = itemDto.ItemAdditionalTax,
-                    ItemPrice = itemDto.ItemPrice,
-                    ItemStatus = itemDto.ItemStatus,
-                    CategoryId = itemDto.CategoryId,
-                    ItemImage = itemDto.ItemImage
-                };
-
-                _context.ItemEntities.Add(itemEntity);
-                await _context.SaveChangesAsync();
-
-                var item = await MapToItem(itemEntity.ItemId);
-                return Result<Item>.Success(item);
-            }
-            catch (Exception ex)
-            {
-                return Result<Item>.Failure($"Error creating item: {ex.Message}");
-            }
+            return Result<Item>.Failure($"Error creating item: {ex.Message}");
         }
+    }
 
-        /// <summary>
-        /// Updates an existing item in the database.
-        /// </summary>
-        public async Task<Result<Item>> UpdateItemAsync(int itemId, ItemDto itemDto)
+    public async Task<Result<Item>> UpdateItemAsync(int id, ItemDto dto)
+    {
+        try
         {
-            try
-            {
-                var itemEntity = await _context.ItemEntities.FirstOrDefaultAsync(i => i.ItemId == itemId);
-                if (itemEntity == null)
-                    return Result<Item>.Failure("Item not found.");
+            var entity = await _itemRepo.GetByIdAsync(id);
+            if (entity == null)
+                return Result<Item>.Failure("Item not found.");
 
-                itemEntity.Sku = itemDto.Sku;
-                itemEntity.ItemName = itemDto.ItemName;
-                itemEntity.ItemDescription = itemDto.ItemDescription;
-                itemEntity.OriginalStock = itemDto.OriginalStock;
-                itemEntity.CurrentStock = itemDto.CurrentStock;
-                itemEntity.ItemCurrency = itemDto.ItemCurrency;
-                itemEntity.ItemUnitCost = itemDto.ItemUnitCost;
-                itemEntity.ItemMarginGain = itemDto.ItemMarginGain;
-                itemEntity.ItemDiscount = itemDto.ItemDiscount;
-                itemEntity.ItemAdditionalTax = itemDto.ItemAdditionalTax;
-                itemEntity.ItemPrice = itemDto.ItemPrice;
-                itemEntity.ItemStatus = itemDto.ItemStatus;
-                itemEntity.CategoryId = itemDto.CategoryId;
-                itemEntity.ItemImage = itemDto.ItemImage;
+            _mapper.Map(dto, entity);
+            await _itemRepo.UpdateAsync(entity);
 
-                await _context.SaveChangesAsync();
-
-                var updatedItem = await MapToItem(itemId);
-                return Result<Item>.Success(updatedItem);
-            }
-            catch (Exception ex)
-            {
-                return Result<Item>.Failure($"Error updating item: {ex.Message}");
-            }
+            var domainModel = _mapper.Map<Item>(entity);
+            return Result<Item>.Success(domainModel);
         }
-
-        /// <summary>
-        /// Retrieves an item by its ID.
-        /// </summary>
-        public async Task<Result<Item>> GetItemByIdAsync(int itemId)
+        catch (Exception ex)
         {
-            try
-            {
-                var item = await MapToItem(itemId);
-                if (item == null)
-                    return Result<Item>.Failure("Item not found.");
-                return Result<Item>.Success(item);
-            }
-            catch (Exception ex)
-            {
-                return Result<Item>.Failure($"Error retrieving item: {ex.Message}");
-            }
+            return Result<Item>.Failure($"Error updating item: {ex.Message}");
         }
+    }
 
-        /// <summary>
-        /// Retrieves all items from the database.
-        /// </summary>
-        public async Task<Result<List<Item>>> GetAllItemsAsync()
+    public async Task<Result<Item>> GetItemByIdAsync(int id)
+    {
+        try
         {
-            try
-            {
-                var itemEntities = await _context.ItemEntities.ToListAsync();
-                var items = new List<Item>();
-                foreach (var entity in itemEntities)
-                {
-                    var item = await MapToItem(entity.ItemId);
-                    if (item != null)
-                        items.Add(item);
-                }
-                return Result<List<Item>>.Success(items);
-            }
-            catch (Exception ex)
-            {
-                return Result<List<Item>>.Failure($"Error retrieving items: {ex.Message}");
-            }
+            var entity = await _itemRepo.GetByIdAsync(id);
+            if (entity == null)
+                return Result<Item>.Failure("Item not found.");
+
+            var domainModel = _mapper.Map<Item>(entity);
+            return Result<Item>.Success(domainModel);
         }
-
-        /// <summary>
-        /// Deletes an item by its ID from the database.
-        /// </summary>
-        public async Task<Result<bool>> DeleteItemAsync(int itemId)
+        catch (Exception ex)
         {
-            try
-            {
-                var itemEntity = await _context.ItemEntities.FirstOrDefaultAsync(i => i.ItemId == itemId);
-                if (itemEntity == null)
-                    return Result<bool>.Failure("Item not found.");
-
-                _context.ItemEntities.Remove(itemEntity);
-                await _context.SaveChangesAsync();
-                return Result<bool>.Success(true);
-            }
-            catch (Exception ex)
-            {
-                return Result<bool>.Failure($"Error deleting item: {ex.Message}");
-            }
+            return Result<Item>.Failure($"Error retrieving item: {ex.Message}");
         }
+    }
 
-        /// <summary>
-        /// Updates the price of the item.
-        /// </summary>
-        public async Task<Result<bool>> UpdatePriceAsync(int itemId, decimal newPrice)
+    public async Task<Result<List<Item>>> GetAllItemsAsync()
+    {
+        try
         {
-            try
-            {
-                var itemEntity = await _context.ItemEntities.FirstOrDefaultAsync(i => i.ItemId == itemId);
-                if (itemEntity == null)
-                    return Result<bool>.Failure("Item not found.");
-                itemEntity.ItemPrice = newPrice;
-                await _context.SaveChangesAsync();
-                return Result<bool>.Success(true);
-            }
-            catch (Exception ex)
-            {
-                return Result<bool>.Failure($"Error updating price: {ex.Message}");
-            }
+            var entities = await _itemRepo.GetAllAsync();
+            var domainModels = _mapper.Map<List<Item>>(entities);
+            return Result<List<Item>>.Success(domainModels);
         }
-
-        /// <summary>
-        /// Updates the discount of the item.
-        /// </summary>
-        public async Task<Result<bool>> UpdateDiscountAsync(int itemId, decimal? newDiscount)
+        catch (Exception ex)
         {
-            try
-            {
-                var itemEntity = await _context.ItemEntities.FirstOrDefaultAsync(i => i.ItemId == itemId);
-                if (itemEntity == null)
-                    return Result<bool>.Failure("Item not found.");
-                itemEntity.ItemDiscount = newDiscount;
-                await _context.SaveChangesAsync();
-                return Result<bool>.Success(true);
-            }
-            catch (Exception ex)
-            {
-                return Result<bool>.Failure($"Error updating discount: {ex.Message}");
-            }
+            return Result<List<Item>>.Failure($"Error retrieving items: {ex.Message}");
         }
+    }
 
-        /// <summary>
-        /// Maps an ItemEntity to the domain model Item.
-        /// </summary>
-        private async Task<Item> MapToItem(int itemId)
+    public async Task<Result<bool>> DeleteItemAsync(int id)
+    {
+        try
         {
-            var itemEntity = await _context.ItemEntities.FirstOrDefaultAsync(i => i.ItemId == itemId);
-            if (itemEntity == null)
-                return null;
+            var deleted = await _itemRepo.DeleteAsync(id);
+            return deleted
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure("Item not found.");
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error deleting item: {ex.Message}");
+        }
+    }
 
-            var item = new Item
-            {
-                ItemId = itemEntity.ItemId,
-                Sku = itemEntity.Sku,
-                ItemName = itemEntity.ItemName,
-                ItemDescription = itemEntity.ItemDescription,
-                OriginalStock = itemEntity.OriginalStock,
-                CurrentStock = itemEntity.CurrentStock,
-                ItemCurrency = itemEntity.ItemCurrency,
-                ItemUnitCost = itemEntity.ItemUnitCost,
-                ItemMarginGain = itemEntity.ItemMarginGain,
-                ItemDiscount = itemEntity.ItemDiscount,
-                ItemAdditionalTax = itemEntity.ItemAdditionalTax,
-                ItemPrice = itemEntity.ItemPrice,
-                ItemStatus = itemEntity.ItemStatus,
-                CategoryId = itemEntity.CategoryId,
-                ItemImage = itemEntity.ItemImage
-            };
-            return item;
+    public async Task<Result<bool>> UpdatePriceAsync(int id, decimal newPrice)
+    {
+        try
+        {
+            var entity = await _itemRepo.GetByIdAsync(id);
+            if (entity == null)
+                return Result<bool>.Failure("Item not found.");
+
+            entity.ItemPrice = newPrice;
+            await _itemRepo.UpdateAsync(entity);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error updating price: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> UpdateDiscountAsync(int id, decimal? newDiscount)
+    {
+        try
+        {
+            var entity = await _itemRepo.GetByIdAsync(id);
+            if (entity == null)
+                return Result<bool>.Failure("Item not found.");
+
+            entity.ItemDiscount = newDiscount;
+            await _itemRepo.UpdateAsync(entity);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error updating discount: {ex.Message}");
         }
     }
 }

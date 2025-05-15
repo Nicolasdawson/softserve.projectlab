@@ -1,9 +1,8 @@
-﻿using API.Models.IntAdmin;
-using API.Services.IntAdmin;
+﻿using API.Services.IntAdmin;
 using Microsoft.AspNetCore.Mvc;
+using softserve.projectlabs.Shared.DTOs.Item;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using softserve.projectlabs.Shared.DTOs.Item;
 
 namespace API.Controllers.IntAdmin
 {
@@ -22,7 +21,7 @@ namespace API.Controllers.IntAdmin
         /// Creates a new item using the provided DTO.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CreateItem([FromBody] ItemDto itemDto)
+        public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto itemDto)
         {
             var result = await _itemService.CreateItemAsync(itemDto);
             return result.IsSuccess ? Ok(result.Data) : BadRequest(result.ErrorMessage);
@@ -65,12 +64,7 @@ namespace API.Controllers.IntAdmin
         public async Task<IActionResult> DeleteItem(int itemId)
         {
             var result = await _itemService.DeleteItemAsync(itemId);
-            if (!result.IsSuccess)
-            {
-                return NotFound(result.ErrorMessage);
-            }
-
-            return NoContent();
+            return result.IsSuccess ? NoContent() : NotFound(result.ErrorMessage);
         }
 
         /// <summary>
