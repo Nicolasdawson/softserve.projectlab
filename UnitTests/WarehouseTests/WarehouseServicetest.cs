@@ -3,6 +3,9 @@ using API.Services.Logistics;
 using Moq;
 using API.Data.Repositories.LogisticsRepositories.Interfaces;
 using API.Data.Entities;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 [TestFixture]
 public class WarehouseServiceTests
@@ -34,9 +37,15 @@ public class WarehouseServiceTests
 
         var result = await _service.GetAllWarehousesAsync();
 
-        Assert.That(result.Count, Is.EqualTo(1)); // Should return one warehouse DTO
-        Assert.That(result[0].WarehouseId, Is.EqualTo(1)); // WarehouseId should be 1
-        Assert.That(result[0].Name, Is.Not.Null); // Name should not be null (mapping logic)
+        TestContext.WriteLine($"Result count: {result.Count}");
+        Assert.That(result.Count, Is.EqualTo(1), "Should return one warehouse DTO");
+        TestContext.WriteLine("Asserted that one warehouse DTO is returned.");
+
+        Assert.That(result[0].WarehouseId, Is.EqualTo(1), "WarehouseId should be 1");
+        TestContext.WriteLine("Asserted that WarehouseId is 1.");
+
+        Assert.That(result[0].Name, Is.Not.Null, "Name should not be null (mapping logic)");
+        TestContext.WriteLine("Asserted that warehouse name is not null.");
     }
 
     [Test]
@@ -46,8 +55,12 @@ public class WarehouseServiceTests
 
         var result = await _service.GetAllWarehousesAsync();
 
-        Assert.That(result, Is.Not.Null); // Should not be null even if domain fails
-        Assert.That(result.Count, Is.EqualTo(0)); // Should return an empty list
+        TestContext.WriteLine($"Result is null: {result == null}");
+        Assert.That(result, Is.Not.Null, "Should not be null even if domain fails");
+        TestContext.WriteLine("Asserted that result is not null.");
+
+        Assert.That(result.Count, Is.EqualTo(0), "Should return an empty list");
+        TestContext.WriteLine("Asserted that result is an empty list.");
     }
 
     [Test]
@@ -65,9 +78,15 @@ public class WarehouseServiceTests
 
         var result = await _service.GetWarehouseByIdAsync(1);
 
-        Assert.That(result.IsSuccess, Is.True); // Should succeed when warehouse is found
-        Assert.That(result.Data.WarehouseId, Is.EqualTo(1)); // WarehouseId should be 1
-        Assert.That(result.Data.Name, Is.Not.Null); // Name should not be null (mapping logic)
+        TestContext.WriteLine($"Result: IsSuccess={result.IsSuccess}, WarehouseId={result.Data?.WarehouseId}, Name={result.Data?.Name}");
+        Assert.That(result.IsSuccess, Is.True, "Should succeed when warehouse is found");
+        TestContext.WriteLine("Asserted that warehouse is found.");
+
+        Assert.That(result.Data.WarehouseId, Is.EqualTo(1), "WarehouseId should be 1");
+        TestContext.WriteLine("Asserted that WarehouseId is 1.");
+
+        Assert.That(result.Data.Name, Is.Not.Null, "Name should not be null (mapping logic)");
+        TestContext.WriteLine("Asserted that warehouse name is not null.");
     }
 
     [Test]
@@ -77,8 +96,12 @@ public class WarehouseServiceTests
 
         var result = await _service.GetWarehouseByIdAsync(1);
 
-        Assert.That(result.IsSuccess, Is.False); // Should fail when warehouse is not found
-        Assert.That(result.ErrorMessage, Is.EqualTo("Warehouse not found.")); // Should return correct error message
+        TestContext.WriteLine($"Result: IsSuccess={result.IsSuccess}, ErrorMessage={result.ErrorMessage}");
+        Assert.That(result.IsSuccess, Is.False, "Should fail when warehouse is not found");
+        TestContext.WriteLine("Asserted that warehouse is not found.");
+
+        Assert.That(result.ErrorMessage, Is.EqualTo("Warehouse not found."), "Should return correct error message");
+        TestContext.WriteLine("Asserted that error message is correct.");
     }
 
     [Test]
@@ -97,8 +120,12 @@ public class WarehouseServiceTests
 
         var result = await _service.AddItemToWarehouseAsync(1, 100, 5);
 
-        Assert.That(result.IsSuccess, Is.True); // Should succeed when item is added
-        Assert.That(result.Data, Is.True); // Data should be true indicating update success
+        TestContext.WriteLine($"Result: IsSuccess={result.IsSuccess}, Data={result.Data}");
+        Assert.That(result.IsSuccess, Is.True, "Should succeed when item is added");
+        TestContext.WriteLine("Asserted that item addition succeeded.");
+
+        Assert.That(result.Data, Is.True, "Data should be true indicating update success");
+        TestContext.WriteLine("Asserted that update result is true.");
     }
 
     [Test]
@@ -108,8 +135,12 @@ public class WarehouseServiceTests
 
         var result = await _service.AddItemToWarehouseAsync(1, 100, 5);
 
-        Assert.That(result.IsSuccess, Is.False); // Should fail when warehouse is not found
-        Assert.That(result.ErrorMessage, Is.EqualTo("Warehouse not found.")); // Should return correct error message
+        TestContext.WriteLine($"Result: IsSuccess={result.IsSuccess}, ErrorMessage={result.ErrorMessage}");
+        Assert.That(result.IsSuccess, Is.False, "Should fail when warehouse is not found");
+        TestContext.WriteLine("Asserted that item addition failed as expected.");
+
+        Assert.That(result.ErrorMessage, Is.EqualTo("Warehouse not found."), "Should return correct error message");
+        TestContext.WriteLine("Asserted that error message is correct.");
     }
 
     [Test]
@@ -131,8 +162,12 @@ public class WarehouseServiceTests
 
         var result = await _service.RemoveItemFromWarehouseAsync(1, 100);
 
-        Assert.That(result.IsSuccess, Is.True); // Should succeed when item is removed
-        Assert.That(result.Data, Is.True); // Data should be true indicating update success
+        TestContext.WriteLine($"Result: IsSuccess={result.IsSuccess}, Data={result.Data}");
+        Assert.That(result.IsSuccess, Is.True, "Should succeed when item is removed");
+        TestContext.WriteLine("Asserted that item removal succeeded.");
+
+        Assert.That(result.Data, Is.True, "Data should be true indicating update success");
+        TestContext.WriteLine("Asserted that update result is true.");
     }
 
     [Test]
@@ -163,8 +198,11 @@ public class WarehouseServiceTests
 
         var result = await _service.TransferItemAsync(1, 100, 2, 2);
 
-        Assert.That(result.IsSuccess, Is.True); // Should succeed when transfer is successful
-        // You can add more asserts here to check the updated quantities if needed
+        TestContext.WriteLine($"Result: IsSuccess={result.IsSuccess}, Data={result.Data}");
+        Assert.That(result.IsSuccess, Is.True, "Should succeed when transfer is successful");
+        TestContext.WriteLine("Asserted that item transfer succeeded.");
+
+        Assert.That(result.Data, Is.True, "Data should be true indicating transfer success");
+        TestContext.WriteLine("Asserted that transfer result is true.");
     }
 }
-

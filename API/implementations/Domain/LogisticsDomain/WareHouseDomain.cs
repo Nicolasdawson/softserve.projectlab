@@ -54,7 +54,8 @@ namespace API.Implementations.Domain
                     Sku = wi.Sku,
                     ItemName = wi.SkuNavigation?.ItemName ?? "",
                     ItemDescription = wi.SkuNavigation?.ItemDescription ?? "",
-                    CurrentStock = wi.ItemQuantity
+                    CurrentStock = wi.ItemQuantity,
+                    ItemPrice = wi.SkuNavigation?.ItemPrice ?? 0,
                 }).ToList() ?? new List<Item>()
             );
             return warehouse;
