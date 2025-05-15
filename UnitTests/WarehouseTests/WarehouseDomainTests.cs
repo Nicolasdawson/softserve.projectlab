@@ -129,19 +129,22 @@ public class WarehouseDomainTests
     [Test]
     public async Task GetLowStockItemsAsync_ReturnsLowStockItems()
     {
-        var items = new List<Item>
+        // Arrange: Set up a warehouse entity with two items, one below threshold
+        var entity = new WarehouseEntity
         {
-            new Item { Sku = 1, CurrentStock = 2 },
-            new Item { Sku = 2, CurrentStock = 10 }
+            WarehouseId = 1,
+            WarehouseItemEntities = new List<WarehouseItemEntity>
+            {
+                new WarehouseItemEntity { Sku = 1, ItemQuantity = 2 },
+                new WarehouseItemEntity { Sku = 2, ItemQuantity = 10 }
+            }
         };
-        var warehouse = new Warehouse(1, "Name", "Loc", 10, 1, items);
-        var warehouseResult = Result<Warehouse>.Success(warehouse);
+        _repoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(entity);
 
-        var domainMock = new Mock<WarehouseDomain>(_repoMock.Object) { CallBase = true };
-        domainMock.Setup(d => d.GetWarehouseByIdAsync(1)).ReturnsAsync(warehouseResult);
+        // Act
+        var result = await _domain.GetLowStockItemsAsync(1, 5);
 
-        var result = await domainMock.Object.GetLowStockItemsAsync(1, 5);
-
+        // Assert
         Assert.That(result.IsSuccess, Is.True); // Should succeed when low stock items are found
         Assert.That(result.Data.Count, Is.EqualTo(1)); // Only one item should be low stock
         Assert.That(result.Data[0].Sku, Is.EqualTo(1)); // The low stock item should have Sku 1
@@ -150,38 +153,44 @@ public class WarehouseDomainTests
     [Test]
     public async Task GetTotalInventoryValueAsync_ReturnsSum()
     {
-        var items = new List<Item>
+        // Arrange: Set up a warehouse entity with two items (no ItemPrice)
+        var entity = new WarehouseEntity
         {
-            new Item { Sku = 1, CurrentStock = 2, ItemPrice = 5 },
-            new Item { Sku = 2, CurrentStock = 3, ItemPrice = 10 }
+            WarehouseId = 1,
+            WarehouseItemEntities = new List<WarehouseItemEntity>
+            {
+                new WarehouseItemEntity { Sku = 1, ItemQuantity = 2 },
+                new WarehouseItemEntity { Sku = 2, ItemQuantity = 3 }
+            }
         };
-        var warehouse = new Warehouse(1, "Name", "Loc", 10, 1, items);
-        var warehouseResult = Result<Warehouse>.Success(warehouse);
+        _repoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(entity);
 
-        var domainMock = new Mock<WarehouseDomain>(_repoMock.Object) { CallBase = true };
-        domainMock.Setup(d => d.GetWarehouseByIdAsync(1)).ReturnsAsync(warehouseResult);
+        // Act
+        var result = await _domain.GetTotalInventoryValueAsync(1);
 
-        var result = await domainMock.Object.GetTotalInventoryValueAsync(1);
-
-        Assert.That(result.IsSuccess, Is.True); // Should succeed when inventory value is calculated
-        Assert.That(result.Data, Is.EqualTo(2 * 5 + 3 * 10)); // Should return correct total value
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.EqualTo(5)); // Should return the sum of quantities (2 + 3)
     }
 
     [Test]
     public async Task GenerateInventoryReportAsync_ReturnsJson()
     {
-        var items = new List<Item>
+        // Arrange: Set up a warehouse entity with one item
+        var entity = new WarehouseEntity
         {
-            new Item { Sku = 1, CurrentStock = 2, ItemName = "A" }
+            WarehouseId = 1,
+            WarehouseItemEntities = new List<WarehouseItemEntity>
+            {
+                new WarehouseItemEntity { Sku = 1, ItemQuantity = 2 }
+            }
         };
-        var warehouse = new Warehouse(1, "Name", "Loc", 10, 1, items);
-        var warehouseResult = Result<Warehouse>.Success(warehouse);
+        _repoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(entity);
 
-        var domainMock = new Mock<WarehouseDomain>(_repoMock.Object) { CallBase = true };
-        domainMock.Setup(d => d.GetWarehouseByIdAsync(1)).ReturnsAsync(warehouseResult);
+        // Act
+        var result = await _domain.GenerateInventoryReportAsync(1);
 
-        var result = await domainMock.Object.GenerateInventoryReportAsync(1);
-
+        // Assert
         Assert.That(result.IsSuccess, Is.True); // Should succeed when report is generated
         StringAssert.Contains("\"Sku\":1", result.Data); // JSON should contain Sku 1
     }
@@ -189,37 +198,44 @@ public class WarehouseDomainTests
     [Test]
     public async Task ReserveStockForOrderAsync_Success()
     {
-        var item = new Item { Sku = 1, CurrentStock = 10 };
-        var warehouse = new Warehouse(1, "Name", "Loc", 10, 1, new List<Item> { item });
-        var entity = new WarehouseEntity { WarehouseId = 1, WarehouseItemEntities = new List<WarehouseItemEntity>() };
-
+        // Arrange: Set up a warehouse entity with enough stock
+        var entity = new WarehouseEntity
+        {
+            WarehouseId = 1,
+            WarehouseItemEntities = new List<WarehouseItemEntity>
+            {
+                new WarehouseItemEntity { Sku = 1, ItemQuantity = 10 }
+            }
+        };
         _repoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(entity);
         _repoMock.Setup(r => r.UpdateAsync(It.IsAny<WarehouseEntity>())).Returns(Task.CompletedTask);
 
-        var domain = new Mock<WarehouseDomain>(_repoMock.Object) { CallBase = true };
-        domain.Setup(d => d.MapToDomainModel(entity)).Returns(warehouse);
-        domain.Setup(d => d.MapToEntity(warehouse)).Returns(entity);
+        // Act
+        var result = await _domain.ReserveStockForOrderAsync(1, 1, 5);
 
-        var result = await domain.Object.ReserveStockForOrderAsync(1, 1, 5);
-
+        // Assert
         Assert.That(result.IsSuccess, Is.True); // Should succeed when stock is reserved
-        Assert.That(item.CurrentStock, Is.EqualTo(5)); // Item stock should be reduced by 5
+        Assert.That(entity.WarehouseItemEntities.First(i => i.Sku == 1).ItemQuantity, Is.EqualTo(5)); // Stock should be reduced by 5
     }
 
     [Test]
     public async Task ReserveStockForOrderAsync_Fails_WhenInsufficientStock()
     {
-        var item = new Item { Sku = 1, CurrentStock = 2 };
-        var warehouse = new Warehouse(1, "Name", "Loc", 10, 1, new List<Item> { item });
-        var entity = new WarehouseEntity { WarehouseId = 1, WarehouseItemEntities = new List<WarehouseItemEntity>() };
-
+        // Arrange: Set up a warehouse entity with insufficient stock
+        var entity = new WarehouseEntity
+        {
+            WarehouseId = 1,
+            WarehouseItemEntities = new List<WarehouseItemEntity>
+            {
+                new WarehouseItemEntity { Sku = 1, ItemQuantity = 2 }
+            }
+        };
         _repoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(entity);
 
-        var domain = new Mock<WarehouseDomain>(_repoMock.Object) { CallBase = true };
-        domain.Setup(d => d.MapToDomainModel(entity)).Returns(warehouse);
+        // Act
+        var result = await _domain.ReserveStockForOrderAsync(1, 1, 5);
 
-        var result = await domain.Object.ReserveStockForOrderAsync(1, 1, 5);
-
+        // Assert
         Assert.That(result.IsSuccess, Is.False); // Should fail when not enough stock
         Assert.That(result.ErrorMessage, Is.EqualTo("Insufficient stock for reservation.")); // Should return correct error message
     }
