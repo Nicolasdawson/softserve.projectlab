@@ -1,4 +1,4 @@
-﻿namespace API.Models.Logistics
+﻿namespace API.Models.Logistics.Branch
 {
     public class Branch
     {

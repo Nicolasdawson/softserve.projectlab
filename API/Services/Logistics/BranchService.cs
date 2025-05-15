@@ -3,6 +3,7 @@ using API.Models.Logistics;
 using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.DTOs;
 using softserve.projectlabs.Shared.Interfaces;
+using API.Models.Logistics.Branch;
 
 namespace API.Services.Logistics
 {

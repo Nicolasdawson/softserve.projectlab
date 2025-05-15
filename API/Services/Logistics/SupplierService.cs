@@ -3,6 +3,7 @@ using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.DTOs;
 using softserve.projectlabs.Shared.Interfaces;
 using API.Models.Logistics;
+using API.Models.Logistics.Supplier;
 
 namespace API.Services.Logistics
 {    
@@ -61,21 +62,7 @@ namespace API.Services.Logistics
 
         public async Task<Result<bool>> UndeleteSupplierAsync(int supplierId)
         {
-            // This logic should ideally be in the domain layer for consistency.
-            var domainResult = await _supplierDomain.GetSupplierByIdAsync(supplierId);
-            if (!domainResult.IsSuccess)
-                return Result<bool>.Failure("Supplier not found.");
-
-            var supplier = domainResult.Data;
-            if (!supplier.IsDeleted)
-                return Result<bool>.Failure("Supplier is already active.");
-
-            supplier.MarkAsActive();
-            var updateResult = await _supplierDomain.UpdateSupplier(supplier);
-            if (!updateResult.IsSuccess)
-                return Result<bool>.Failure(updateResult.ErrorMessage);
-
-            return Result<bool>.Success(true);
+            return await _supplierDomain.UndeleteSupplierAsync(supplierId);
         }
 
         public async Task<Result<bool>> AddItemToSupplierAsync(int supplierId, int sku)

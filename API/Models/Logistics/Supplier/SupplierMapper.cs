@@ -1,8 +1,7 @@
-﻿using API.Models.Logistics;
-using softserve.projectlabs.Shared.DTOs;
+﻿using softserve.projectlabs.Shared.DTOs;
 using API.Data.Entities;
 
-namespace API.Models.Logistics
+namespace API.Models.Logistics.Supplier
 {
     public static class SupplierMapper
     {

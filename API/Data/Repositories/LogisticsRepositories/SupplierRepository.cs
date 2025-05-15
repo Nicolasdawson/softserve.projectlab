@@ -56,7 +56,7 @@ namespace API.Data.Repositories.LogisticsRepositories
                 .AnyAsync(si => si.SupplierId == supplierId && si.Sku == sku);
         }
 
-        public async Task LinkItemToSupplier(int supplierId, int sku)
+        public async Task<bool> LinkItemToSupplier(int supplierId, int sku)
         {
             var entity = new SupplierItemEntity
             {
@@ -64,8 +64,26 @@ namespace API.Data.Repositories.LogisticsRepositories
                 Sku = sku
             };
             _context.SupplierItemEntities.Add(entity);
-            await _context.SaveChangesAsync();
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
         }
 
+        public async Task<bool> UndeleteAsync(int supplierId)
+        {
+            var supplier = await GetByIdAsync(supplierId);
+            if (supplier == null)
+                return false;
+
+            supplier.IsDeleted = false;
+            supplier.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> AddItemToSupplierAsync(int supplierId, int sku)
+        {
+            // If this is just an alias for LinkItemToSupplier, you can call it:
+            return await LinkItemToSupplier(supplierId, sku);
+        }
     }
 }

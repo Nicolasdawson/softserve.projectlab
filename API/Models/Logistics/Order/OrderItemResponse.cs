@@ -1,4 +1,4 @@
-﻿namespace API.Models.Logistics
+﻿namespace API.Models.Logistics.Order
 {
     public class OrderItemResponse
     {
