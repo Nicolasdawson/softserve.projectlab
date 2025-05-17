@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace softserve.projectlabs.Shared.DTOs.Category;
+
+public class CategoryUpdateDto
+{
+    public string CategoryName { get; set; } = string.Empty;
+    public bool CategoryStatus { get; set; } = true;
+}
+

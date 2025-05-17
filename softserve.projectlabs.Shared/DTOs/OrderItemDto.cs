@@ -2,10 +2,15 @@
 {
     public class OrderItemDto
     {
-        public int ItemId { get; set; } // Unique identifier for the item
-        public string ItemName { get; set; } // Name of the item
-        public int Quantity { get; set; } // Quantity of the item in the order
-        public decimal UnitPrice { get; set; } // Price per unit of the item
-        public decimal TotalPrice => Quantity * UnitPrice; // Calculated total price for the item
+        public int Sku { get; set; }
+        public int ItemId { get; set; } 
+        public string ItemName { get; set; } 
+        public string ItemDescription { get; set; } 
+        public decimal UnitPrice { get; set; } 
+        public int Quantity { get; set; } 
+        public string Category { get; set; } 
+        public string Manufacturer { get; set; } 
+        public string ImageUrl { get; set; } 
+        public decimal TotalPrice => Quantity * UnitPrice; 
     }
 }

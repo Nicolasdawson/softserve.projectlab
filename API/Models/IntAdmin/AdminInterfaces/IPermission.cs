@@ -1,13 +1,10 @@
-﻿using API.Data.Entities;
-using System.Collections.Generic;
-using softserve.projectlabs.Shared.Utilities;
+﻿using softserve.projectlabs.Shared.Utilities;
 
-namespace API.Models.IntAdmin.Interfaces
+namespace API.Models.IntAdmin.AdminInterfaces;
+
+public interface IPermission
 {
-    public interface IPermission
-    {
-        int PermissionId { get; set; }
-        string PermissionName { get; set; }
-        string PermissionDescription { get; set; }
-    }
+    int PermissionId { get; set; }
+    string PermissionName { get; set; }
+    string PermissionDescription { get; set; }
 }

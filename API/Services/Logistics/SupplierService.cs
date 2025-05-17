@@ -1,74 +1,74 @@
-﻿using API.Data.Entities;
-using API.Implementations.Domain;
-using Logistics.Models;
-using API.Models;
-using API.Data;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using API.Implementations.Domain;
 using softserve.projectlabs.Shared.Utilities;
-using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.DTOs;
+using softserve.projectlabs.Shared.Interfaces;
+using API.Models.Logistics;
+using API.Models.Logistics.Supplier;
 
 namespace API.Services.Logistics
-{
+{    
     public class SupplierService : ISupplierService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly SupplierDomain _supplierDomain;
 
-        public SupplierService(ApplicationDbContext context, IMapper mapper)
+        public SupplierService(SupplierDomain supplierDomain)
         {
-            _context = context;
-            _mapper = mapper;
+            _supplierDomain = supplierDomain;
         }
 
         public async Task<Result<SupplierDto>> CreateSupplierAsync(SupplierDto supplierDto)
         {
-            var entity = _mapper.Map<SupplierEntity>(supplierDto);
-            _context.SupplierEntities.Add(entity);
-            await _context.SaveChangesAsync();
-            return Result<SupplierDto>.Success(_mapper.Map<SupplierDto>(entity));
+            var supplier = supplierDto.ToDomain();
+            var domainResult = await _supplierDomain.CreateSupplier(supplier);
+            if (!domainResult.IsSuccess)
+                return Result<SupplierDto>.Failure(domainResult.ErrorMessage);
+
+            return Result<SupplierDto>.Success(domainResult.Data.ToDto());
         }
 
         public async Task<Result<SupplierDto>> GetSupplierByIdAsync(int supplierId)
         {
-            var entity = await _context.SupplierEntities.FindAsync(supplierId);
-            if (entity == null)
-            {
-                return Result<SupplierDto>.Failure("Supplier not found.");
-            }
-            return Result<SupplierDto>.Success(_mapper.Map<SupplierDto>(entity));
+            var domainResult = await _supplierDomain.GetSupplierByIdAsync(supplierId);
+            if (!domainResult.IsSuccess)
+                return Result<SupplierDto>.Failure(domainResult.ErrorMessage);
+
+            return Result<SupplierDto>.Success(domainResult.Data.ToDto());
         }
 
         public async Task<Result<List<SupplierDto>>> GetAllSuppliersAsync()
         {
-            var entities = await _context.SupplierEntities.ToListAsync();
-            return Result<List<SupplierDto>>.Success(_mapper.Map<List<SupplierDto>>(entities));
+            var domainResult = await _supplierDomain.GetAllSuppliersAsync();
+            if (!domainResult.IsSuccess)
+                return Result<List<SupplierDto>>.Failure(domainResult.ErrorMessage);
+
+            var supplierDtos = domainResult.Data.Select(s => s.ToDto()).ToList();
+            return Result<List<SupplierDto>>.Success(supplierDtos);
         }
 
         public async Task<Result<SupplierDto>> UpdateSupplierAsync(SupplierDto supplierDto)
         {
-            var entity = await _context.SupplierEntities.FindAsync(supplierDto.SupplierId);
-            if (entity == null)
-            {
-                return Result<SupplierDto>.Failure("Supplier not found.");
-            }
-            _mapper.Map(supplierDto, entity);
-            await _context.SaveChangesAsync();
-            return Result<SupplierDto>.Success(_mapper.Map<SupplierDto>(entity));
+            var supplier = supplierDto.ToDomain();
+            var domainResult = await _supplierDomain.UpdateSupplier(supplier);
+            if (!domainResult.IsSuccess)
+                return Result<SupplierDto>.Failure(domainResult.ErrorMessage);
+
+            return Result<SupplierDto>.Success(domainResult.Data.ToDto());
         }
 
         public async Task<Result<bool>> DeleteSupplierAsync(int supplierId)
         {
-            var entity = await _context.SupplierEntities.FindAsync(supplierId);
-            if (entity == null)
-            {
-                return Result<bool>.Failure("Supplier not found.");
-            }
-            _context.SupplierEntities.Remove(entity);
-            await _context.SaveChangesAsync();
-            return Result<bool>.Success(true);
+            return await _supplierDomain.RemoveSupplierAsync(supplierId);
+        }
+
+        public async Task<Result<bool>> UndeleteSupplierAsync(int supplierId)
+        {
+            return await _supplierDomain.UndeleteSupplierAsync(supplierId);
+        }
+
+        public async Task<Result<bool>> AddItemToSupplierAsync(int supplierId, int sku)
+        {
+            var result = await _supplierDomain.LinkItemToSupplier(supplierId, sku);
+            return result;
         }
     }
 }
-

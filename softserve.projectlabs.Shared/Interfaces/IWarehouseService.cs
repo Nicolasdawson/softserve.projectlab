@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.DTOs;
+using softserve.projectlabs.Shared.DTOs.Item;
 using softserve.projectlabs.Shared.Utilities;
 
 namespace softserve.projectlabs.Shared.Interfaces
 {
     public interface IWarehouseService
     {
-        Task<List<WarehouseResponseDto>> GetWarehousesAsync();
+        Task<List<WarehouseResponseDto>> GetAllWarehousesAsync();
         Task<Result<WarehouseResponseDto>> GetWarehouseByIdAsync(int warehouseId);
-        Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto);
+        Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, int sku, int quantity);
         Task<Result<bool>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId);
         Task<Result<int>> CheckWarehouseStockAsync(int warehouseId, int sku);
         Task<Result<bool>> TransferItemAsync(int sourceWarehouseId, int sku, int quantity, int targetWarehouseId);
@@ -18,7 +19,11 @@ namespace softserve.projectlabs.Shared.Interfaces
         Task<Result<string>> GenerateInventoryReportAsync(int warehouseId);
         Task<Result<bool>> DeleteWarehouseAsync(int warehouseId);
         Task<Result<bool>> UndeleteWarehouseAsync(int warehouseId);
-        Task<Result<bool>> CreateWarehouseAsync(WarehouseDto warehouseDto);
+        Task<Result<WarehouseResponseDto>> CreateWarehouseAsync(WarehouseDto warehouseDto);
+        Task<Result<bool>> SoftDeleteWarehouseAsync(int warehouseId);
+
+
 
     }
+
 }

@@ -1,14 +1,11 @@
-﻿using API.Data.Entities;
-using System.Collections.Generic;
-using softserve.projectlabs.Shared.Utilities;
+﻿using softserve.projectlabs.Shared.Utilities;
 
-namespace API.Models.IntAdmin.Interfaces
+namespace API.Models.IntAdmin.AdminInterfaces;
+
+public interface ICatalog
 {
-    public interface ICatalog
-    {
-        int CatalogID { get; set; }
-        string CatalogName { get; set; }
-        string CatalogDescription { get; set; }
-        bool CatalogStatus { get; set; }
-    }
+    int CatalogID { get; set; }
+    string CatalogName { get; set; }
+    string CatalogDescription { get; set; }
+    bool CatalogStatus { get; set; }
 }

@@ -1,16 +1,17 @@
-﻿using API.Models.Logistics;
-using API.Services.Logistics;
+﻿using API.Services.Logistics;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using softserve.projectlabs.Shared.Utilities;
 using softserve.projectlabs.Shared.Interfaces;
 using softserve.projectlabs.Shared.DTOs;
-using AutoMapper; // Add this for mapping
+using AutoMapper;
+using API.Models.Logistics.Order;
 
 namespace API.Controllers.Logistics
 {
     /// <summary>
     /// Controller for managing orders in the logistics system.
+    /// Provides endpoints for retrieving, updating, deleting, and fulfilling orders.
     /// </summary>
     [Route("api/orders")]
     [ApiController]
@@ -31,24 +32,13 @@ namespace API.Controllers.Logistics
         }
 
         /// <summary>
-        /// Creates a new order.
+        /// Retrieves an order by its unique ID.
         /// </summary>
-        /// <param name="orderRequest">The order request containing order details.</param>
-        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-        [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] OrderItemRequest orderRequest)
-        {
-            var orderRequestDto = _mapper.Map<OrderItemRequestDto>(orderRequest);
-            var result = await _orderService.CreateOrderAsync(orderRequestDto);
-            return result.IsSuccess ? CreatedAtAction(nameof(GetOrderById), new { id = result.Data.OrderId }, result.Data)
-                                    : BadRequest(result.ErrorMessage);
-        }
-
-        /// <summary>
-        /// Retrieves an order by its ID.
-        /// </summary>
-        /// <param name="id">The ID of the order to retrieve.</param>
-        /// <returns>An <see cref="IActionResult"/> containing the order details or an error message.</returns>
+        /// <param name="id">The unique identifier of the order to retrieve.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> containing the order details if found, 
+        /// or a 404 Not Found response if the order does not exist.
+        /// </returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderById(int id)
         {
@@ -57,9 +47,12 @@ namespace API.Controllers.Logistics
         }
 
         /// <summary>
-        /// Retrieves all orders.
+        /// Retrieves all orders in the system.
         /// </summary>
-        /// <returns>An <see cref="IActionResult"/> containing a list of all orders or an error message.</returns>
+        /// <returns>
+        /// An <see cref="IActionResult"/> containing a list of all orders if any exist, 
+        /// or a 404 Not Found response if no orders are found.
+        /// </returns>
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
@@ -68,11 +61,14 @@ namespace API.Controllers.Logistics
         }
 
         /// <summary>
-        /// Updates an existing order.
+        /// Updates an existing order by its unique ID.
         /// </summary>
-        /// <param name="id">The ID of the order to update.</param>
+        /// <param name="id">The unique identifier of the order to update.</param>
         /// <param name="order">The updated order details.</param>
-        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        /// <returns>
+        /// An <see cref="IActionResult"/> containing the updated order details if successful, 
+        /// or a 404 Not Found response if the order does not exist.
+        /// </returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
         {
@@ -83,10 +79,14 @@ namespace API.Controllers.Logistics
         }
 
         /// <summary>
-        /// Deletes an order by its ID.
+        /// Deletes an order by its unique ID.
         /// </summary>
-        /// <param name="id">The ID of the order to delete.</param>
-        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        /// <param name="id">The unique identifier of the order to delete.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> indicating the result of the operation:
+        /// - 204 No Content if the order was successfully deleted.
+        /// - 404 Not Found if the order does not exist.
+        /// </returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
@@ -97,7 +97,44 @@ namespace API.Controllers.Logistics
             }
             return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
+
+        /// <summary>
+        /// Retrieves an order by its associated cart ID.
+        /// </summary>
+        /// <param name="cartId">The ID of the cart associated with the order.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the order details or an error message.</returns>
+        [HttpGet("cart/{cartId}")]
+        public async Task<IActionResult> RetrieveOrderByCartId(int cartId)
+        {
+            var result = await _orderService.RetrieveOrderByCartIdAsync(cartId);
+            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Marks an order as fulfilled by its unique ID.
+        /// </summary>
+        /// <param name="orderId">The unique identifier of the order to fulfill.</param>
+        /// <returns>
+        /// An <see cref="IActionResult"/> indicating the result of the operation:
+        /// - 200 OK with a success message if the order was fulfilled.
+        /// - 400 Bad Request if the operation failed.
+        /// </returns>
+        [HttpPost("{orderId}/fulfill")]
+        public async Task<IActionResult> FulfillOrder(int orderId)
+        {
+            var result = await _orderService.FulfillOrderAsync(orderId);
+            return result.IsSuccess ? Ok("Order fulfilled successfully.") : BadRequest(result.ErrorMessage);
+        }
+
+        /// <summary>
+        /// Retrieves all unsaved orders and saves them to the database.
+        /// </summary>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        [HttpPost("save-unsaved-orders")]
+        public async Task<IActionResult> RetrieveAndSaveAllUnsavedOrders()
+        {
+            var result = await _orderService.RetrieveAndSaveAllUnsavedOrdersAsync();
+            return result.IsSuccess ? Ok("All unsaved orders have been saved.") : BadRequest(result.ErrorMessage);
+        }
     }
 }
-
-

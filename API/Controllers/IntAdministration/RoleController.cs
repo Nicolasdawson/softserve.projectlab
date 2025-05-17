@@ -1,8 +1,8 @@
-﻿using softserve.projectlabs.Shared.DTOs;
-using API.Models.IntAdmin;
+﻿using API.Models.IntAdmin;
 using API.Services.IntAdmin;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using softserve.projectlabs.Shared.DTOs.Role;
 
 namespace API.Controllers.IntAdmin
 {
@@ -68,14 +68,15 @@ namespace API.Controllers.IntAdmin
         /// Removes a role by its unique ID.
         /// </summary>
         [HttpDelete("{roleId}")]
-        public async Task<IActionResult> RemoveRole(int roleId)
+        public async Task<IActionResult> DeleteRole(int roleId)
         {
             var result = await _roleService.DeleteRoleAsync(roleId);
-            if (result.IsNoContent)
+            if (!result.IsSuccess)
             {
-                return NoContent();
+                return NotFound(result.ErrorMessage);
             }
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+
+            return NoContent();
         }
 
         /// <summary>

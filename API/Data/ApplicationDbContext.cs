@@ -70,7 +70,6 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<WarehouseItemEntity> WarehouseItemEntities { get; set; }
 
-  
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BranchEntity>(entity =>
@@ -618,6 +617,10 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("SupplierItemEntity");
 
+            entity.Property(e => e.ExpectedDeliveryDate).HasColumnType("datetime");
+            entity.Property(e => e.OrderDate).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(50);
+
             entity.HasOne(d => d.SkuNavigation).WithMany(p => p.SupplierItemEntities)
                 .HasForeignKey(d => d.Sku)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -655,9 +658,14 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.UserLastName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.UserPassword)
-                .HasMaxLength(255)
-                .IsUnicode(false);
+            entity.Property(e => e.PasswordHash)
+                .IsRequired()
+                .HasColumnType("varbinary(max)");
+
+            entity.Property(e => e.PasswordSalt)
+                .IsRequired()
+                .HasColumnType("varbinary(max)");
+
 
             entity.HasOne(d => d.Branch).WithMany(p => p.UserEntities)
                 .HasForeignKey(d => d.BranchId)

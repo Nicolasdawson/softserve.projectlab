@@ -8,13 +8,13 @@ namespace API.Data.Mapping
     {
         public BaseMapping()
         {
+            // Mapeo base para campos de auditoría
             CreateMap<BaseEntity, BaseDto>()
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
-                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
-                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted));
-
-            // Si también quieres mapear de DTO a Entity:
-            // CreateMap<BaseDto, BaseEntity>();
+                .ReverseMap()
+                // Ignoramos los campos de auditoría en el mapeo inverso
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
         }
     }
 }

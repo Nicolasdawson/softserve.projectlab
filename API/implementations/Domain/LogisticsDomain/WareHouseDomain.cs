@@ -1,51 +1,80 @@
-﻿using API.Models.IntAdmin;
-using API.Models.Logistics.Interfaces;
-using API.Data.Entities;
-using API.Models;
-using API.Data;
-using API.Models.Logistics;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
+﻿using API.Data.Entities;
+using API.Data.Repositories.LogisticsRepositories.Interfaces;
 using softserve.projectlabs.Shared.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using softserve.projectlabs.Shared.DTOs;
+using API.Models.IntAdmin;
+using API.Models.Logistics.Warehouse;
+using API.Models.Logistics.Warehouses;
 
 namespace API.Implementations.Domain
 {
     public class WarehouseDomain
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IWarehouseRepository _warehouseRepository;
 
-        public WarehouseDomain(ApplicationDbContext context, IMapper mapper)
+        public WarehouseDomain(IWarehouseRepository warehouseRepository)
         {
-            _context = context;
-            _mapper = mapper;
+            _warehouseRepository = warehouseRepository;
+        }
+
+        // Map Domain Model → Data Model
+        public WarehouseEntity MapToEntity(Warehouse warehouse)
+        {
+            return new WarehouseEntity
+            {
+                WarehouseId = warehouse.WarehouseId,
+                WarehouseLocation = warehouse.Location,
+                WarehouseCapacity = warehouse.Capacity,
+                BranchId = warehouse.BranchId,
+                IsDeleted = false,
+                WarehouseItemEntities = warehouse.Items.Select(item => new WarehouseItemEntity
+                {
+                    Sku = item.Sku,
+                    ItemQuantity = item.CurrentStock
+                }).ToList()
+            };
+        }
+
+        // Map Data Model → Domain Model
+        public Warehouse MapToDomainModel(WarehouseEntity entity)
+        {
+            var warehouse = new Warehouse(
+                entity.WarehouseId,
+                $"Warehouse {entity.WarehouseId}",
+                entity.WarehouseLocation,
+                entity.WarehouseCapacity,
+                entity.BranchId,
+                entity.WarehouseItemEntities?.Select(wi => new Item
+                {
+                    ItemId = wi.Sku,
+                    Sku = wi.Sku,
+                    ItemName = wi.SkuNavigation?.ItemName ?? "",
+                    ItemDescription = wi.SkuNavigation?.ItemDescription ?? "",
+                    CurrentStock = wi.ItemQuantity,
+                    ItemPrice = wi.SkuNavigation?.ItemPrice ?? 0,
+                }).ToList() ?? new List<Item>()
+            );
+            return warehouse;
         }
 
         public async Task<Result<Warehouse>> GetWarehouseByIdAsync(int warehouseId)
         {
             try
             {
-                var entity = await _context.WarehouseEntities
-                  .Where(w => !w.IsDeleted)
-                  .Include(w => w.WarehouseItemEntities)
-                  .ThenInclude(wi => wi.SkuNavigation) // Include the navigation property
-                  .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
-
-
+                var entity = await _warehouseRepository.GetByIdAsync(warehouseId);
                 if (entity == null)
-                    return Result<Warehouse>.Failure("Warehouse not found", 404);
+                    return Result<Warehouse>.Failure("Warehouse not found.");
 
-                var warehouse = _mapper.Map<Warehouse>(entity);
+                var warehouse = MapToDomainModel(entity);
                 return Result<Warehouse>.Success(warehouse);
             }
             catch (Exception ex)
             {
-                return Result<Warehouse>.Failure(
-                    $"Failed to retrieve warehouse: {ex.Message}",
-                    500,
-                    ex.StackTrace);
+                return Result<Warehouse>.Failure($"Failed to retrieve warehouse: {ex.Message}");
             }
         }
 
@@ -53,174 +82,50 @@ namespace API.Implementations.Domain
         {
             try
             {
-                var entities = await _context.WarehouseEntities
-                    .Where(w => !w.IsDeleted) 
-                    .Include(w => w.Branch)
-                    .Include(w => w.WarehouseItemEntities)
-                    .ThenInclude(wi => wi.SkuNavigation)
-                    .ToListAsync();
-
-                return Result<List<Warehouse>>.Success(_mapper.Map<List<Warehouse>>(entities));
+                var entities = await _warehouseRepository.GetAllAsync();
+                var warehouses = entities.Select(MapToDomainModel).ToList();
+                return Result<List<Warehouse>>.Success(warehouses);
             }
             catch (Exception ex)
             {
-                return Result<List<Warehouse>>.Failure(
-                    $"Failed to retrieve warehouses: {ex.Message}",
-                    500,
-                    ex.StackTrace);
+                return Result<List<Warehouse>>.Failure($"Failed to retrieve warehouses: {ex.Message}");
             }
         }
 
-
-        public async Task<Result<bool>> AddItemToWarehouseAsync(int warehouseId, AddItemToWarehouseDTO itemDto)
+        public async Task<Result<Warehouse>> CreateWarehouseAsync(WarehouseDto warehouseDto)
         {
-            // Check if the item exists in the system
-            var existingItem = await _context.ItemEntities
-                .FirstOrDefaultAsync(i => i.Sku == itemDto.Sku);
-
-            if (existingItem == null)
-            {
-                return Result<bool>.Failure($"Item with SKU {itemDto.Sku} does not exist in the system. Please create the item first.");
-            }
-
-            // Check if the warehouse exists
-            var warehouse = await _context.WarehouseEntities
-                .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
-
-            if (warehouse == null)
-            {
-                return Result<bool>.Failure($"Warehouse with ID {warehouseId} does not exist.");
-            }
-
-            // Check if the item is already linked to the warehouse
-            var warehouseItem = await _context.WarehouseItemEntities
-                .FirstOrDefaultAsync(wi => wi.WarehouseId == warehouseId && wi.Sku == itemDto.Sku);
-
-            if (warehouseItem != null)
-            {
-                return Result<bool>.Failure($"Item with SKU {itemDto.Sku} is already linked to Warehouse ID {warehouseId}.");
-            }
-
-            // Link the item to the warehouse
-            var newWarehouseItem = new WarehouseItemEntity
-            {
-                WarehouseId = warehouseId,
-                Sku = existingItem.Sku,
-                ItemQuantity = 0 // Default quantity to 0
-            };
-
-            _context.WarehouseItemEntities.Add(newWarehouseItem);
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
-
-            return Result<bool>.Success(true);
-        }
-
-
-
-        public async Task<Result<Warehouse>> RemoveItemFromWarehouseAsync(int warehouseId, int itemId)
-        {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var warehouseResult = await GetWarehouseByIdAsync(warehouseId);
-                if (!warehouseResult.IsSuccess)
-                    return warehouseResult;
+                var warehouseEntity = new WarehouseEntity
+                {
+                    WarehouseLocation = warehouseDto.Location,
+                    WarehouseCapacity = warehouseDto.Capacity,
+                    BranchId = warehouseDto.BranchId,
+                    IsDeleted = false
+                };
 
-                var warehouseItem = await _context.WarehouseItemEntities
-                    .Include(wi => wi.Sku)
-                    .FirstOrDefaultAsync(wi => wi.WarehouseId == warehouseId && wi.Sku == itemId);
+                await _warehouseRepository.AddAsync(warehouseEntity);
 
-                if (warehouseItem == null)
-                    return Result<Warehouse>.Failure("Item not found in warehouse", 404);
-
-                _context.WarehouseItemEntities.Remove(warehouseItem);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                warehouseResult.Data.RemoveItemAsync(_mapper.Map<Item>(warehouseItem.Sku));
-                return warehouseResult;
+                var warehouse = MapToDomainModel(warehouseEntity);
+                return Result<Warehouse>.Success(warehouse);
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                return Result<Warehouse>.Failure(
-                    $"Failed to remove item: {ex.Message}",
-                    500,
-                    ex.StackTrace);
+                return Result<Warehouse>.Failure($"Failed to create warehouse: {ex.Message}");
             }
         }
 
-        public async Task<Result<bool>> TransferItemAsync(
-            Warehouse source,
-            int itemId,
-            int quantity,
-            Warehouse target)
+        public async Task<Result<bool>> UpdateWarehouseAsync(Warehouse warehouse)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Verify source has enough stock
-                var sourceItem = await _context.WarehouseItemEntities
-                    .Include(wi => wi.Sku)
-                    .FirstOrDefaultAsync(wi => wi.WarehouseId == source.WarehouseId && wi.Sku == itemId);
-
-                if (sourceItem == null || sourceItem.ItemQuantity < quantity)
-                    return Result<bool>.Failure("Insufficient stock for transfer", 400);
-
-                // Update source
-                sourceItem.ItemQuantity -= quantity;
-                _context.WarehouseItemEntities.Update(sourceItem);
-
-                // Update target
-                var targetItem = await _context.WarehouseItemEntities
-                    .FirstOrDefaultAsync(wi => wi.WarehouseId == target.WarehouseId && wi.Sku == itemId);
-
-                if (targetItem == null)
-                {
-                    await _context.WarehouseItemEntities.AddAsync(new WarehouseItemEntity
-                    {
-                        WarehouseId = target.WarehouseId,
-                        Sku = itemId,
-                        ItemQuantity = quantity
-                    });
-                }
-                else
-                {
-                    targetItem.ItemQuantity += quantity;
-                    _context.WarehouseItemEntities.Update(targetItem);
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                // Update domain models
-                await source.TransferItemAsync(itemId, quantity, target);
+                var warehouseEntity = MapToEntity(warehouse);
+                await _warehouseRepository.UpdateAsync(warehouseEntity);
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                return Result<bool>.Failure($"Transfer failed: {ex.Message}", 500);
-            }
-        }
-
-        public async Task<Result<int>> GetAvailableStockAsync(int warehouseId, int itemId)
-        {
-            try
-            {
-                var item = await _context.WarehouseItemEntities
-                    .FirstOrDefaultAsync(wi => wi.WarehouseId == warehouseId && wi.Sku == itemId);
-
-                return Result<int>.Success(item?.ItemQuantity ?? 0);
-            }
-            catch (Exception ex)
-            {
-                return Result<int>.Failure(
-                    $"Error checking stock: {ex.Message}",
-                    500,
-                    ex.StackTrace);
+                return Result<bool>.Failure($"Failed to update warehouse: {ex.Message}");
             }
         }
 
@@ -228,18 +133,12 @@ namespace API.Implementations.Domain
         {
             try
             {
-                var warehouse = await _context.WarehouseEntities
-                    .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
-
-                if (warehouse == null)
-                {
+                var warehouseEntity = await _warehouseRepository.GetByIdAsync(warehouseId);
+                if (warehouseEntity == null)
                     return Result<bool>.Failure("Warehouse not found.");
-                }
 
-                warehouse.IsDeleted = true; // Mark as deleted
-                _context.WarehouseEntities.Update(warehouse);
-                await _context.SaveChangesAsync();
-
+                warehouseEntity.IsDeleted = true;
+                await _warehouseRepository.UpdateAsync(warehouseEntity);
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)
@@ -252,23 +151,12 @@ namespace API.Implementations.Domain
         {
             try
             {
-                var warehouse = await _context.WarehouseEntities
-                    .FirstOrDefaultAsync(w => w.WarehouseId == warehouseId);
-
-                if (warehouse == null)
-                {
+                var warehouseEntity = await _warehouseRepository.GetByIdAsync(warehouseId);
+                if (warehouseEntity == null)
                     return Result<bool>.Failure("Warehouse not found.");
-                }
 
-                if (!warehouse.IsDeleted)
-                {
-                    return Result<bool>.Failure("Warehouse is already active.");
-                }
-
-                warehouse.IsDeleted = false; // Restore the warehouse
-                _context.WarehouseEntities.Update(warehouse);
-                await _context.SaveChangesAsync();
-
+                warehouseEntity.IsDeleted = false;
+                await _warehouseRepository.UpdateAsync(warehouseEntity);
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)
@@ -277,29 +165,59 @@ namespace API.Implementations.Domain
             }
         }
 
-        public async Task<Result<WarehouseEntity>> CreateWarehouseAsync(WarehouseEntity warehouseEntity)
+        public async Task<Result<List<Item>>> GetLowStockItemsAsync(int warehouseId, int threshold)
+        {
+            var warehouseResult = await GetWarehouseByIdAsync(warehouseId);
+            if (!warehouseResult.IsSuccess)
+                return Result<List<Item>>.Failure(warehouseResult.ErrorMessage);
+
+            var lowStockItems = warehouseResult.Data.Items.Where(item => item.CurrentStock <= threshold).ToList();
+            return Result<List<Item>>.Success(lowStockItems);
+        }
+
+        public async Task<Result<decimal>> GetTotalInventoryValueAsync(int warehouseId)
+        {
+            var warehouseResult = await GetWarehouseByIdAsync(warehouseId);
+            if (!warehouseResult.IsSuccess)
+                return Result<decimal>.Failure(warehouseResult.ErrorMessage);
+
+            var totalValue = warehouseResult.Data.Items.Sum(item => item.CurrentStock * item.ItemPrice);
+            return Result<decimal>.Success(totalValue);
+        }
+
+        public async Task<Result<string>> GenerateInventoryReportAsync(int warehouseId)
+        {
+            var warehouseResult = await GetWarehouseByIdAsync(warehouseId);
+            if (!warehouseResult.IsSuccess)
+                return Result<string>.Failure(warehouseResult.ErrorMessage);
+
+            var report = System.Text.Json.JsonSerializer.Serialize(warehouseResult.Data.Items);
+            return Result<string>.Success(report);
+        }
+
+        public async Task<Result<bool>> ReserveStockForOrderAsync(int warehouseId, int sku, int quantity)
         {
             try
             {
-                _context.WarehouseEntities.Add(warehouseEntity);
-                await _context.SaveChangesAsync();
+                var warehouseEntity = await _warehouseRepository.GetByIdAsync(warehouseId);
+                if (warehouseEntity == null)
+                    return Result<bool>.Failure("Warehouse not found.");
 
-                return Result<WarehouseEntity>.Success(warehouseEntity);
+                var warehouse = MapToDomainModel(warehouseEntity);
+                var item = warehouse.Items.FirstOrDefault(i => i.Sku == sku);
+
+                if (item == null || item.CurrentStock < quantity)
+                    return Result<bool>.Failure("Insufficient stock for reservation.");
+
+                item.CurrentStock -= quantity;
+
+                await _warehouseRepository.UpdateAsync(MapToEntity(warehouse));
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return Result<WarehouseEntity>.Failure($"Failed to create warehouse: {ex.Message}", 500, ex.StackTrace);
+                return Result<bool>.Failure($"Failed to reserve stock: {ex.Message}");
             }
         }
-
-        public async Task<WarehouseEntity?> GetWarehouseByNameAsync(string name)
-        {
-            return await _context.WarehouseEntities
-                .FirstOrDefaultAsync(w => w.WarehouseLocation == name && !w.IsDeleted);
-        }
-
-
-
-
     }
 }

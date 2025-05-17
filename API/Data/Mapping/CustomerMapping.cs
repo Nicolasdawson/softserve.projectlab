@@ -35,22 +35,48 @@ namespace API.Data.Mapping
             CreateMap<PremiumCustomer, CustomerEntity>()
                 .IncludeBase<Customer, CustomerEntity>();
 
-            //// Map LineOfCredit to LineOfCreditEntity
-            //CreateMap<LineOfCredit, LineOfCreditEntity>()
-            //    .ForMember(dest => dest.CreditLimit, opt => opt.MapFrom(src => src.CreditLimit))
-            //    .ForMember(dest => dest.AnnualInterestRate, opt => opt.MapFrom(src => src.AnnualInterestRate))
-            //    .ForMember(dest => dest.OpenDate, opt => opt.MapFrom(src => src.OpenDate))
-            //    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            // Map LineOfCredit to LineOfCreditEntity
+            CreateMap<LineOfCredit, LineOfCreditEntity>()
+                .ForMember(dest => dest.CreditLimit, opt => opt.MapFrom(src => src.CreditLimit))
+                .ForMember(dest => dest.CurrentBalance, opt => opt.MapFrom(src => src.GetBalance()));
 
-            //// Map Cart to CartEntity
-            //CreateMap<Cart, CartEntity>();
+            // Map CreditTransaction to CreditTransactionEntity
+            CreateMap<CreditTransaction, CreditTransactionEntity>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.TransactionType))
+                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(src => src.TransactionDate));
 
-            //// Map Package to PackageEntity
-            //CreateMap<Package, PackageEntity>()
-            //    .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Name)) // Adjusted to use PackageName
-            //    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-            //    .ForMember(dest => dest.SaleDate, opt => opt.MapFrom(src => src.SaleDate))
-            //    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            // Map Cart to CartEntity
+            CreateMap<Cart, CartEntity>()
+                .ForMember(dest => dest.CartId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt));
+
+            // Map CartItem to CartItemEntity
+            CreateMap<CartItem, CartItemEntity>()
+                .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.Item.Sku))
+                .ForMember(dest => dest.ItemQuantity, opt => opt.MapFrom(src => src.Quantity));
+
+            // Map Package to PackageEntity
+            CreateMap<Package, PackageEntity>()
+                .ForMember(dest => dest.PackageId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.Name));
+
+            // Map PackageItem to PackageItemEntity
+            CreateMap<PackageItem, PackageItemEntity>()
+                .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.Item.Sku))
+                .ForMember(dest => dest.ItemQuantity, opt => opt.MapFrom(src => src.Quantity));
+
+            // Map PackageNote to PackageNoteEntity
+            CreateMap<PackageNote, PackageNoteEntity>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
         }
     }
 }
