@@ -1,0 +1,90 @@
+﻿@page "/logistics-dashboard"
+
+<MudGrid>
+    <MudItem xs="12" md="6" lg="3">
+        <MudCard>
+            <MudCardContent>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>Orders</h5>
+                        <span class="text-muted">Last 7 days</span>
+                    </div>
+                    <div>
+                        <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Primary" />
+                    </div>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>1,234 Orders</h3>
+                        <small>892 Shipped</small>
+                    </div>
+                    <div>
+                        <MudChip Color="Color.Success" T="string">+5%</MudChip>
+                    </div>
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <!-- Add more cards for logistics metrics -->
+</MudGrid>
+
+<MudTable Items="@orders" Hover>
+    <HeaderContent>
+        <MudTh>Customer</MudTh>
+        <MudTh>Date</MudTh>
+        <MudTh>Type</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Gross Value</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Customer</MudTd>
+        <MudTd>@context.Date.ToShortDateString()</MudTd>
+        <MudTd>@context.Type</MudTd>
+        <MudTd>
+            <MudChip Color="Color.Success" T="string">@context.Status</MudChip>
+        </MudTd>
+        <MudTd>@context.GrossValue.ToString("C")</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<Order> orders = new List<Order>
+    {
+        new Order
+        {
+            Customer = "John Doe",
+            Date = DateTime.Now.AddDays(-5),
+            Type = "Online",
+            Status = "Shipped",
+            GrossValue = 150.75m
+        },
+        new Order
+        {
+            Customer = "Jane Smith",
+            Date = DateTime.Now.AddDays(-3),
+            Type = "Retail",
+            Status = "Processing",
+            GrossValue = 250.00m
+        },
+        new Order
+        {
+            Customer = "Alice Johnson",
+            Date = DateTime.Now.AddDays(-1),
+            Type = "Wholesale",
+            Status = "Delivered",
+            GrossValue = 500.50m
+        }
+    };
+}
+
+@functions {
+    public class Order
+    {
+        public string Customer { get; set; } = string.Empty;
+        public DateTime Date { get; set; }
+        public string Type { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public decimal GrossValue { get; set; }
+    }
+}

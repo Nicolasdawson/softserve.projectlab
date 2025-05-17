@@ -1,7 +1,100 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <!-- Hero Section -->
+    <MudPaper Elevation="2" Class="pa-4 mb-6">
+        <MudText Typo="Typo.h3" Class="mb-4">Welcome to the Admin Dashboard</MudText>
+        <MudText Class="mb-4">
+            This is an ultra-lightweight admin dashboard built with Blazor, CSS Grid, and MudBlazor. The goal is to keep the components modern and lightweight with minimal dependencies.
+        </MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LearnMore">Learn More</MudButton>
+    </MudPaper>
 
-<h1>Hello, world!</h1>
+    <!-- Features Section -->
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2">
+                <MudCardContent Class="pa-4">
+                    <MudText Typo="Typo.h5" Class="mb-3">Blazor</MudText>
+                    <MudText Class="mb-4">
+                        Blazor is an experimental .NET web framework using C# and HTML that runs in the browser. Blazor, together with Mono, compiles your Web UI and C# to WebAssembly.
+                    </MudText>
+                    <MudButton Link="https://blazor.net" Target="_blank" Variant="Variant.Outlined" Color="Color.Success">Learn More</MudButton>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-Welcome to your new app.
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2">
+                <MudCardContent Class="pa-4">
+                    <MudText Typo="Typo.h5" Class="mb-3">CSS Grid</MudText>
+                    <MudText Class="mb-4">
+                        The CSS Grid Layout Module offers a grid-based layout system, making it easier to design web pages without using floats and positioning.
+                    </MudText>
+                    <MudButton Link="https://www.w3.org/TR/css-grid-1/" Target="_blank" Variant="Variant.Outlined" Color="Color.Success">Learn More</MudButton>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2">
+                <MudCardContent Class="pa-4">
+                    <MudText Typo="Typo.h5" Class="mb-3">Bootstrap 4</MudText>
+                    <MudText Class="mb-4">
+                        Bootstrap is a free and open-source front-end framework for designing websites and web applications. It contains templates for typography, forms, buttons, and navigation.
+                    </MudText>
+                    <MudButton Link="https://getbootstrap.com/" Target="_blank" Variant="Variant.Outlined" Color="Color.Success">Learn More</MudButton>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Charts Section -->
+    <MudPaper Elevation="2" Class="pa-4 mt-6">
+        <MudText Typo="Typo.h4" Class="mb-4">Analytics</MudText>
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="2">
+                    <MudCardContent Class="pa-4">
+                        <MudText Typo="Typo.h5" Class="mb-3">Line Chart</MudText>
+                        
+                        <MudButton OnClick="ViewDetails" Class="mt-4">Details</MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="2">
+                    <MudCardContent Class="pa-4">
+                        <MudText Typo="Typo.h5" Class="mb-3">Pie Chart</MudText>
+                        
+                        <MudButton OnClick="ViewDetails" Class="mt-4">Details</MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <!-- Footer -->
+    <MudPaper Elevation="1" Class="pa-4 mt-6 text-center">
+        <MudText>&copy; Available under MIT License.</MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private int[] lineChartData = { 30, 70, 42, 50, 3, 55, 35, 22 };
+    private string[] xAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug" };
+
+    private int[] pieChartData = { 10, 30, 20, 10, 10, 10, 5, 5 };
+    private string[] pieChartLabels = { "App Store", "Website", "Partners", "Direct", "Channels", "Retail", "Distributors", "Affiliates" };
+
+    private void LearnMore()
+    {
+        // Logic to handle "Learn More" button click
+    }
+
+    private void ViewDetails()
+    {
+        // Logic to view details
+    }
+}

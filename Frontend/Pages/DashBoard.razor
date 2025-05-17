@@ -1,0 +1,78 @@
+﻿@page "/dashboard"
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <!-- Top-Level Tabs -->
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Color="Color.Primary" Variant="Variant.Filled" Value="_selectedMainTab" OnChange="OnMainTabChanged">
+        <MudTab Text="Logistics" />
+        <MudTab Text="Internal Admin" />
+        <MudTab Text="Customers" />
+    </MudTabs>
+
+    <!-- Logistics Tab Content -->
+    @if (_selectedMainTab == 0)
+    {
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Color="Color.Secondary" Variant="Variant.Outlined" Value="_selectedSubTab" OnChange="OnSubTabChanged">
+            <MudTab Text="Orders" />
+            <MudTab Text="Branches" />
+            <MudTab Text="Suppliers" />
+            <MudTab Text="Warehouses" />
+        </MudTabs>
+
+        <MudPaper Class="pa-4 mt-4" Elevation="1">
+            @if (_selectedSubTab == 0)
+            {
+                <h5>Orders</h5>
+                <p>Content for Orders goes here.</p>
+            }
+            else if (_selectedSubTab == 1)
+            {
+                <h5>Branches</h5>
+                <p>Content for Branches goes here.</p>
+            }
+            else if (_selectedSubTab == 2)
+            {
+                <h5>Suppliers</h5>
+                <p>Content for Suppliers goes here.</p>
+            }
+            else if (_selectedSubTab == 3)
+            {
+                <h5>Warehouses</h5>
+                <p>Content for Warehouses goes here.</p>
+            }
+        </MudPaper>
+    }
+
+    <!-- Internal Admin Tab Content -->
+    @if (_selectedMainTab == 1)
+    {
+        <MudPaper Class="pa-4 mt-4" Elevation="1">
+            <h5>Internal Admin</h5>
+            <p>Content for Internal Admin goes here.</p>
+        </MudPaper>
+    }
+
+    <!-- Customers Tab Content -->
+    @if (_selectedMainTab == 2)
+    {
+        <MudPaper Class="pa-4 mt-4" Elevation="1">
+            <h5>Customers</h5>
+            <p>Content for Customers goes here.</p>
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    private int _selectedMainTab = 0; // Tracks the selected top-level tab
+    private int _selectedSubTab = 0;  // Tracks the selected sub-tab within Logistics
+
+    private void OnMainTabChanged(int newValue)
+    {
+        _selectedMainTab = newValue;
+        _selectedSubTab = 0; // Reset sub-tab when switching main tabs
+    }
+
+    private void OnSubTabChanged(int newValue)
+    {
+        _selectedSubTab = newValue;
+    }
+}
