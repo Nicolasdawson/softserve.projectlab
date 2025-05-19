@@ -11,6 +11,7 @@ namespace API.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            /*
             migrationBuilder.AddColumn<Guid>(
                 name: "ProdId",
                 table: "Products",
@@ -28,11 +29,13 @@ namespace API.Migrations
                 column: "ProdId",
                 principalTable: "Products",
                 principalColumn: "Id");
+             */
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            /*
             migrationBuilder.DropForeignKey(
                 name: "FK_Products_Products_ProdId",
                 table: "Products");
@@ -44,6 +47,7 @@ namespace API.Migrations
             migrationBuilder.DropColumn(
                 name: "ProdId",
                 table: "Products");
+             */
         }
     }
 }

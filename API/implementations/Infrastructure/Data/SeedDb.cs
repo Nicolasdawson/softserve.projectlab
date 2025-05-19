@@ -1,4 +1,5 @@
 ﻿using System.Reflection.Emit;
+using API.Enums;
 using API.Helpers;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -23,8 +24,9 @@ namespace API.implementations.Infrastructure.Data
             await CheckCategoriesAsync();
             await CheckProductsAsync();
             await CheckLocalImagesAsync();
-            await CheckCountriesAsync();
-            await CheckRegionsAsync();
+            //await CheckCountriesAsync();
+            //await CheckRegionsAsync();
+            await CheckRolesAsync();
 
             //await CheckImagesAsync();
             /*
@@ -132,12 +134,35 @@ namespace API.implementations.Infrastructure.Data
              */
         }
 
+        private async Task CheckRolesAsync()
+        {
+            //Verify if the roles already exists
+            if (!_context.Roles.Any()) 
+            {
+                var role1 = new Role
+                {
+                    Name = UserType.Admin.ToString(),
+                };
+                var role2 = new Role
+                {
+                    Name = UserType.Normal.ToString(),
+                };
+                var role3 = new Role
+                {
+                    Name = UserType.Vip.ToString(),
+                };
+
+                await _context.Roles.AddRangeAsync(role1, role2, role3);
+                _context.SaveChanges();
+            }
+        }
+
         private async Task CheckCategoriesAsync()
         {
-            // Verifica si ya existen categorías para evitar duplicados
+            // Verify if the Categories already exists
             if (!_context.Categories.Any())
             {
-                // Adding categories
+                // Creating categories
                 var category1 = new Category
                 {
                     Id = Guid.NewGuid(),
@@ -182,7 +207,7 @@ namespace API.implementations.Infrastructure.Data
                 };
 
                 _context.Categories.AddRange(category1, category2, category3, category4, category5, category6);
-                _context.SaveChanges(); // Guardar las categorías
+                _context.SaveChanges(); // Save in DB
             }
         }
 
@@ -562,5 +587,7 @@ namespace API.implementations.Infrastructure.Data
                 await _context.Database.ExecuteSqlRawAsync(countriesSqlScript);
             }
         }
+
+        
     }
 }

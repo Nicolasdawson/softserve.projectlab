@@ -4,6 +4,7 @@ using API.implementations.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250518031243_DeleteVersionIdFromCustomer")]
+    partial class DeleteVersionIdFromCustomer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,9 +110,6 @@ namespace API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdCustomer")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("IdRole")
                         .HasColumnType("uniqueidentifier");
 
@@ -140,8 +140,6 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdCustomer");
-
                     b.HasIndex("IdRole");
 
                     b.ToTable("Credentials");
@@ -168,6 +166,9 @@ namespace API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<Guid?>("IdCredentials")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsCurrent")
                         .HasColumnType("bit");
 
@@ -188,6 +189,8 @@ namespace API.Migrations
                         .HasColumnType("datetime2(7)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IdCredentials");
 
                     b.ToTable("Customers", (string)null);
                 });
@@ -549,21 +552,23 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Credential", b =>
                 {
-                    b.HasOne("API.Models.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("IdCustomer")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("API.Models.Role", "Role")
                         .WithMany("credentials")
                         .HasForeignKey("IdRole")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Customer");
-
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("API.Models.Customer", b =>
+                {
+                    b.HasOne("API.Models.Credential", "credential")
+                        .WithMany()
+                        .HasForeignKey("IdCredentials")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("credential");
                 });
 
             modelBuilder.Entity("API.Models.DeliveryAddress", b =>

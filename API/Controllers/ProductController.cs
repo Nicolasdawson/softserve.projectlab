@@ -6,6 +6,7 @@ using API.Helpers;
 using API.implementations.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.CodeAnalysis;
+using System.ComponentModel.DataAnnotations;
 
 namespace API.Controllers;
 
@@ -97,7 +98,9 @@ public class ProductController : ControllerBase
         /// </summary>
         /// <returns>A list of all products.</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductWithImagesDTO>>> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<ProductWithImagesDTO>>> GetProducts(
+            [FromQuery][Range(0, Int32.MaxValue)] int pageNumber = 1, 
+            [FromQuery][Range(0, Int32.MaxValue)] int pageSize = 10)
         {
             if (pageNumber <= 0 || pageSize <= 0)
                 return BadRequest("Page number and page size must be greater than zero.");

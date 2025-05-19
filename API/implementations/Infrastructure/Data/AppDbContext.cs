@@ -11,6 +11,7 @@ namespace API.implementations.Infrastructure.Data
         public DbSet<Credential> Credentials { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<PendingRegistration> PendingRegistrations { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
@@ -39,17 +40,25 @@ namespace API.implementations.Infrastructure.Data
             modelBuilder.Entity<Credential>(entity =>
             {
                 
-                entity.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
-                entity.Property(u => u.PasswordSalt).HasMaxLength(255).IsRequired();
+                entity.Property(c => c.PasswordHash).HasMaxLength(255).IsRequired();
+                entity.Property(c => c.PasswordSalt).HasMaxLength(255).IsRequired();
 
                 entity.Property(c => c.RefreshToken).HasDefaultValue(string.Empty);
                 entity.Property(c => c.TokenCreated).HasColumnType("datetime2(7)");
                 entity.Property(c => c.TokenExpires).HasColumnType("datetime2(7)");
 
-                //Defining the Foreign key relationship
-                entity.HasOne(u => u.Role)
+                //Defining the Foreign key relationship for Role
+                /*
+                 */
+
+                entity.HasOne(c => c.Role)
                 .WithMany(r => r.credentials)
                 .HasForeignKey(u => u.IdRole)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                //Defining the Foregin key relationship for Customer
+                entity.HasOne(c => c.Customer)
+                .WithMany().HasForeignKey(c => c.IdCustomer)
                 .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -65,8 +74,7 @@ namespace API.implementations.Infrastructure.Data
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.ToTable("Customers");
-                entity.HasKey(c => c.VersionId);
-                entity.Property(c => c.Id).IsRequired();
+                entity.HasKey(c => c.Id);
                 entity.Property(u => u.Email).HasMaxLength(50).IsRequired();
                 entity.Property(c => c.FirstName).HasMaxLength(100).IsRequired();
                 entity.Property(c => c.LastName).HasMaxLength(100).IsRequired();
@@ -75,13 +83,8 @@ namespace API.implementations.Infrastructure.Data
                 entity.Property(c => c.IsCurrent).HasColumnType("bit");
                 entity.Property(c => c.StartDate).HasColumnType("datetime2(7)").IsRequired();
                 entity.Property(c => c.EndDate).HasColumnType("datetime2(7)"); // EndDate can be null
-                entity.HasIndex(c => new { c.Id, c.IsCurrent });
-                entity.HasIndex(c => new { c.Id, c.StartDate, c.EndDate });
-
-                entity.HasOne(c => c.credential)
-                    .WithMany() 
-                    .HasForeignKey(c => c.IdCredentials)
-                    .OnDelete(DeleteBehavior.Cascade);
+                //entity.HasIndex(c => new { c.Id, c.IsCurrent });
+                //entity.HasIndex(c => new { c.Id, c.StartDate, c.EndDate });
             });
             
             //Entity Product configuration
@@ -272,14 +275,31 @@ namespace API.implementations.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Cascade); // Define la acción de eliminación en cascada
             });
 
+            modelBuilder.Entity<PendingRegistration>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+
+                entity.Property(p => p.Email).HasMaxLength(50).IsRequired();
+                entity.Property(p => p.FirstName).HasMaxLength(100).IsRequired();
+                entity.Property(p => p.LastName).HasMaxLength(100).IsRequired();
+                entity.Property(p => p.PhoneNumber).HasMaxLength(20).IsRequired();
+                entity.Property(p => p.PasswordHash).IsRequired();
+                entity.Property(p => p.PasswordSalt).IsRequired();
+
+                entity.Property(p => p.IdCustomer).IsRequired(false); 
+
+                entity.Property(p => p.VerificationToken).IsRequired();
+                entity.Property(p => p.Expiration).IsRequired();
+            });
         }
 
         public void ClearDatabase()
         {
             Products.RemoveRange(Products);
             Categories.RemoveRange(Categories);
-            Countries.RemoveRange(Countries);
-            Regions.RemoveRange(Regions);
+            //Countries.RemoveRange(Countries);
+            //Regions.RemoveRange(Regions);
+            Roles.RemoveRange(Roles);
             SaveChanges();
         }
     }

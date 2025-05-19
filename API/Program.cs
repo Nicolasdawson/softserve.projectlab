@@ -46,9 +46,18 @@ builder.Services.AddRazorPages();
 // Add Swagger
 builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger en tu API
 
-// Add service ProductService
+// Add service 
 builder.Services.AddScoped<ProductService>();
+
 builder.Services.AddScoped<ProductImageService>();
+
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+builder.Services.AddScoped<IPendingRegistrationService, PendingRegistrationService>();
+
+builder.Services.AddScoped<ICredentialService, CredentialService>();
+
+builder.Services.AddScoped<RoleServices>();
 
 // Conexión con Azure blob DB Azure
 builder.Services.AddAzureClients(clientBuilder =>

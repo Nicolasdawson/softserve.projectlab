@@ -33,5 +33,10 @@
       <Folder Include="Images\Products\" />
       <Folder Include="Utils\" />
     </ItemGroup>
-
+	
+	<ItemGroup>
+		<None Update="verificationMessage.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 </Project>

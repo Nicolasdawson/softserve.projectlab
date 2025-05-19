@@ -27,7 +27,10 @@ namespace API.Models;
         [JsonIgnore]
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
 
+    /*
+     
         [NotMapped]
         [JsonIgnore] // Para evitar loops al serializar
         public Product? Prod { get; set; }
+     */
 }

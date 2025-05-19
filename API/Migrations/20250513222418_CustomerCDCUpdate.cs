@@ -23,9 +23,11 @@ namespace API.Migrations
             migrationBuilder.DropColumn(
                 name: "IdCustomer",
                 table: "Orders");
+            /*
             migrationBuilder.DropColumn(
                 name: "ProdId",
                 table: "Products");
+             */
             // 3) Drop primary key on Customers (GUID Id) before changing it
             migrationBuilder.DropPrimaryKey(
                 name: "PK_Customers",

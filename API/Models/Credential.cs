@@ -1,4 +1,6 @@
-﻿using API.Abstractions;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using API.Abstractions;
 
 namespace API.Models
 {
@@ -16,7 +18,15 @@ namespace API.Models
         //ForeignKey: IdRole
         public Guid IdRole { get; set; }
 
+        //ForeignKey: IdCustomer
+        public int IdCustomer { get; set; }
+
         //Navigation Property
+        [JsonIgnore]
         public Role Role { get; set; } = default!;
+
+        [NotMapped]
+        [JsonIgnore]
+        public Customer Customer { get; set; } = default!;        
     }
 }
