@@ -2,13 +2,12 @@
 using API.Models;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace API.implementations.Infrastructure.Data
-{
+namespace API.implementations.Infrastructure.Data;
+
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -35,22 +34,21 @@ namespace API.implementations.Infrastructure.Data
             //modelBuilder.SeedProducts(); // Para insertar datos
             base.OnModelCreating(modelBuilder);
 
-            //Entity User configuration
-            modelBuilder.Entity<User>(entity =>
+           modelBuilder.Entity<Credential>(entity =>
             {
-                entity.Property(u => u.Email)
-                .IsRequired()
-                .HasMaxLength(255);
                 
-                entity.Property(u => u.Password)
-                .IsRequired()
-                .HasMaxLength(255);
+                entity.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
+                entity.Property(u => u.PasswordSalt).HasMaxLength(255).IsRequired();
+
+                entity.Property(c => c.RefreshToken).HasDefaultValue(string.Empty);
+                entity.Property(c => c.TokenCreated).HasColumnType("datetime2(7)");
+                entity.Property(c => c.TokenExpires).HasColumnType("datetime2(7)");
 
                 //Defining the Foreign key relationship
                 entity.HasOne(u => u.Role)
-                .WithMany(r => r.Users)
+                .WithMany(r => r.credentials)
                 .HasForeignKey(u => u.IdRole)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
             });
             
             //Entity Role configuration
@@ -64,23 +62,22 @@ namespace API.implementations.Infrastructure.Data
             //Entity Customer configuration
             modelBuilder.Entity<Customer>(entity =>
             {
-                entity.ToTable("Customers");
+                 entity.ToTable("Customers");
+                entity.HasKey(c => c.Id);
+                entity.Property(u => u.Email).HasMaxLength(50).IsRequired();
+                entity.Property(c => c.FirstName).HasMaxLength(100).IsRequired();
+                entity.Property(c => c.LastName).HasMaxLength(100).IsRequired();
+                entity.Property(c => c.PhoneNumber).HasMaxLength(20).IsRequired();
+                entity.Property(c => c.IsGuest).HasColumnType("bit");
+                entity.Property(c => c.IsCurrent).HasColumnType("bit");
+                entity.Property(c => c.StartDate).HasColumnType("datetime2(7)").IsRequired();
+                entity.Property(c => c.EndDate).HasColumnType("datetime2(7)"); // EndDate can be null
+                entity.HasIndex(c => new { c.Id, c.IsCurrent });
+                entity.HasIndex(c => new { c.Id, c.StartDate, c.EndDate });
 
-                entity.Property(c => c.FirstName)
-                    .IsRequired()
-                    .HasMaxLength(100);
-
-                entity.Property(c => c.LastName)
-                    .IsRequired()
-                    .HasMaxLength(100);
-
-                entity.Property(c => c.PhoneNumber)
-                    .IsRequired()
-                    .HasMaxLength(20);
-
-                entity.HasOne(c => c.User)
+                entity.HasOne(c => c.credential)
                     .WithMany() 
-                    .HasForeignKey(c => c.IdUser)
+                    .HasForeignKey(c => c.IdCredentials)
                     .OnDelete(DeleteBehavior.Cascade);
             });
             
@@ -143,7 +140,6 @@ namespace API.implementations.Infrastructure.Data
                     .IsUnicode(); // `nvarchar` es Unicode en SQL Server
             });
 
-            //Entity ShoppingCart configuration
             modelBuilder.Entity<ShoppingCart>(entity =>
             {
                 entity.ToTable("ShoppingCarts");
@@ -152,19 +148,21 @@ namespace API.implementations.Infrastructure.Data
                     .IsRequired();
 
                 entity.Property(s => s.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
+                    .HasDefaultValueSql("GETDATE()");
 
+                // Relación con Product
                 entity.HasOne(sc => sc.Product)
                     .WithMany()
                     .HasForeignKey(sc => sc.IdProduct)
-                    .OnDelete(DeleteBehavior.Restrict); // Se puede cambiar a 'Cascade' si prefieres la eliminación en cascada
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(sc => sc.Order)
+                // Relación con Customer
+                entity.HasOne(sc => sc.Customer)
                     .WithMany()
-                    .HasForeignKey(sc => sc.IdOrder)
-                    .OnDelete(DeleteBehavior.Restrict); // Se puede cambiar a 'Cascade' si prefieres la eliminación en cascada
-
+                    .HasForeignKey(sc => sc.IdCustomer)
+                    .OnDelete(DeleteBehavior.Cascade); // o Restrict, según tu necesidad
             });
+
 
             //Entity ProductImage configuration
             modelBuilder.Entity<ProductImage>(entity =>
@@ -301,15 +299,44 @@ namespace API.implementations.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Cascade); // Define la acción de eliminación en cascada
             });
 
+            modelBuilder.Entity<OrderItem>(entity =>
+            {
+                entity.ToTable("OrderItems");
+
+                entity.HasKey(oi => oi.Id);
+
+                entity.Property(oi => oi.Quantity)
+                    .IsRequired();
+
+                entity.Property(oi => oi.Price)
+                    .IsRequired()
+                    .HasPrecision(10, 2); 
+
+                entity.Property(oi => oi.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+
+                entity.Property(oi => oi.UpdatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+
+                entity.HasOne(oi => oi.Order)
+                    .WithMany(o => o.OrderItems)
+                    .HasForeignKey(oi => oi.IdOrder)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(oi => oi.Product)
+                    .WithMany()
+                    .HasForeignKey(oi => oi.IdProduct)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
         }
 
         public void ClearDatabase()
         {
-            Products.RemoveRange(Products);
-            Categories.RemoveRange(Categories);
-            Countries.RemoveRange(Countries);
-            Regions.RemoveRange(Regions);
+            //Products.RemoveRange(Products);
+            //Categories.RemoveRange(Categories);
+            //Countries.RemoveRange(Countries);
+            //Regions.RemoveRange(Regions);
             SaveChanges();
         }
     }
-}

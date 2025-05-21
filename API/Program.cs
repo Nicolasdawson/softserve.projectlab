@@ -57,11 +57,23 @@ builder.Services.AddAzureClients(clientBuilder =>
     clientBuilder.AddQueueServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:queue"]!, preferMsi: true);
 });
 
+builder.Services.AddControllers().AddJsonOptions(x =>
+{
+    x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
+
+
 builder.Services.AddScoped<PaymentService>();
 
 builder.Services.AddScoped<StripePaymentService>();
 
 builder.Services.AddScoped<EmailService>();
+
+builder.Services.AddScoped<ShoppingCartService>();
+
+builder.Services.AddScoped<OrderService>();
+
+builder.Services.AddScoped<DeliveryAddressService>();
 
 
 // Configuración de Swagger
@@ -75,12 +87,11 @@ Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 var app = builder.Build();
 SeedData(app);
 
-void SeedData(WebApplication App)
+void SeedData(WebApplication app)
 {
-    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
-    using var scope = scopedFactory!.CreateScope();
-    var service = scope.ServiceProvider.GetService<SeedDb>();
-    service!.SeedAsync().Wait();
+    using var scope = app.Services.CreateScope();
+    var service = scope.ServiceProvider.GetRequiredService<SeedDb>();
+    service.SeedAsync().Wait();
 }
 
 /*

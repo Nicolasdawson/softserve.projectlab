@@ -4,8 +4,8 @@ using API.Services;
 using Stripe;
 using API.DTO;
 
-namespace API.Controllers
-{
+namespace API.Controllers;
+
     [Route("api/[controller]")]
     [ApiController]
     public class PaymentsController : ControllerBase
@@ -145,4 +145,4 @@ namespace API.Controllers
             }
         }
     }
-}
+
