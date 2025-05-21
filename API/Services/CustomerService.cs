@@ -29,4 +29,9 @@ public class CustomerService : ICustomerService
     {
         return await _context.Customers.FirstOrDefaultAsync(p => p.Email == email);
     }
+
+    public async Task<Customer?> GetByIdAsync(int id)
+    {
+        return await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
+    }
 }

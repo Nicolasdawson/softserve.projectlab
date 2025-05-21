@@ -28,7 +28,7 @@ public class UsersController : ControllerBase
     private readonly RoleServices _roleServices;
     private readonly ICustomerService _customerService;
     private readonly TokenHelper _tokenHelper;
-    private readonly EmailService _emailService;
+    private readonly EmailService _emailService;    
 
     public UsersController(
         IConfiguration configuration, 
@@ -36,7 +36,8 @@ public class UsersController : ControllerBase
         ICredentialService credentialService,
         RoleServices roleServices,
         ICustomerService customerService,
-        EmailService emailService)
+        EmailService emailService,         
+        TokenHelper tokenHelper)
     {
         _configuration = configuration;
         _pendingRegistrationService = pendingRegistrationService;
@@ -44,8 +45,9 @@ public class UsersController : ControllerBase
         _roleServices = roleServices;
         _customerService = customerService;
         _emailService = emailService;
-        _tokenHelper = new TokenHelper(_configuration);
+        _tokenHelper = tokenHelper;
     }
+
     /// <summary>
     /// 
     /// </summary>
@@ -503,6 +505,34 @@ public class UsersController : ControllerBase
         var role = await _roleServices.GetById(credential.IdRole);
 
         string token = CreateToken(customer, role);
+        var refreshToken = _tokenHelper.GetRefreshToken();
+        
+        await _tokenHelper?.SetRefreshToken(refreshToken, credential);
+
+        return Ok(token);
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<ActionResult<string>> RefreshToken()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+        if (string.IsNullOrEmpty(refreshToken))
+            return Unauthorized("No refresh token provider");
+
+        var credential = await _credentialService.GetByRefreshTokenAsync(refreshToken);
+
+        if (credential == null)
+            return Unauthorized("Invalid refresh token.");
+
+        if (credential.TokenExpires < DateTime.UtcNow)
+            return Unauthorized("Token expired.");
+
+        var role = await _roleServices.GetById(credential.IdRole);
+        var customer = await _customerService.GetByIdAsync(credential.IdCustomer);
+        string token = CreateToken(customer, role);
+        var refToken = _tokenHelper.GetRefreshToken();
+
+        await _tokenHelper?.SetRefreshToken(refToken, credential);
 
         return Ok(token);
     }

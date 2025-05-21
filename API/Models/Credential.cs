@@ -6,8 +6,8 @@ namespace API.Models;
 
 public class Credential : Base
 {
-    public byte[] PasswordHash { get; set; }
-    public byte[] PasswordSalt { get; set; }
+    public byte[]? PasswordHash { get; set; }
+    public byte[]? PasswordSalt { get; set; }
 
 
     public string RefreshToken { get; set; } = string.Empty;

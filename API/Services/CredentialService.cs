@@ -31,4 +31,31 @@ public class CredentialService : ICredentialService
         var credential = await _context.Credentials.FirstOrDefaultAsync(c => c.IdCustomer == id);
         return await Task.FromResult(credential);
     }
+
+    /// <summary>
+    /// Updates an existing Credential.
+    /// </summary>
+    /// <param name="updatedCredential">The credential with updated data.</param>
+    /// <returns>The updated credential, or null if not found.</returns>
+    public async Task<Credential?> UpdateCredentialAsync(Credential updatedCredential)
+    {
+        var existingCredential = await _context.Credentials
+            .FirstOrDefaultAsync(c => c.Id == updatedCredential.Id);
+
+        if (existingCredential == null)
+            return null;
+
+        // Updating the credential
+        _context.Entry(existingCredential).CurrentValues.SetValues(updatedCredential);
+
+        await _context.SaveChangesAsync();
+        return existingCredential;
+    }
+
+    public async Task<Credential?> GetByRefreshTokenAsync(string refreshToken)
+    {
+        return await _context.Credentials
+            .FirstOrDefaultAsync(c => c.RefreshToken == refreshToken);
+    }
+
 }

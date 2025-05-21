@@ -98,7 +98,7 @@ public class ProductController : ControllerBase
         /// Retrieves all products.
         /// </summary>
         /// <returns>A list of all products.</returns>
-        [HttpGet, Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductWithImagesDTO>>> GetProducts(
             [FromQuery][Range(0, Int32.MaxValue)] int pageNumber = 1, 
             [FromQuery][Range(0, Int32.MaxValue)] int pageSize = 10)
