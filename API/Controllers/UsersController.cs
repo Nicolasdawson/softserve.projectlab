@@ -7,6 +7,7 @@ using API.Helpers;
 using API.implementations.Infrastructure.Data;
 using API.Models;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -478,8 +479,8 @@ public class UsersController : ControllerBase
         };
 
         //Creting the new Customer credentials and deleting the peding register
-        await _credentialService.CreateCredentialAsync(credential);        
-        await _pendingRegistrationService.DeleteByIdAsync(pending.Id);
+        await _credentialService.CreateCredentialAsync(credential);
+         await _pendingRegistrationService.DeleteByIdAsync(pending.Id);
 
         return Ok(true);
     }
@@ -487,26 +488,32 @@ public class UsersController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<string>> login(UserDTO request)
     {
-        if (user.Email != request.Email)
+        var customer = await _customerService.GetByEmailAsync(request.Email);
+        if (customer.Email != request.Email)
         {
             return BadRequest("User not found");
         }
+        var credential = await _credentialService.GetByIdCustomerAsync(customer.Id);
 
         if(!PasswordHashHelper.VerifyPasswordHash(request.Password, credential.PasswordHash, credential.PasswordSalt))
         {
             return BadRequest("Wrong password.");
         }
 
-        string token = CreateToken(user);
+        var role = await _roleServices.GetById(credential.IdRole);
+
+        string token = CreateToken(customer, role);
 
         return Ok(token);
     }
 
-    private string CreateToken(Customer user)
+    private string CreateToken(Customer user, Role role)
     {
         List<Claim> claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.FirstName),
+            new Claim(ClaimTypes.Role, role.Name.ToString())            
         };
 
         var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(

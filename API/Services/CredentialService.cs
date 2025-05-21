@@ -1,5 +1,6 @@
 ﻿using API.implementations.Infrastructure.Data;
 using API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
 
@@ -22,6 +23,12 @@ public class CredentialService : ICredentialService
         _context.Credentials.Add(credential);
         await _context.SaveChangesAsync();
 
+        return await Task.FromResult(credential);
+    }
+
+    public async Task<Credential?> GetByIdCustomerAsync(int id)
+    {
+        var credential = await _context.Credentials.FirstOrDefaultAsync(c => c.IdCustomer == id);
         return await Task.FromResult(credential);
     }
 }

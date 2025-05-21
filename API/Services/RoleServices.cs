@@ -17,5 +17,11 @@ public class RoleServices
     {
         return await _context.Roles
             .FirstOrDefaultAsync(r => r.Name.ToLower() == roleName.ToLower());
-    } 
+    }
+
+    public async Task<Role?> GetById(Guid id)
+    {
+        var role = await _context.Roles.FirstOrDefaultAsync(c => c.Id == id);
+        return await Task.FromResult(role);
+    }
 }

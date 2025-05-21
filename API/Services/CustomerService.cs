@@ -1,5 +1,6 @@
 ﻿using API.implementations.Infrastructure.Data;
 using API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services;
 
@@ -22,5 +23,10 @@ public class CustomerService : ICustomerService
         await _context.SaveChangesAsync();        
         
         return await Task.FromResult(customer);
+    }
+
+    public async Task<Customer?> GetByEmailAsync(string email)
+    {
+        return await _context.Customers.FirstOrDefaultAsync(p => p.Email == email);
     }
 }

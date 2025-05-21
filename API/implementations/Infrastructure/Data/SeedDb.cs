@@ -26,7 +26,7 @@ namespace API.implementations.Infrastructure.Data
             await CheckLocalImagesAsync();
             //await CheckCountriesAsync();
             //await CheckRegionsAsync();
-            await CheckRolesAsync();
+            //await CheckRolesAsync();
 
             //await CheckImagesAsync();
             /*

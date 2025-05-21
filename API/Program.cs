@@ -7,10 +7,14 @@ using Newtonsoft.Json.Serialization;
 using API.Services;
 using API.Helpers;
 using API.implementations.Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,13 +47,41 @@ builder.Services.AddControllersWithViews(); // Aquí es donde permitimos vistas 
 // Agrega servicios de Razor Pages
 builder.Services.AddRazorPages();
 
+
 // Add Swagger
-builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger en tu API
+// Defining the authorization scheme
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Description = "Standard Authorization header using the Bearer scheme (\"bearer {token}\")",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
+
+//Defining the authentication Scheme
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8
+                .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
+
+    });
 
 // Add service 
-builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
-builder.Services.AddScoped<ProductImageService>();
+builder.Services.AddScoped<IProductImageService, ProductImageService>();
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
@@ -72,12 +104,6 @@ builder.Services.AddScoped<StripePaymentService>();
 
 builder.Services.AddScoped<EmailService>();
 
-
-// Configuración de Swagger
-builder.Services.AddSwaggerGen(c =>
-{
-    // Aquí puedes agregar cualquier configuración extra para Swagger si lo necesitas
-});
 
 Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
@@ -211,6 +237,12 @@ app.UseDirectoryBrowser(new DirectoryBrowserOptions
 
 // Usar la pol�tica de CORS
 app.UseCors("AllowAnyOrigin");
+
+// Enabling Authentication capabilities
+app.UseAuthentication();
+
+// Enabling Authorization capabilities
+app.UseAuthorization();
 
 // Configurar los controladores
 app.MapControllers();

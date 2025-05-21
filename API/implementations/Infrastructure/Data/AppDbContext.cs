@@ -299,7 +299,7 @@ namespace API.implementations.Infrastructure.Data
             Categories.RemoveRange(Categories);
             //Countries.RemoveRange(Countries);
             //Regions.RemoveRange(Regions);
-            Roles.RemoveRange(Roles);
+            //Roles.RemoveRange(Roles);
             SaveChanges();
         }
     }

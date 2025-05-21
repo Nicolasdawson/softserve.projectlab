@@ -7,6 +7,7 @@ using API.implementations.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
@@ -97,7 +98,7 @@ public class ProductController : ControllerBase
         /// Retrieves all products.
         /// </summary>
         /// <returns>A list of all products.</returns>
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<ProductWithImagesDTO>>> GetProducts(
             [FromQuery][Range(0, Int32.MaxValue)] int pageNumber = 1, 
             [FromQuery][Range(0, Int32.MaxValue)] int pageSize = 10)
