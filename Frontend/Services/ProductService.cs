@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Frontend.Services;
 
-public class ProductService
+public class ProductService : IProductService
 {
     private readonly HttpClient _httpClient;
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Frontend.Pages.Auth;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MudBlazor;
 
@@ -20,7 +21,6 @@ namespace Frontend.Pages.Product
         private bool loading;
 
         [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
-
 
         [Parameter, SupplyParameterFromQuery] public string Filter { get; set; } = string.Empty;
 

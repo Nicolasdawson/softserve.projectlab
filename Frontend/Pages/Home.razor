@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
 
 <style>
     .img-zoom {
@@ -24,40 +25,44 @@
 
 <PageTitle>Home</PageTitle>
 
-
-<MudCarousel 
-    Class="mud-width-full mud-height-full"
-    Height="700"
-    ShowArrows="@arrows" 
-    ShowBullets="@bullets" 
-    EnableSwipeGesture="@enableSwipeGesture" 
-    AutoCycle="@autocycle" 
-    TData="object"
->
-    <MudCarouselItem Transition="transition">
-        <div class="d-flex justify-content-center align-items-center overflow-hidden"
-             style="height:100%; width:100%; position:relative;">
-            <MudImage Fluid="true" Src="images/banner/banner1.PNG" Alt="Swedish Farm House" Class="rounded-lg img-zoom" />
-        </div>
-    </MudCarouselItem>
-    <MudCarouselItem Transition="transition">
-        <div class="d-flex justify-content-center align-items-center overflow-hidden"
-             style="height:100%; width:100%; position:relative;">
-            <MudImage Fluid="true" Src="images/banner/banner2.PNG" Alt="Swedish Farm House" Class="rounded-lg img-zoom2" />
-        </div>
-    </MudCarouselItem>
-    <MudCarouselItem Transition="transition">
-        <div class="d-flex justify-content-center align-items-center overflow-hidden"
-             style="height:100%; width:100%; position:relative;">
-            <MudImage Fluid="true" Src="    images/banner/banner3.PNG" Alt="Swedish Farm House" Class="rounded-lg img-zoom" />
-        </div>
-    </MudCarouselItem>
-</MudCarousel>
+<AuthorizeView Roles="Normal">
+    <Authorized>
+        <p>Estas autenticado y autorizado</p>
+    </Authorized>
+    <NotAuthorized>        
+        <MudCarousel 
+            Class="mud-width-full mud-height-full"
+            Height="700"
+            ShowArrows="@arrows" 
+            ShowBullets="@bullets" 
+            EnableSwipeGesture="@enableSwipeGesture" 
+            AutoCycle="@autocycle" 
+            TData="object"
+        >
+            <MudCarouselItem Transition="transition">
+                <div class="d-flex justify-content-center align-items-center overflow-hidden"
+                     style="height:100%; width:100%; position:relative;">
+                    <MudImage Fluid="true" Src="images/banner/banner1.PNG" Alt="Swedish Farm House" Class="rounded-lg img-zoom" />
+                </div>
+            </MudCarouselItem>
+            <MudCarouselItem Transition="transition">
+                <div class="d-flex justify-content-center align-items-center overflow-hidden"
+                     style="height:100%; width:100%; position:relative;">
+                    <MudImage Fluid="true" Src="images/banner/banner2.PNG" Alt="Swedish Farm House" Class="rounded-lg img-zoom2" />
+                </div>
+            </MudCarouselItem>
+            <MudCarouselItem Transition="transition">
+                <div class="d-flex justify-content-center align-items-center overflow-hidden"
+                     style="height:100%; width:100%; position:relative;">
+                    <MudImage Fluid="true" Src="    images/banner/banner3.PNG" Alt="Swedish Farm House" Class="rounded-lg img-zoom" />
+                </div>
+            </MudCarouselItem>
+        </MudCarousel>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
-    private bool arrows = true;
-    private bool bullets = true;
-    private bool enableSwipeGesture = true;
-    private bool autocycle = false;
-    private Transition transition = Transition.Slide;
+
+
+    
 }

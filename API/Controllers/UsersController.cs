@@ -488,8 +488,10 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<string>> login(UserDTO request)
+    public async Task<ActionResult<string>> login([FromBody] UserDTO request)
     {
+        Console.WriteLine(request);
+
         var customer = await _customerService.GetByEmailAsync(request.Email);
         if (customer.Email != request.Email)
         {
@@ -507,9 +509,9 @@ public class UsersController : ControllerBase
         string token = CreateToken(customer, role);
         var refreshToken = _tokenHelper.GetRefreshToken();
         
-        await _tokenHelper?.SetRefreshToken(refreshToken, credential);
+        await _tokenHelper.SetRefreshToken(refreshToken, credential);
 
-        return Ok(token);
+        return Ok(new { Token = token, Expiration = DateTime.Now.AddDays(1) });
     }
 
     [HttpPost("refresh-token")]

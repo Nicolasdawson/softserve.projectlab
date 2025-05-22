@@ -2,5 +2,5 @@
 
 public interface IProductService
 {
-    Task<GetProductsResponse> GetProducts();
+    Task<ProductModel[]?> GetProducts(int pageNumber, int pageSize);
 }
