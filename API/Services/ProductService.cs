@@ -51,6 +51,7 @@ public class ProductService : IProductService
     {
         return await _context.Products
             .Include(p => p.Images)
+            .Include(p => p.Category)
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -61,19 +62,38 @@ public class ProductService : IProductService
                 Description = p.Description,
                 Price = p.Price,
                 Stock = p.Stock,
-                ImageUrls = p.Images.Select(img => img.ImageUrl).ToList()
+                ImageUrls = p.Images.Select(img => img.ImageUrl).ToList(),
+                CategoryName = p.Category.Name
             })
             .ToListAsync();
     }
 
     /// <summary>
-    /// Retrieves a product by its ID.
+    /// Retrieves a product by its ID, including image URLs.
     /// </summary>
     /// <param name="id">The ID of the product.</param>
-    /// <returns>The product if found; otherwise, null.</returns>
-    public Product? GetProductById(Guid id)
+    /// <returns>The product with image URLs if found; otherwise, null.</returns>
+    public async Task<ProductDetailWithImages?> GetProductDetailById(Guid id)
     {
-        return _context.Products.FirstOrDefault(p => p.Id == id);
+        return await _context.Products
+            .Include(p => p.Images)
+            .Include(p => p.Category)
+            .Where(p => p.Id == id)
+            .Select(p => new ProductDetailWithImages
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Weight = p.Weight,
+                Height = p.Height,
+                Width = p.Width,
+                Length = p.Length,
+                Stock = p.Stock,
+                categoryName = p.Category.Name,
+                ImageUrls = p.Images.Select(img => img.ImageUrl).ToList()
+            })
+            .FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -81,14 +101,16 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="id">The ID of the product to delete.</param>
     /// <returns>True if the product was deleted; otherwise, false.</returns>
-    public bool DeleteProduct(Guid id)
+    public async Task<bool> DeleteProduct(Guid id)
     {
-        var product = GetProductById(id);
+        /*
+        Product product = await GetProductById(id);
         if (product != null)
         {
             _context.Products.Remove(product);
             return true;
         }
+         */
         return false;
     }
 
@@ -98,9 +120,10 @@ public class ProductService : IProductService
     /// <param name="id">The ID of the product to update.</param>
     /// <param name="updatedProduct">The updated product information.</param>
     /// <returns>True if the product was updated; otherwise, false.</returns>
-    public bool UpdateProduct(Guid id, Product updatedProduct)
+    public async Task<bool> UpdateProduct(Guid id, Product updatedProduct)
     {
-        var existingProduct = GetProductById(id);
+        /*
+        var existingProduct = await GetProductById(id);
         if (existingProduct != null)
         {
             existingProduct.Name = updatedProduct.Name;
@@ -110,6 +133,7 @@ public class ProductService : IProductService
             existingProduct.Price = updatedProduct.Price;
             return true;
         }
+         */
         return false;
     }
 

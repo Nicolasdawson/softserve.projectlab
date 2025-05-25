@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Frontend.DTO;
 
 namespace Frontend.Services;
 
@@ -25,6 +26,11 @@ public class ProductService : IProductService
         return response;        
     }
 
-
+    public async Task<ProductDetailDTO?> GetById(Guid id)
+    {
+        string url = $"http://localhost:5262/api/product/{id}";
+        var response = await _httpClient.GetFromJsonAsync<ProductDetailDTO>(url);
+        return response;
+    }
 }
 

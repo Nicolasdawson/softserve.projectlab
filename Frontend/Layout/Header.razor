@@ -1,5 +1,7 @@
 ﻿@using Frontend.Layout;
-
+@inject Frontend.Services.CartService CartService
+@inject Frontend.Shared.CartState CartState
+@inject NavigationManager Navigation
 <style>
     svg{
     text-align: center;
@@ -9,7 +11,7 @@
     <!--
 
     <MudPaper>
-        Ofertas #1
+    Ofertas #1
     </MudPaper>
     -->
 
@@ -36,13 +38,15 @@
             </svg>
 
             <MudSpacer />
-            <MudBadge  Origin="Origin.BottomRight"
-            Content="@BadgeContent" 
+            <MudBadge  
+            Origin="Origin.BottomRight"
+            Visible="@HasItems"
+            Content="@CartItemCount"
             Color="Color.Error" 
             Overlap="true" 
             Bordered="true"
             >
-                <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" />
+                <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" @onclick="@GoToCart" />
             </MudBadge>
 
 
@@ -52,12 +56,12 @@
         <!-- Barra lateral -->
         <!--
         <div style="width:250px position: relative;">
-            <MudDrawer 
-            @bind-Open="@_drawerOpen" 
-            ClipMode="DrawerClipMode.Always"
-            >
-                <NavMenu />
-            </MudDrawer>
+        <MudDrawer 
+        @bind-Open="@_drawerOpen" 
+        ClipMode="DrawerClipMode.Always"
+        >
+        <NavMenu />
+        </MudDrawer>
         </div>
         -->
         <!-- Fin Barra Lateral -->
@@ -68,13 +72,35 @@
 
 
 @code {
-    private bool HideLabel { get; set; } = true; // Para controlar la visibilidad
-    public int? BadgeContent { get; set; } = 1; // Variable para trabajar el n° de productos en el carrito
+    public int? CartItemCount { get; set; } = 0; // Variable para trabajar el n° de productos en el carrito
+    private bool HasItems => CartItemCount > 0;// Para controlar la visibilidad
 
     bool _drawerOpen = false;
 
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CartState.OnChange += async () => await LoadCartCount();
+        await LoadCartCount();
+    }
+
+    public void Dispose()
+    {
+        CartState.OnChange -= async () => await LoadCartCount(); // Evitar fuga de memoria
+    }
+
+    public async Task LoadCartCount()
+    {
+        CartItemCount = await CartService.GetCartTotalItemsAsync();
+        StateHasChanged();
+    }
+
+    private void GoToCart()
+    {
+        Navigation.NavigateTo("/shoppingcart");
     }
 }

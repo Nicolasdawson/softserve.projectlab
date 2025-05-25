@@ -1,7 +1,7 @@
-﻿using Frontend.Pages.Auth;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MudBlazor;
+
 
 namespace Frontend.Pages.Product
 {
@@ -57,6 +57,24 @@ namespace Frontend.Pages.Product
             currentPage = 1;
             await LoadTotalRecords();
         }
+
+        private async Task AddToCart(ProductModel product)
+        {
+            var item = new CartItemModel
+            {
+                ProductId = product.Id,
+                Name = product.Name,
+                Price = product.Price,
+                Quantity = 1,
+                Category = "",
+                ImageUrl = product.ImageUrls.FirstOrDefault() ?? "images/placeholder.jpg",
+                Stock = product.Stock
+            };
+
+            await CartService.AddToCartAsync(item);
+            CartState.NotifyCartChanged();
+        }
+
         /*
         private async Task<TableData<ProductModel>> LoadListAsync(TableState state, CancellationToken cancellationToken)
         {

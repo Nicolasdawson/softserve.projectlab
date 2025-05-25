@@ -300,6 +300,7 @@ namespace API.implementations.Infrastructure.Data
             //Countries.RemoveRange(Countries);
             //Regions.RemoveRange(Regions);
             //Roles.RemoveRange(Roles);
+            //ProductImages.RemoveRange(ProductImages);
             SaveChanges();
         }
     }

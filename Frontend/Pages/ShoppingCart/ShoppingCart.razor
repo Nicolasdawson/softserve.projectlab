@@ -1,0 +1,68 @@
+﻿@page "/shoppingcart"
+@using MudBlazor
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-5">
+    <MudText Typo="Typo.h4" Class="mb-5">Your Shopping Cart</MudText>
+    <MudGrid>
+        <MudItem xs="12" lg="8">
+            <MudPaper Class="mb-4 p-4" Elevation="1">
+                @foreach (var item in CartItems)
+                {
+                    <MudGrid Class="mb-3">
+                        <MudItem xs="3">
+                            <MudCardMedia Size="Size.Large" Image="@item.ImageUrl" Alt="@item.Name" />
+                        </MudItem>
+                        <MudItem xs="5">
+                            <MudText Typo="Typo.h6">@item.Name</MudText>
+                            <MudText Color="Color.Secondary">Category: @item.Category</MudText>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudIconButton Icon="@Icons.Material.Filled.Remove" OnClick="() => UpdateQuantity(item, -1)" Disabled="@(@item.Quantity <= 1)" />
+                            <MudText Class="mx-2 d-inline">@item.Quantity</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="() => UpdateQuantity(item, 1)" />
+                        </MudItem>
+                        <MudItem xs="2" Class="d-flex flex-column align-items-end">
+                            <MudText Class="fw-bold">$@item.Price</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => RemoveItem(item)" />
+                        </MudItem>
+                    </MudGrid>
+                    <MudDivider />
+                }
+            </MudPaper>
+            <MudButton 
+                StartIcon="@Icons.Material.Filled.ArrowBack" 
+                Variant="Variant.Outlined"
+                OnClick='() => Navigation.NavigateTo("/products")'
+                Color="Color.Primary">Continue Shopping</MudButton>
+        </MudItem>
+
+        <MudItem xs="12" lg="4">
+            <MudPaper Class="p-4 cart-summary">
+                <MudText Typo="Typo.h6" Class="mb-4">Order Summary</MudText>
+                <MudStack Spacing="1">
+                    <MudText>Subtotal: <b>$@Subtotal</b></MudText>
+                    <MudText>
+                        Shipping: <b>Calculated later</b>
+                        <MudTooltip Text="Shipping cost will be determined during checkout">
+                            <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Small" Class="ml-1" />
+                        </MudTooltip>
+                     </MudText>
+                    <MudText>Tax: <b>$@Tax</b></MudText>
+                </MudStack>
+                <MudDivider Class="my-2" />
+                <MudText Typo="Typo.subtitle1">Total: <b>$@Total</b></MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" FullWidth="true">Proceed to Checkout</MudButton>
+            </MudPaper>
+            <MudPaper Class="p-4 mt-4">
+                <MudText Typo="Typo.h6" Class="mb-2">Apply Promo Code</MudText>
+                <MudTextField T="string" Label="Enter promo code" Variant="Variant.Outlined" @bind-Value="_promoCode" />
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Class="mt-2">Apply</MudButton>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    
+}

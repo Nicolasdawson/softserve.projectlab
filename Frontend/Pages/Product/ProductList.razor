@@ -1,8 +1,9 @@
 ﻿@page "/products"
 
 @using Frontend.Services
-@inject ProductService ProductService
-
+@inject IProductService ProductService
+@inject CartService CartService
+@inject Frontend.Shared.CartState CartState
 <style>
     /*
     .mud-card {
@@ -28,6 +29,16 @@
     .mud-elevation-1 {
         box-shadow: var(--mud-elevation-0);
     }
+
+    .media-img {
+        transition: transform .2s;
+    }
+
+    .media-img:hover {
+        transform: scale(1.04);
+        cursor: pointer;
+    }
+
 </style>
 <script>
         window.scrollToTop = () => {
@@ -64,6 +75,8 @@
     </MudPaper>
 </MudPaper>
 
+@inject NavigationManager NavManager
+
 @if (products != null && products.Length > 0)
 {
 
@@ -72,15 +85,15 @@
         {
 
             <MudCard Elevation="4" Outlined="true" Class="d-inline-flex   " MaxWidth="400px" Style="width: calc(33.33% - 13.33px); margin-left: 15px; margin-bottom: 60px;">
-                <MudCardMedia Image="@product.ImageUrls[0]" Height="400" />
+                <MudCardMedia @onclick='() => NavManager.NavigateTo($"/product/{product.Id}")'  class="media-img" Image="@product.ImageUrls[0]" Height="400" />
                 <MudCardContent>
-                    <MudText Typo="Typo.body1"><b>@product.Name</b></MudText>
+                    <MudText @onclick='() => NavManager.NavigateTo($"/product/{product.Id}")' Typo="Typo.body1"><b>@product.Name</b></MudText>
                     <MudText Typo="Typo.h5">S @product.Price</MudText>
                     <MudText Typo="Typo.body2"><strong>Stock </strong>: @product.Stock</MudText>
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton Variant="Variant.Outlined" Color="Color.Primary">
-                        <MudText Typo="Typo.button">Add to cart</MudText>
+                        <MudText Typo="Typo.button" @onclick="() => AddToCart(product)">Add to cart</MudText>
                     </MudButton>
                 </MudCardActions>
             </MudCard>

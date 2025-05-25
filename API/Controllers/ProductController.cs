@@ -124,9 +124,9 @@ public class ProductController : ControllerBase
         /// <param name="id">The product ID.</param>
         /// <returns>The requested product if found; otherwise, NotFound.</returns>
         [HttpGet("{id}")]
-        public ActionResult<Product> GetProductById(Guid id)
+        public async Task<ActionResult<Product>> GetProductById(Guid id)
         {
-            var product = _productService.GetProductById(id);
+            var product = await _productService.GetProductDetailById(id);
             if (product == null)
             {
                 return NotFound();
@@ -141,9 +141,10 @@ public class ProductController : ControllerBase
         /// <param name="updatedProduct">The updated product details.</param>
         /// <returns>NoContent if successful; otherwise, NotFound.</returns>
         [HttpPut("{id}")]
-        public IActionResult UpdateProduct(Guid id, Product updatedProduct)
+        public async Task<IActionResult> UpdateProduct(Guid id, Product updatedProduct)
         {
-            if (!_productService.UpdateProduct(id, updatedProduct))
+        var product = await _productService.UpdateProduct(id, updatedProduct);
+            if (!product)
             {
                 return NotFound();
             }
@@ -156,9 +157,10 @@ public class ProductController : ControllerBase
         /// <param name="id">The product ID.</param>
         /// <returns>NoContent if successful; otherwise, NotFound.</returns>
         [HttpDelete("{id}")]
-        public IActionResult DeleteProduct(Guid id)
+        public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            if (!_productService.DeleteProduct(id))
+            var product = await _productService.DeleteProduct(id);
+            if (!product)
             {
                 return NotFound();
             }

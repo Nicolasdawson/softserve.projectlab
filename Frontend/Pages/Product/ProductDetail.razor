@@ -1,0 +1,111 @@
+﻿@page "/product/{Id}"
+@using Frontend.Services
+@inject IProductService ProductService
+@inject CartService CartService
+@inject Frontend.Shared.CartState CartState
+
+@inject NavigationManager NavManager
+
+<PageTitle>Product Detail</PageTitle>
+<style>
+.product-image {
+    max-height: 400px;
+    object-fit: cover;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.thumbnail:hover, .thumbnail.active {
+    opacity: 1;
+    cursor: pointer;
+}
+</style>    
+@if (Product is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+
+<MudContainer Class="mt-6">
+    <MudGrid GutterSize="3">
+        <!-- Product Images -->
+        <MudItem xs="12" md="6">
+            <MudPaper Elevation="1" Class="mb-4">
+                    <MudImage Src="@SelectedImage" Alt="Product" Class="rounded w-100 product-image" />
+            </MudPaper>
+
+            <MudGrid GutterSize="1">
+                @foreach (var img in Images)
+                {
+                    <MudItem xs="3">
+                            <MudImage 
+                                Src="@img" 
+                                Alt="Thumbnail" 
+                                Class='@($"rounded cursor-pointer thumbnail rounded {(img == SelectedImage ? "border border-primary" : "")}")' 
+                                @onclick="() => ChangeImage(img)" />
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudItem>
+
+        <!-- Product Details -->
+        <MudItem xs="12" md="6">
+            <MudText Typo="Typo.h5">@Product.Name</MudText>
+            <MudText Typo="Typo.subtitle2" Class="mb-3 text-muted"></MudText>
+
+            <MudText Typo="Typo.h6" Color="Color.Primary">$@Product.Price</MudText>
+            <!--
+                <MudText Typo="Typo.body2" Class="text-muted" Style="text-decoration: line-through;">$399.99</MudText>
+                <MudRating MaxValue="5" Value="4.5" ReadOnly="true" Size="Size.Medium" Color="Color.Warning" Class="mt-2" />
+                <MudText Class="ms-2 d-inline">(120 reviews)</MudText>
+            -->
+
+            <MudText Class="mt-4 mb-2">@Product.Description.</MudText>
+
+            <!--
+                <MudText Typo="Typo.h6">Color:</MudText>
+                <MudRadioGroup T="string" @bind-SelectedOption="_selectedColor" Row="true" Class="mb-3">
+                    <MudRadio T="string" Option="Black" Label="Black" />
+                    <MudRadio T="string" Option="Silver" Label="Silver" />
+                    <MudRadio T="string" Option="Blue" Label="Blue" />
+                </MudRadioGroup>
+
+            -->
+
+            <MudText Typo="Typo.body1" Class="mb-1">Quantity:</MudText>
+            <MudNumericField T="int" @bind-Value="_quantity" Min="1" Max="@Product.Stock" Style="width: 100px;" />
+
+            <MudStack Row Spacing="2" Class="mt-4">
+                <MudButton 
+                    Variant="Variant.Filled" 
+                    Color="Color.Primary"
+                    @onclick="() => AddToCart(Product)"
+                    StartIcon="@Icons.Material.Filled.AddShoppingCart">
+                    Add to Cart
+                </MudButton>
+                <!--
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.FavoriteBorder">
+                        Add to Wishlist
+                    </MudButton>
+                -->
+            </MudStack>
+
+            <MudText Typo="Typo.h6" Class="mt-4">Specifications:</MudText>
+             <MudList T="string">
+                <MudListItem>Weight: @Product.Weight g</MudListItem>
+                <MudListItem>Size : @Product.Height x @Product.Width x @Product.Length cm</MudListItem>
+                <MudListItem>Category : @Product.categoryName</MudListItem>
+                <MudListItem></MudListItem>
+            </MudList>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+}
