@@ -1,6 +1,7 @@
 ﻿using System.Reflection.Emit;
 using API.Helpers;
 using API.Models;
+using API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.implementations.Infrastructure.Data
@@ -10,12 +11,15 @@ namespace API.implementations.Infrastructure.Data
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IFileStorage _fileStorage;
+        
+        private readonly StockReservationService _stockService;
 
-        public SeedDb(AppDbContext context, IFileStorage fileStorage, IConfiguration configuration)
+        public SeedDb(AppDbContext context, IFileStorage fileStorage, IConfiguration configuration, StockReservationService stockService)
         {
             _context = context;
             _configuration = configuration;
             _fileStorage = fileStorage;
+            _stockService = stockService;
         }
         public async Task SeedAsync()
         {
@@ -427,6 +431,11 @@ namespace API.implementations.Infrastructure.Data
                 );
             }
             _context.SaveChanges(); // Saving products
+             var products = await _context.Products.ToListAsync();
+            foreach (var product in products)
+            {
+                await _stockService.SetStockAsync(product.Id, product.Stock);
+            }
         }
 
         private async Task CheckLocalImagesAsync()
@@ -461,6 +470,14 @@ namespace API.implementations.Infrastructure.Data
             var images = new List<ProductImage>();
             foreach (var item in products)
             {
+                // Contar cuántas imágenes tiene el producto
+                int currentImagesCount = await _context.ProductImages.CountAsync(pi => pi.IdProduct == item.Id);
+
+                // Si ya tiene 3 o más imágenes, saltar este producto
+                if (currentImagesCount >= 3)
+                {
+                    continue; // ya tiene imágenes, no agregamos más
+                }
 
                 int index = Array.FindIndex(filesNames, name => name.StartsWith(item.Name, StringComparison.OrdinalIgnoreCase));
                 if (index == -1) break;
@@ -516,6 +533,9 @@ namespace API.implementations.Infrastructure.Data
             var images = new List<ProductImage>();
             foreach ( var item in products)
             {
+                if (_context.ProductImages.Any(img => img.IdProduct == item.Id))
+                continue;
+
 
                 int index = Array.FindIndex(filesNames, name => name.StartsWith(item.Name, StringComparison.OrdinalIgnoreCase));
 

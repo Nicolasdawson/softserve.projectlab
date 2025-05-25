@@ -10,9 +10,11 @@ public class OrderService
 {
     private readonly AppDbContext _context;
 
-    public OrderService(AppDbContext context)
+    private readonly StockReservationService _stockReservationService; 
+    public OrderService(AppDbContext context, StockReservationService stockReservationService)
     {
         _context = context;
+        _stockReservationService = stockReservationService;
     }
 
     public async Task<OrderResponse> CreateOrderFromCartAsync(int customerId, Guid deliveryAddressId)
@@ -30,12 +32,6 @@ public class OrderService
         if (cartItems == null || !cartItems.Any())
             throw new Exception("Shopping cart is empty");
 
-        foreach (var item in cartItems)
-        {
-            if (item.Product.Stock < item.Quantity)
-                throw new Exception($"Insufficient stock for product {item.Product.Name}");
-        }
-
         var order = new Order
         {
             Id = Guid.NewGuid(),
@@ -52,7 +48,10 @@ public class OrderService
 
         foreach (var item in cartItems)
         {
-            item.Product.Stock -= item.Quantity;
+            var success = await _stockReservationService.TryReserveStockAsync(item.IdProduct, item.Quantity);
+            if (!success)
+                throw new Exception($"Insufficient stock for product {item.Product.Name}");
+
 
             order.OrderItems.Add(new OrderItem
             {

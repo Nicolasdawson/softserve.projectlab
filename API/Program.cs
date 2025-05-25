@@ -11,6 +11,7 @@ using API.implementations.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.FileProviders;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,8 @@ builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger e
 // Add service ProductService
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductImageService>();
+// Add service for redis to keep the reservation of stock
+builder.Services.AddScoped<StockReservationService>();
 
 // Conexión con Azure blob DB Azure
 builder.Services.AddAzureClients(clientBuilder =>
@@ -56,6 +59,9 @@ builder.Services.AddAzureClients(clientBuilder =>
     clientBuilder.AddBlobServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:blob"]!, preferMsi: true);
     clientBuilder.AddQueueServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:queue"]!, preferMsi: true);
 });
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(
+    builder.Configuration.GetConnectionString("RedisConnection")));
 
 builder.Services.AddControllers().AddJsonOptions(x =>
 {

@@ -1,4 +1,5 @@
-﻿using API.Abstractions;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using API.Abstractions;
 
 namespace API.Models
 {
@@ -9,6 +10,7 @@ namespace API.Models
         public string StreetNameOptional { get; set; } = default!;
 
         // Foreign Key: IdCity
+        [ForeignKey("IdCity")]
         public Guid IdCity { get; set; }
 
         // Navigation Property
