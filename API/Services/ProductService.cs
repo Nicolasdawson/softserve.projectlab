@@ -147,4 +147,21 @@ public class ProductService : IProductService
         var products = _context.Products.Where(p => p.IdCategory == category);
         return products;
     }
+
+    public async Task<ActionResponseDTO<int>> GetTotalRecordsAsync(PaginationDTO pagination)
+    {
+        var queryable = _context.Products.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(pagination.Filter))
+        {
+            queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+        }
+
+        double count = await queryable.CountAsync();
+        return new ActionResponseDTO<int>
+        {
+            WasSuccess = true,
+            Result = (int)count
+        };
+    }
 }

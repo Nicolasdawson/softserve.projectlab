@@ -13,8 +13,8 @@ namespace API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ProductController : ControllerBase
-    {
+public class ProductController : GenericController<Product>
+{
         private readonly IConfiguration _configuration;
         private readonly IProductService _productService;
         private readonly IProductImageService _productImageService;
@@ -27,10 +27,11 @@ public class ProductController : ControllerBase
         /// <param name="productService">The product service.</param>
         public ProductController(
             IConfiguration configuration, 
-            IProductService productService, 
+            IProductService productService,
+            IGenericService<Product> genericService,
             IProductImageService productImageService, 
             IFileStorage fileStorage, 
-            AppDbContext context )
+            AppDbContext context ) : base(genericService)
         {
             _configuration = configuration;
             _productService = productService;
@@ -98,7 +99,7 @@ public class ProductController : ControllerBase
         /// Retrieves all products.
         /// </summary>
         /// <returns>A list of all products.</returns>
-        [HttpGet]
+        [HttpGet("pag")]
         public async Task<ActionResult<IEnumerable<ProductWithImagesDTO>>> GetProducts(
             [FromQuery][Range(0, Int32.MaxValue)] int pageNumber = 1, 
             [FromQuery][Range(0, Int32.MaxValue)] int pageSize = 10)
@@ -178,5 +179,16 @@ public class ProductController : ControllerBase
         {
             var products = _productService.GetProductsByCategory(category);
             return Ok(products);
+        }
+
+        [HttpGet("totalRecordsPaginated")]
+        public async Task<IActionResult> GetTotalRecordsAsync([FromQuery] PaginationDTO pagination)
+        {
+            var action = await _productService.GetTotalRecordsAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
         }
 }

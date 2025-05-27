@@ -2,12 +2,11 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Frontend;
 using MudBlazor.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Frontend.Services;
 using Frontend.AuthProvider;
-using Microsoft.AspNetCore.Components.Authorization;
 using Frontend.Repositories;
 using Frontend.Shared;
+using CurrieTechnologies.Razor.SweetAlert2;
 
 
 
@@ -25,6 +24,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddSweetAlert2();
 builder.Services.AddMudServices();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddHttpClient();

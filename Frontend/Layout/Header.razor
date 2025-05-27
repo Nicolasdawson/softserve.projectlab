@@ -38,15 +38,24 @@
             </svg>
 
             <MudSpacer />
+            <MudMenu 
+                 Label="Login"
+                 Icon="@Icons.Material.Filled.Login"
+                 Color="Color.Inherit"
+                 AnchorOrigin="Origin.BottomRight"
+                 TransformOrigin="Origin.TopRight">
+                <Frontend.Shared.AuthLinks />
+
+            </MudMenu>
+
             <MudBadge  
-            Origin="Origin.BottomRight"
-            Visible="@HasItems"
-            Content="@CartItemCount"
-            Color="Color.Error" 
-            Overlap="true" 
-            Bordered="true"
-            >
-                <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" @onclick="@GoToCart" />
+                Origin="Origin.BottomRight"
+                Visible="@HasItems"
+                Content="@CartItemCount"
+                Color="Color.Error" 
+                Overlap="true" 
+                Bordered="true">
+                    <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" @onclick="@GoToCart" />
             </MudBadge>
 
 

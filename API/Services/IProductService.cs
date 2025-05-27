@@ -10,4 +10,5 @@ public interface IProductService
     Task<bool> DeleteProduct(Guid id);
     Task<bool> UpdateProduct(Guid id, Product updatedProduct);
     IEnumerable<Product> GetProductsByCategory(Guid category);
+    Task<ActionResponseDTO<int>> GetTotalRecordsAsync(PaginationDTO pagination);
 }

@@ -10,9 +10,9 @@ public partial class ProductDetail
     [Parameter]
     public string Id { get; set; } = string.Empty;
 
-    private List<string> Images;
-    private string SelectedImage;
-    private string _selectedColor = "Black";
+    private List<string>? Images;
+    private string? SelectedImage;
+    //private string _selectedColor = "Black";
     private int _quantity;
 
     private ProductDetailDTO Product;
