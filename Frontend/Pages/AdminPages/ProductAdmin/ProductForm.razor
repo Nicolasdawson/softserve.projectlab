@@ -1,12 +1,109 @@
-﻿<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigation" />
+﻿@using Frontend.DTO
+<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigation" />
 
-<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit" class="custom-editform">
     <DataAnnotationsValidator />
-    <MudTextField Label="Product"
+    <!--
+
+    -->
+    <!-------------------------------------------------------------------------->
+    <!-- Form Fields                                                          -->
+    <!-------------------------------------------------------------------------->
+    
+    <!-- Product Name -->
+    <MudTextField Label="Name"
                   @bind-Value="@Product.Name"
+                  InputType="InputType.Text"
                   For="@(() => Product.Name)"
                   Class="mb-4" />
+    <ValidationMessage For="@(() => Product.Name)" />
+    
+    <!-- Product Description -->
+    <MudTextField Label="Description"
+                  @bind-Value="@Product.Description"
+                  InputType="InputType.Text"
+                  For="@(() => Product.Description)"
+                  Class="mb-4" />
+    <ValidationMessage For="@(() => Product.Description)" />
+    
+     <!-- Product Price -->
+    <MudNumericField 
+        Immediate="false" 
+        Label="Enter a price" 
+        Format="N2"        
+        Variant="Variant.Text"
+        Min="1"
+        Class="mb-4"
+        @bind-Value="@Product.Price"/>
+    <ValidationMessage For="@(() => Product.Price)" />
 
+    <!-- Product Weight -->
+    <MudNumericField 
+        @bind-Value="Product.Weight" 
+        Label="Enter a weight" 
+        Format="F1"
+        Min="0"
+        Variant="Variant.Outlined" />
+    <ValidationMessage For="@(() => Product.Weight)" />
+
+    <!-- Product Height -->
+    <MudNumericField @bind-Value="Product.Height"
+                     Label="Enter a height"
+                     Format="F1"
+                     Min="0"
+                     Variant="Variant.Outlined" />
+    <ValidationMessage For="@(() => Product.Height)" />
+
+    <!-- Product Width -->
+    <MudNumericField @bind-Value="Product.Width"
+                     Label="Enter a width"
+                     Format="F1"
+                     Min="0"
+                     Variant="Variant.Outlined" />
+    <ValidationMessage For="@(() => Product.Width)" />
+
+    <!-- Product Length -->
+    <MudNumericField @bind-Value="Product.Length"
+                     Label="Enter a length"
+                     Format="F1"
+                     Min="0"
+                     Variant="Variant.Outlined" />
+    <ValidationMessage For="@(() => Product.Length)" />
+
+    <!-- Product Stock -->
+    <MudNumericField @bind-Value="Product.Stock"
+                     Label="Enter a stock"                     
+                     Min="0"
+                     Variant="Variant.Outlined" />
+    <ValidationMessage For="@(() => Product.Stock)" />
+
+    <!-- Product Image Files -->
+    <Frontend.Shared.InputFileList 
+        Label="Product Images"
+        Accept=".jpg,.jpeg,.png"
+        MaxFiles="3"
+        MaxFileSizeBytes="5242880"
+        FilesSelected="OnFilesSelected" 
+        Product="@Product"/>
+    <ValidationMessage For="@(() => Product.Images)" />
+
+    <!-- Product Category -->
+    <MudAutocomplete T="CategoryDTO"
+                     Label="Category"
+                     Placeholder="Select a Category"
+                     SearchFunc="SearchCategory"
+                     Value="selectedCategory"
+                     ValueChanged="CategoryChanged"
+                     ToStringFunc="@(e=> e==null?null : $"{e.Name}")">
+        <ItemTemplate Context="itemContext">
+            @itemContext.Name
+        </ItemTemplate>
+    </MudAutocomplete>
+    <ValidationMessage For="@(() => Product.IdCategory)" />
+    <br />
+    <!-------------------------------------------------------------------------->
+    <!-- Action Buttons                                                       -->
+    <!-------------------------------------------------------------------------->
     <MudButton Variant="Variant.Outlined"
                StartIcon="@Icons.Material.Filled.ArrowBack"
                Color="Color.Info"

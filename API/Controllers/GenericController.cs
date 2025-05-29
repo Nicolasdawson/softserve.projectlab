@@ -35,7 +35,7 @@ public class GenericController<TEntity> : Controller where TEntity : class
         return NotFound();
     }
 
-    [HttpPost]
+    [HttpPost("post")]
     public virtual async Task<IActionResult> PostAsync(TEntity model)
     {
         var action = await _genericService.AddAsync(model);

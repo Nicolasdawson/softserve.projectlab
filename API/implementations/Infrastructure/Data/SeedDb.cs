@@ -206,8 +206,8 @@ namespace API.implementations.Infrastructure.Data
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                _context.Categories.AddRange(category1, category2, category3, category4, category5, category6);
-                _context.SaveChanges(); // Save in DB
+                await _context.Categories.AddRangeAsync(category1, category2, category3, category4, category5, category6);
+                await _context.SaveChangesAsync(); // Save in DB
             }
         }
 
@@ -223,7 +223,7 @@ namespace API.implementations.Infrastructure.Data
             if (!_context.Products.Any() || !_context.Categories.Any())
             {
                 // Adding products
-                _context.Products.AddRange(
+                await _context.Products.AddRangeAsync(
                     new Product
                     {
                         Id = Guid.NewGuid(),
@@ -235,7 +235,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = cameraCategory.Id,
+                        IdCategory = cameraCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -250,7 +250,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 20m,
                         Length = 25m,
                         Stock = 100,
-                        IdCategory = cameraCategory.Id,
+                        IdCategory = cameraCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -265,7 +265,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 20m,
                         Length = 25m,
                         Stock = 100,
-                        IdCategory = cameraCategory.Id,
+                        IdCategory = cameraCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -310,7 +310,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 20m,
                         Length = 25m,
                         Stock = 100,
-                        IdCategory = sensorCategory.Id,
+                        IdCategory = sensorCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -325,7 +325,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = sensorCategory.Id,
+                        IdCategory = sensorCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -340,7 +340,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = sensorCategory.Id,
+                        IdCategory = sensorCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -355,7 +355,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = alarmCategory.Id,
+                        IdCategory = alarmCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -370,7 +370,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = alarmCategory.Id,
+                        IdCategory = alarmCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -385,7 +385,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 8.1m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = smartcontrolCategory.Id,
+                        IdCategory = smartcontrolCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -451,7 +451,7 @@ namespace API.implementations.Infrastructure.Data
                     }
                 );
             }
-            _context.SaveChanges(); // Saving products
+            await _context.SaveChangesAsync(); // Saving products
         }
 
         private async Task CheckLocalImagesAsync()

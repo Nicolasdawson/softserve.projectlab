@@ -1,0 +1,30 @@
+﻿@page "/admin-panel"
+
+@if (!loading)
+{
+    <Frontend.Shared.Loading />
+}
+else
+{
+    <MudGrid>
+        <!--
+        <MudItem xs="12">
+            <MudSlider Min="1" Max="20" Immediate="true" Step="1" @bind-Value="papers"></MudSlider>
+        </MudItem>
+        -->
+
+        <MudItem xs="12">
+            <MudGrid Justify="Justify.FlexStart">
+
+                <MudItem xs="4">
+                    <MudPaper Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="4">
+                    <MudPaper Class="d-flex flex-column align-center justify-center mud-width-full py-8">
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+}

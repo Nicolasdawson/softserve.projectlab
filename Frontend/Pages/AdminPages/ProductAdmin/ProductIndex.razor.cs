@@ -101,7 +101,7 @@ public partial class ProductIndex
         else
         {
             Console.WriteLine("Creando producto");
-            dialog = await DialogService.ShowAsync<ProductEdit>("New Product", options);
+            dialog = await DialogService.ShowAsync<ProductCreate>("New Product", options);
         }
 
         var result = await dialog.Result;
@@ -113,7 +113,6 @@ public partial class ProductIndex
         }
         
     }
-
     private async Task DeleteAsync(ProductModel product)
     {
         /*

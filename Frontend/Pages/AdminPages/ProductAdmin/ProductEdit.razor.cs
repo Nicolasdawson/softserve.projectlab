@@ -1,39 +1,52 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Frontend.Repositories;
 using MudBlazor;
+using Frontend.DTO;
 
 namespace Frontend.Pages.AdminPages.ProductAdmin;
 
 public partial class ProductEdit
 {
-    private ProductModel? product;
+    private ProductDTO? product;
     private ProductForm? productForm;
 
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
     [Inject] private IRepository Repository { get; set; } = null!;
     [Inject] private ISnackbar Snackbar { get; set; } = null!;
 
-    [Parameter] public Guid Id { get; set; }
+    [Parameter] public Guid? Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var responseHttp = await Repository.GetAsync<ProductModel>($"http://localhost:5262/api/product/{Id}");
-
-        if (responseHttp.Error)
+        if (Id.HasValue)
         {
-            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            var responseHttp = await Repository.GetAsync<ProductModel>($"http://localhost:5262/api/product/{Id}");
+
+            if (responseHttp.Error)
             {
-                NavigationManager.NavigateTo("countries");
+                if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    NavigationManager.NavigateTo("/admin-products");
+                }
+                else
+                {
+                    var messageError = await responseHttp.GetErrorMessageAsync();
+                    Snackbar.Add(messageError!, Severity.Error);
+                }
             }
             else
             {
-                var messageError = await responseHttp.GetErrorMessageAsync();
-                Snackbar.Add(messageError!, Severity.Error);
+                var prod = responseHttp.Response;
+                product = new ProductDTO
+                {
+                    Id = prod!.Id, 
+                    Name = prod.Name,
+                    Description = prod.Description,
+                    Price = prod.Price,
+                    Stock = prod.Stock,
+                };
             }
-        }
-        else
-        {
-            product = responseHttp.Response;
+
         }
     }
 

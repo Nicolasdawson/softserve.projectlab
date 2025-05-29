@@ -45,10 +45,11 @@ public partial class Login
         if (responseHttp.Error)
         {
             var message = await responseHttp.GetErrorMessageAsync();
-            //Snackbar.Add(Localizer[message!], Severity.Error);
+            Snackbar.Add(message!, Severity.Error);
         }
 
         await LoginService.LoginAsync(responseHttp.Response!.Token);
-        NavigationManager.NavigateTo("/");
+
+        NavigationManager.NavigateTo("/admin-panel");
     }
 }

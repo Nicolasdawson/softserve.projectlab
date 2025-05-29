@@ -1,19 +1,35 @@
 ﻿<AuthorizeView>
     <Authorized>
-        <MudContainer Style="width: 18rem; margin-top: 2rem; margin-bottom: 2rem;">
-            <MudText Typo="Typo.body1" Align="Align.Center">Welcome, @context.User.Identity!.Name</MudText>
-            <MudPaper Elevation="1" Class="d-flex justify-content-center align-content-center">
-                <MudStack Spacing="2">
-                    <MudButton Variant="Variant.Text" OnClick="EditAction">Edit User Profile <MudIcon Icon="@Icons.Material.Filled.Person" /> </MudButton>
-                    <MudButton Variant="Variant.Text" OnClick="ShowModalLogOut">Logout <MudIcon Icon="@Icons.Material.Filled.Login" /> </MudButton>
-                </MudStack>
-            </MudPaper>
-        </MudContainer>
+
+        <MudMenuItem 
+            Label="Edit User Profile"
+            OnClick="EditAction"   
+            Icon="@Icons.Material.Filled.Person" 
+            IconColor="Color.Default" /> 
+        <MudMenuItem 
+            Icon="@Icons.Material.Filled.Login"
+            OnClick="ShowModalLogOut" 
+            Label="Logout" />
+
+        <!--
+            <MudContainer Style="width: 18rem; margin-top: 2rem; margin-bottom: 2rem;">
+                <MudText Typo="Typo.body1" Align="Align.Center">Welcome, @context.User.Identity!.Name</MudText>
+                <MudPaper Elevation="1" Class="d-flex justify-content-center align-content-center">
+                    <MudStack Spacing="2">
+                        <MudButton Variant="Variant.Text" OnClick="EditAction">Edit User Profile <MudIcon Icon="@Icons.Material.Filled.Person" /> </MudButton>
+                        <MudButton Variant="Variant.Text" OnClick="ShowModalLogOut">Logout <MudIcon Icon="@Icons.Material.Filled.Login" /> </MudButton>
+                    </MudStack>
+                </MudPaper>
+            </MudContainer>
+        -->
     </Authorized>
     <NotAuthorized>
         <MudContainer Style="width: 18rem; margin-top: 2rem; margin-bottom: 2rem;">
             <MudStack Spacing="4">
-                <a href="/register" class="nav-link btn btn-link">Register<MudIcon Icon="@Icons.Material.Filled.HowToReg" /></a>
+                <a href="/register" class="nav-link btn btn-link">
+                    <MudIcon Icon="@Icons.Material.Filled.HowToReg" />
+                    Register
+                </a>
                 <MudMenuItem OnClick="ShowModalLogIn">Login<MudIcon Icon="@Icons.Material.Filled.Login" /> </MudMenuItem>
             </MudStack>
         </MudContainer>

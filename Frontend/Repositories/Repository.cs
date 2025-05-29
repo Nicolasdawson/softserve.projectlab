@@ -86,6 +86,20 @@ public class Repository : IRepository
         return new HttpResponseWrapper<TActionResponse>(default, true, responseHttp);
     }
 
+    public async Task<HttpResponseWrapper<TActionResponse>> PostMultipartAsync<TActionResponse>(
+    string url,
+    HttpContent content)
+    {
+        var responseHttp = await _httpClient.PostAsync(url, content);
+        if (responseHttp.IsSuccessStatusCode)
+        {
+            var response = await UnserializeAnswer<TActionResponse>(responseHttp);
+            return new HttpResponseWrapper<TActionResponse>(response, false, responseHttp);
+        }
+
+        return new HttpResponseWrapper<TActionResponse>(default!, true, responseHttp);
+    }
+
     private async Task<T> UnserializeAnswer<T>(HttpResponseMessage responseHttp)
     {
         var response = await responseHttp.Content.ReadAsStringAsync();

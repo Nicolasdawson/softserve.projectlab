@@ -63,7 +63,7 @@ public class ProductService : IProductService
                 Price = p.Price,
                 Stock = p.Stock,
                 ImageUrls = p.Images.Select(img => img.ImageUrl).ToList(),
-                CategoryName = p.Category.Name
+                CategoryName = p.Category!.Name
             })
             .ToListAsync();
     }
@@ -90,7 +90,7 @@ public class ProductService : IProductService
                 Width = p.Width,
                 Length = p.Length,
                 Stock = p.Stock,
-                categoryName = p.Category.Name,
+                categoryName = p.Category!.Name,
                 ImageUrls = p.Images.Select(img => img.ImageUrl).ToList()
             })
             .FirstOrDefaultAsync();

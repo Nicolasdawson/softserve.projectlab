@@ -46,6 +46,7 @@ public class ProductController : GenericController<Product>
         /// <param name="product">The product to create.</param>
         /// <returns>The created product.</returns>
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<Product>> CreateProduct([FromForm] ProductDTO product)
         {
             if (product == null)
@@ -54,7 +55,6 @@ public class ProductController : GenericController<Product>
             var categoryExists = await _context.Categories.AnyAsync(categoryExists => categoryExists.Id == product.IdCategory);
             if (!categoryExists)
                 return BadRequest("The selected category doesn't exist");
-
 
             Product prod = new Product
             {
@@ -66,11 +66,13 @@ public class ProductController : GenericController<Product>
                 Height = product.Height,
                 Width = product.Width,
                 Length = product.Length,
+                Stock = product.Stock,
                 IdCategory = product.IdCategory,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-
+            await _productService.CreateProductAsync(prod);
+        
             //Store the Images in folder
             if (product.Images != null) {            
                 var images = new List<ProductImage>();
@@ -91,7 +93,7 @@ public class ProductController : GenericController<Product>
                 await _productImageService.CreateProductImageAsync(images);
             }
 
-            await _productService.CreateProductAsync(prod);
+
             return StatusCode(StatusCodes.Status201Created); // CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
 

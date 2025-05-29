@@ -11,10 +11,18 @@
     <MudPaper Elevation="4" Class="pa-6 mx-auto mt-12" MaxWidth="400px">
         <MudText Typo="Typo.h5" Class="mb-4">Login</MudText>
 
-        <MudTextField @bind-Value="@userDTO.Email" Label="Email" InputType="InputType.Email" For="@(() => userDTO.Email)" />
+        <MudTextField 
+            @bind-Value="@userDTO.Email" 
+            Label="Email" 
+            InputType="InputType.Email" 
+            For="@(() => userDTO.Email)" />
         <ValidationMessage For="@(() => userDTO.Email)" />
 
-        <MudTextField @bind-Value="@userDTO.Password" Label="Password" InputType="InputType.Password" For="@(() => userDTO.Password)" />
+        <MudTextField 
+            @bind-Value="@userDTO.Password" 
+            Label="Password" 
+            InputType="InputType.Password" 
+            For="@(() => userDTO.Password)" />
         <ValidationMessage For="@(() => userDTO.Password)" />
 
         <MudButton OnClick="LoginAsync" Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" FullWidth="true">
