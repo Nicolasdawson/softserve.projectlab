@@ -3,6 +3,8 @@ using API.Models;
 using API.Services;
 using API.DTO.DeliveryAddress;
 
+namespace API.Controllers;
+
 [ApiController]
 [Route("api/[controller]")]
 public class DeliveryAddressController : ControllerBase
@@ -14,7 +16,7 @@ public class DeliveryAddressController : ControllerBase
         _service = service;
     }
 
-   [HttpPost]
+    [HttpPost]
     public async Task<IActionResult> Create([FromBody] DeliveryAddressRequest request)
     {
         var address = await _service.CreateFromRequestAsync(request);
@@ -38,6 +40,30 @@ public class DeliveryAddressController : ControllerBase
 
         var response = await _service.MapToResponseAsync(address);
         return Ok(response);
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var success = await _service.DeleteAsync(id);
+        if (!success)
+            return NotFound();
+
+        return NoContent();
+    }
+
+    [HttpGet("by-customer/{customerId}")]
+    public async Task<IActionResult> GetByCustomerViaOrders(int customerId)
+    {
+        var addresses = await _service.GetByCustomerIdThroughOrdersAsync(customerId);
+
+        var responses = new List<DeliveryAddressResponse>();
+        foreach (var address in addresses)
+        {
+            responses.Add(await _service.MapToResponseAsync(address));
+        }
+
+        return Ok(responses);
     }
 
 }

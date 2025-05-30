@@ -7,7 +7,8 @@ namespace API.Models
     {
         public string StreetName { get; set; } = default!;
         public string StreetNumber { get; set; } = default!;
-        public string StreetNameOptional { get; set; } = default!;
+        public string? StreetNameOptional { get; set; } = default!;
+        public bool IsDeleted { get; set; } = false;
 
         // Foreign Key: IdCity
         [ForeignKey("IdCity")]

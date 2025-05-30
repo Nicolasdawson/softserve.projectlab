@@ -11,13 +11,13 @@ namespace API.Services;
     public class ProductService
     {
         private readonly AppDbContext _context; 
-        private readonly StockReservationService _stockReservationService; 
+        private readonly IStockReservationService  _stockReservationService; 
 
         /// <summary>
         /// Initializes a new instance of the ProductService class.
         /// </summary>
         /// <param name="context">The application database context.</param>
-        public ProductService(AppDbContext context, StockReservationService stockReservationService) 
+        public ProductService(AppDbContext context, IStockReservationService  stockReservationService) 
         {
             _context = context;
             _stockReservationService = stockReservationService;

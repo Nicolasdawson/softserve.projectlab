@@ -34,6 +34,8 @@ namespace API.implementations.Infrastructure.Data;
             //modelBuilder.SeedProducts(); // Para insertar datos
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<DeliveryAddress>().HasQueryFilter(d => !d.IsDeleted);
+
            modelBuilder.Entity<Credential>(entity =>
             {
                 

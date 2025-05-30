@@ -11,11 +11,11 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class StripeWebhookController : ControllerBase
 {
-    private readonly PaymentService _paymentService;
+    private readonly IPaymentRepository _paymentService;
     private readonly IConfiguration _configuration;
     private readonly EmailService _emailService;
 
-    public StripeWebhookController(PaymentService paymentService, IConfiguration configuration, EmailService emailService)
+    public StripeWebhookController(IPaymentRepository paymentService, IConfiguration configuration, EmailService emailService)
     {
         _paymentService = paymentService;
         _configuration = configuration;

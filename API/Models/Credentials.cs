@@ -1,7 +1,7 @@
 using API.Abstractions;
 
-namespace API.Models
-{
+namespace API.Models;
+
     public class Credential : Base
     {
         public byte[] PasswordHash { get; set; }
@@ -19,4 +19,3 @@ namespace API.Models
         //Navigation Property
         public Role Role { get; set; } = default!;
     }
-}

@@ -12,9 +12,9 @@ namespace API.implementations.Infrastructure.Data
         private readonly IConfiguration _configuration;
         private readonly IFileStorage _fileStorage;
         
-        private readonly StockReservationService _stockService;
+        private readonly IStockReservationService  _stockService;
 
-        public SeedDb(AppDbContext context, IFileStorage fileStorage, IConfiguration configuration, StockReservationService stockService)
+        public SeedDb(AppDbContext context, IFileStorage fileStorage, IConfiguration configuration, IStockReservationService  stockService)
         {
             _context = context;
             _configuration = configuration;

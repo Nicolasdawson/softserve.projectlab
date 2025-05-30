@@ -3,7 +3,7 @@ using API.Models;
 
 namespace API.Services;
 
-public class PaymentService
+public class PaymentService : IPaymentRepository
 {
     private readonly AppDbContext _context;
 

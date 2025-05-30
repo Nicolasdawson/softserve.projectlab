@@ -1,8 +1,9 @@
 using StackExchange.Redis;
+using API.Abstractions;
 
-namespace API.Services
-{
-    public class StockReservationService
+namespace API.Services;
+
+    public class StockReservationService : IStockReservationService
     {
         private readonly IDatabase _db;
 
@@ -45,4 +46,4 @@ namespace API.Services
             return (int?)await _db.StringGetAsync(key) ?? 0;
         }
     }
-}
+

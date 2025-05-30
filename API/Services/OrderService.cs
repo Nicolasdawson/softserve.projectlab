@@ -1,123 +1,111 @@
 using API.implementations.Infrastructure.Data;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
-using Stripe;
 using API.DTO.Order;
+using API.Abstractions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace API.Services;
 
 public class OrderService
 {
     private readonly AppDbContext _context;
+    private readonly IStockReservationService _stockReservationService;
+    private readonly IPaymentService _paymentService;
 
-    private readonly StockReservationService _stockReservationService; 
-    public OrderService(AppDbContext context, StockReservationService stockReservationService)
+    public OrderService(
+        AppDbContext context,
+        IStockReservationService stockReservationService,
+        IPaymentService paymentService)
     {
         _context = context;
         _stockReservationService = stockReservationService;
+        _paymentService = paymentService;
     }
 
     public async Task<OrderResponse> CreateOrderFromCartAsync(int customerId, Guid deliveryAddressId)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var transaction = _context.Database.CurrentTransaction ?? await TryBeginTransactionAsync();
 
-        var customer = await _context.Customers.FindAsync(customerId)
-                    ?? throw new Exception("Customer not found");
-
-        var cartItems = await _context.ShoppingCarts
-            .Where(c => c.IdCustomer == customerId)
-            .Include(c => c.Product)
-            .ToListAsync();
-
-        if (cartItems == null || !cartItems.Any())
-            throw new Exception("Shopping cart is empty");
-
-        var order = new Order
+        try
         {
-            Id = Guid.NewGuid(),
-            IdCustomer = customerId,
-            IdDeliveryAddress = deliveryAddressId,
-            Status = "created",
-            OrderNumber = GenerateOrderNumber(),
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            OrderItems = new List<OrderItem>()
-        };
+            var customer = await _context.Customers.FindAsync(customerId)
+                           ?? throw new Exception("Customer not found");
 
-        decimal total = 0;
+            var cartItems = await _context.ShoppingCarts
+                .Where(c => c.IdCustomer == customerId)
+                .Include(c => c.Product)
+                .ToListAsync();
 
-        foreach (var item in cartItems)
-        {
-            var success = await _stockReservationService.TryReserveStockAsync(item.IdProduct, item.Quantity);
-            if (!success)
-                throw new Exception($"Insufficient stock for product {item.Product.Name}");
+            if (cartItems == null || !cartItems.Any())
+                throw new Exception("Shopping cart is empty");
 
-
-            order.OrderItems.Add(new OrderItem
+            var order = new Order
             {
                 Id = Guid.NewGuid(),
-                IdOrder = order.Id,
-                IdProduct = item.IdProduct,
-                Quantity = item.Quantity,
-                Price = item.Product.Price
-            });
+                IdCustomer = customerId,
+                IdDeliveryAddress = deliveryAddressId,
+                Status = "created",
+                OrderNumber = GenerateOrderNumber(),
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                OrderItems = new List<OrderItem>()
+            };
 
-            total += item.Product.Price * item.Quantity;
+            decimal total = 0;
+
+            foreach (var item in cartItems)
+            {
+                var success = await _stockReservationService.TryReserveStockAsync(item.IdProduct, item.Quantity);
+                if (!success)
+                    throw new Exception($"Insufficient stock for product {item.Product.Name}");
+
+                order.OrderItems.Add(new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    IdOrder = order.Id,
+                    IdProduct = item.IdProduct,
+                    Quantity = item.Quantity,
+                    Price = item.Product.Price
+                });
+
+                total += item.Product.Price * item.Quantity;
+            }
+
+            order.TotalPrice = total;
+
+            var payment = await _paymentService.CreatePaymentAsync(order.Id, total)
+                          ?? throw new Exception("Payment is null");
+
+            if (payment.Id == Guid.Empty)
+                throw new Exception("Invalid payment ID");
+
+            order.IdPayment = payment.Id;
+
+            _context.Orders.Add(order);
+            _context.Payments.Add(payment);
+            _context.ShoppingCarts.RemoveRange(cartItems);
+
+            await _context.SaveChangesAsync();
+
+            if (transaction != null)
+                await transaction.CommitAsync();
+
+            return new OrderResponse
+            {
+                OrderId = order.Id,
+                OrderNumber = order.OrderNumber,
+                Status = order.Status,
+                Total = order.TotalPrice,
+                CreatedAt = order.CreatedAt
+            };
         }
-
-        order.TotalPrice = total;
-
-        _context.Orders.Add(order);
-        await _context.SaveChangesAsync();
-
-        var payment = await CreateStripePaymentIntent(order.Id, total);
-
-        _context.Payments.Add(payment);
-        order.IdPayment = payment.Id;
-
-        _context.ShoppingCarts.RemoveRange(cartItems);
-
-        await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
-
-        // Retorná sólo datos planos, no entidades completas
-        return new OrderResponse
+        catch
         {
-            OrderId = order.Id,
-            OrderNumber = order.OrderNumber,
-            Status = order.Status,
-            Total = order.TotalPrice,
-            CreatedAt = order.CreatedAt
-        };
-    }
-
-
-    private async Task<Payment> CreateStripePaymentIntent(Guid orderId, decimal total)
-    {
-        var stripeService = new PaymentIntentService();
-        var intent = await stripeService.CreateAsync(new PaymentIntentCreateOptions
-        {
-            Amount = (long)(total * 100),
-            Currency = "usd",
-            Metadata = new Dictionary<string, string> { { "order_id", orderId.ToString() } }
-        });
-
-        return new Payment
-        {
-            Id = Guid.NewGuid(),
-            StripeSessionId = intent.Id,
-            PaymentIntentId = intent.Id,
-            Amount = total,
-            Currency = "usd",
-            Status = "unpaid",
-            CreatedAt = DateTime.UtcNow,
-            IdOrder = orderId
-        };
-    }
-
-    private string GenerateOrderNumber()
-    {
-        return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 6).ToUpper()}";
+            if (transaction != null)
+                await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<Order?> GetOrderByIdAsync(Guid orderId)
@@ -183,5 +171,22 @@ public class OrderService
         };
     }
 
+    private async Task<IDbContextTransaction?> TryBeginTransactionAsync()
+    {
+        try
+        {
+            return await _context.Database.BeginTransactionAsync();
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message.Contains("Transactions are not supported"))
+                return null;
+            throw;
+        }
+    }
 
+    private string GenerateOrderNumber()
+    {
+        return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..6].ToUpper()}";
+    }
 }

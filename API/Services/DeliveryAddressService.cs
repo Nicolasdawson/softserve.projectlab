@@ -23,6 +23,17 @@ public class DeliveryAddressService
 
     public async Task<DeliveryAddress> CreateFromRequestAsync(DeliveryAddressRequest request)
     {
+        if (request == null)
+        throw new ArgumentNullException(nameof(request));
+
+        if (string.IsNullOrWhiteSpace(request.CityName))
+        throw new ArgumentException("CityName cannot be null or empty.", nameof(request.CityName));
+
+        var regionExists = await _context.Regions.AnyAsync(r => r.Id == request.IdRegion);
+        if (!regionExists)
+            return null;
+
+
         // Busca ciudad por nombre (case-insensitive)
         var city = await _context.Cities
             .FirstOrDefaultAsync(c => c.Name.ToLower() == request.CityName.ToLower());
@@ -34,7 +45,7 @@ public class DeliveryAddressService
             {
                 Id = Guid.NewGuid(),
                 Name = request.CityName,
-                PostalCode = "0000", // Podrías pedir esto también si lo necesitas
+                PostalCode = request.PostalCode ?? "", // Podrías pedir esto también si lo necesitas
                 IdRegion = request.IdRegion
             };
 
@@ -89,5 +100,33 @@ public class DeliveryAddressService
             CountryName = city.Region.Country.Name
         };
     }
+
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var address = await _context.DeliveryAddresses.FindAsync(id);
+        if (address == null || address.IsDeleted)
+            return false;
+
+        address.IsDeleted = true;
+        _context.DeliveryAddresses.Update(address);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<List<DeliveryAddress>> GetByCustomerIdThroughOrdersAsync(int customerId)
+    {
+        var addressIds = await _context.Orders
+            .Where(o => o.IdCustomer == customerId)
+            .Select(o => o.IdDeliveryAddress)
+            .Distinct()
+            .ToListAsync();
+
+        return await _context.DeliveryAddresses
+            .Where(d => addressIds.Contains(d.Id) && !d.IsDeleted)
+            .ToListAsync();
+    }
+
+
+
 
 }

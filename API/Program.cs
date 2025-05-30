@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.FileProviders;
 using StackExchange.Redis;
+using API.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,7 +52,10 @@ builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger e
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductImageService>();
 // Add service for redis to keep the reservation of stock
-builder.Services.AddScoped<StockReservationService>();
+//builder.Services.AddScoped<StockReservationService>();
+builder.Services.AddScoped<IStockReservationService, StockReservationService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentService>();
+
 
 // Conexión con Azure blob DB Azure
 builder.Services.AddAzureClients(clientBuilder =>
@@ -69,7 +73,9 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 });
 
 
-builder.Services.AddScoped<PaymentService>();
+//builder.Services.AddScoped<PaymentService>();
+
+builder.Services.AddScoped<IPaymentService, StripePaymentService>();
 
 builder.Services.AddScoped<StripePaymentService>();
 

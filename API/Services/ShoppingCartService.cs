@@ -16,6 +16,9 @@ public class ShoppingCartService
     //  Agregar producto al carrito
     public async Task<ShoppingCart> AddToCartAsync(int customerId, Guid productId, int quantity)
     {
+        if (quantity <= 0)
+            throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
+
         var existingItem = await _context.ShoppingCarts
             .FirstOrDefaultAsync(c => c.IdCustomer == customerId && c.IdProduct == productId);
 
@@ -54,13 +57,16 @@ public class ShoppingCartService
     // Actualizar cantidad de un ítem
     public async Task UpdateQuantityAsync(int customerId, Guid productId, int newQuantity)
     {
+        if (newQuantity < 0)
+            throw new ArgumentException("Quantity cannot be negative.", nameof(newQuantity));
+
         var cartItem = await _context.ShoppingCarts
             .FirstOrDefaultAsync(c => c.IdCustomer == customerId && c.IdProduct == productId);
 
         if (cartItem == null)
             throw new Exception("Cart item not found");
 
-        if (newQuantity <= 0)
+        if (newQuantity == 0)
         {
             _context.ShoppingCarts.Remove(cartItem);
         }

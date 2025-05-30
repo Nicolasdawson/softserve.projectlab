@@ -1,7 +1,7 @@
 ﻿using API.Abstractions;
 
-namespace API.Models
-{
+namespace API.Models;
+
     public class City : Base
     {
         public string Name { get; set; } = default!;
@@ -16,4 +16,3 @@ namespace API.Models
         // One City has many DeliveryAddress
         public ICollection<DeliveryAddress> DeliveryAddresses { get; set; } = new List<DeliveryAddress>();
     }
-}

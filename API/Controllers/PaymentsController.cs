@@ -10,10 +10,10 @@ namespace API.Controllers;
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        private readonly PaymentService _paymentService;
+        private readonly IPaymentRepository _paymentService;
         private readonly StripePaymentService _stripeService;
 
-        public PaymentsController(PaymentService paymentService, StripePaymentService stripeService)
+        public PaymentsController(IPaymentRepository paymentService, StripePaymentService stripeService)
         {
             _paymentService = paymentService;
             _stripeService = stripeService;
