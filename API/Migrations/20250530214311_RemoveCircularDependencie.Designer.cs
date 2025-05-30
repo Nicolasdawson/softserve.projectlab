@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250519195144_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250530214311_RemoveCircularDependencie")]
+    partial class RemoveCircularDependencie
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -110,6 +110,9 @@ namespace API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("IdCustomer")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("IdRole")
                         .HasColumnType("uniqueidentifier");
 
@@ -140,6 +143,8 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdCustomer");
+
                     b.HasIndex("IdRole");
 
                     b.ToTable("Credential");
@@ -166,9 +171,6 @@ namespace API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid?>("IdCredentials")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsCurrent")
                         .HasColumnType("bit");
 
@@ -190,12 +192,6 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdCredentials");
-
-                    b.HasIndex("Id", "IsCurrent");
-
-                    b.HasIndex("Id", "StartDate", "EndDate");
-
                     b.ToTable("Customers", (string)null);
                 });
 
@@ -214,13 +210,15 @@ namespace API.Migrations
                     b.Property<Guid>("IdCity")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("StreetName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("StreetNameOptional")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -341,9 +339,6 @@ namespace API.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)");
 
-                    b.Property<Guid>("IdOrder")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("PaymentIntentId")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -359,8 +354,6 @@ namespace API.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IdOrder");
 
                     b.ToTable("Payments", (string)null);
                 });
@@ -550,23 +543,21 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Credential", b =>
                 {
+                    b.HasOne("API.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("IdCustomer")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("API.Models.Role", "Role")
                         .WithMany("credentials")
                         .HasForeignKey("IdRole")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Customer");
+
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("API.Models.Customer", b =>
-                {
-                    b.HasOne("API.Models.Credential", "credential")
-                        .WithMany()
-                        .HasForeignKey("IdCredentials")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("credential");
                 });
 
             modelBuilder.Entity("API.Models.DeliveryAddress", b =>
@@ -627,17 +618,6 @@ namespace API.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("API.Models.Payment", b =>
-                {
-                    b.HasOne("API.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("IdOrder")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("API.Models.Product", b =>

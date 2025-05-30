@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using API.Controllers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+
 using API.Services;
 using API.Helpers;
 using API.implementations.Infrastructure.Data;
@@ -12,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.FileProviders;
 using StackExchange.Redis;
-using API.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +81,8 @@ builder.Services.AddScoped<ShoppingCartService>();
 builder.Services.AddScoped<OrderService>();
 
 builder.Services.AddScoped<DeliveryAddressService>();
+
+builder.Services.AddScoped<CountryService>();
 
 
 // Configuración de Swagger

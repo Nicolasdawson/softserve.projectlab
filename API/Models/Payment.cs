@@ -25,11 +25,5 @@ namespace API.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // 🔗 Relación 1:1 con Order
-        [Required]
-        public Guid IdOrder { get; set; }
-
-        [ForeignKey(nameof(IdOrder))]
-        public Order Order { get; set; } = default!;
     }
 }

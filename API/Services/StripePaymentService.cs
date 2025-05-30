@@ -26,8 +26,7 @@ namespace API.Services
                 Amount = amount,
                 Currency = "usd",
                 Status = "unpaid",
-                CreatedAt = DateTime.UtcNow,
-                IdOrder = orderId
+                CreatedAt = DateTime.UtcNow
             };
 
             return Task.FromResult(payment);

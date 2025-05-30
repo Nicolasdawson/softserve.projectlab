@@ -88,8 +88,7 @@ public class OrderServiceTests
                 Amount = amount,
                 Currency = "usd",
                 Status = "unpaid",
-                CreatedAt = DateTime.UtcNow,
-                IdOrder = orderId
+                CreatedAt = DateTime.UtcNow
             });
 
         var orderService = new OrderService(context, stockReservationServiceMock.Object, paymentServiceMock.Object);

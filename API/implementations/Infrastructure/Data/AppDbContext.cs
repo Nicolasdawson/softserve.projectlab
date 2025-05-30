@@ -51,6 +51,11 @@ namespace API.implementations.Infrastructure.Data;
                 .WithMany(r => r.credentials)
                 .HasForeignKey(u => u.IdRole)
                 .OnDelete(DeleteBehavior.Restrict);
+
+                //Defining the Foregin key relationship for Customer
+                entity.HasOne(c => c.Customer)
+                .WithMany().HasForeignKey(c => c.IdCustomer)
+                .OnDelete(DeleteBehavior.Restrict);
             });
             
             //Entity Role configuration
@@ -74,13 +79,9 @@ namespace API.implementations.Infrastructure.Data;
                 entity.Property(c => c.IsCurrent).HasColumnType("bit");
                 entity.Property(c => c.StartDate).HasColumnType("datetime2(7)").IsRequired();
                 entity.Property(c => c.EndDate).HasColumnType("datetime2(7)"); // EndDate can be null
-                entity.HasIndex(c => new { c.Id, c.IsCurrent });
-                entity.HasIndex(c => new { c.Id, c.StartDate, c.EndDate });
+                //entity.HasIndex(c => new { c.Id, c.IsCurrent });
+                //entity.HasIndex(c => new { c.Id, c.StartDate, c.EndDate });
 
-                entity.HasOne(c => c.credential)
-                    .WithMany() 
-                    .HasForeignKey(c => c.IdCredentials)
-                    .OnDelete(DeleteBehavior.Cascade);
             });
             
             //Entity Product configuration
@@ -335,8 +336,8 @@ namespace API.implementations.Infrastructure.Data;
 
         public void ClearDatabase()
         {
-            //Products.RemoveRange(Products);
-            //Categories.RemoveRange(Categories);
+            Products.RemoveRange(Products);
+            Categories.RemoveRange(Categories);
             //Countries.RemoveRange(Countries);
             //Regions.RemoveRange(Regions);
             SaveChanges();

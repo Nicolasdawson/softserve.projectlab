@@ -1,29 +1,23 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using API.Abstractions;
 
 namespace API.Models;
 
-    public class Customer
-    {
-        [Key]
-        public int Id { get; set; }
-        
-        [Required, MaxLength(50)]
-        public string Email { get; set; } = default!;
-        public string FirstName { get; set; } = default!;
-        public string LastName { get; set; } = default!;
-        public string PhoneNumber { get; set; } = default!;
+public class Customer
+{
 
-        public bool IsGuest { get; set; }
+    [Key]
+    public int Id { get; set; }
+    
+    [Required, MaxLength(50)]
+    public string Email { get; set; } = default!;
+    public string FirstName { get; set; } = default!;
+    public string LastName { get; set; } = default!;
+    public string PhoneNumber { get; set; } = default!;
 
-        // CDC/SCD2: StartDate (from), EndDate (to), IsCurrent (active record)
-        public DateTime StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public bool IsCurrent { get; set; }
+    public bool IsGuest { get; set; }
 
-        // Foreign Key: IdUser
-        public Guid? IdCredentials { get; set; }
-
-        // Navigation Property
-        public Credential credential { get; set; } = default!;
-    }
+    // CDC/SCD2: StartDate (from), EndDate (to), IsCurrent (active record)
+    public DateTime StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public bool IsCurrent { get; set; }
+}

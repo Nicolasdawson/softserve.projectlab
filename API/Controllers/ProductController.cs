@@ -18,12 +18,12 @@ public class ProductController : ControllerBase
     private readonly ProductImageService _productImageService;
     private readonly AppDbContext _context;
     private readonly IFileStorage _fileStorage;
-    private readonly StockReservationService _stockReservationService;
+    private readonly IStockReservationService _stockReservationService;
     /// <summary>
     /// Injects the ProductService dependency.
     /// </summary>
     /// <param name="productService">The product service.</param>
-    public ProductController(IConfiguration configuration, ProductService productService, ProductImageService productImageService, IFileStorage fileStorage, AppDbContext context, StockReservationService stockReservationService)
+    public ProductController(IConfiguration configuration, ProductService productService, ProductImageService productImageService, IFileStorage fileStorage, AppDbContext context, IStockReservationService stockReservationService)
     {
         _configuration = configuration;
         _productService = productService;

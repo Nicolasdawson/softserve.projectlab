@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class RemoveCircularDependencie : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -37,6 +37,43 @@ namespace API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Countries", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Customers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    IsGuest = table.Column<bool>(type: "bit", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2(7)", nullable: true),
+                    IsCurrent = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StripeSessionId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    PaymentIntentId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    Currency = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -119,12 +156,19 @@ namespace API.Migrations
                     TokenCreated = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
                     TokenExpires = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
                     IdRole = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdCustomer = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Credential", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Credential_Customers_IdCustomer",
+                        column: x => x.IdCustomer,
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Credential_Roles_IdRole",
                         column: x => x.IdRole,
@@ -150,84 +194,6 @@ namespace API.Migrations
                         name: "FK_ProductImages_Products_IdProduct",
                         column: x => x.IdProduct,
                         principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Cities",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PostalCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    IdRegion = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cities", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Cities_Regions_IdRegion",
-                        column: x => x.IdRegion,
-                        principalTable: "Regions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Customers",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    IsGuest = table.Column<bool>(type: "bit", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2(7)", nullable: true),
-                    IsCurrent = table.Column<bool>(type: "bit", nullable: false),
-                    IdCredentials = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Customers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Customers_Credential_IdCredentials",
-                        column: x => x.IdCredentials,
-                        principalTable: "Credential",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DeliveryAddresses",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StreetName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    StreetNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    StreetNameOptional = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    IdCity = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DeliveryAddresses", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DeliveryAddresses_Cities_CityId",
-                        column: x => x.CityId,
-                        principalTable: "Cities",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_DeliveryAddresses_Cities_IdCity",
-                        column: x => x.IdCity,
-                        principalTable: "Cities",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -261,26 +227,55 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderItems",
+                name: "Cities",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdOrder = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdProduct = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PostalCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    IdRegion = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderItems", x => x.Id);
+                    table.PrimaryKey("PK_Cities", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderItems_Products_IdProduct",
-                        column: x => x.IdProduct,
-                        principalTable: "Products",
+                        name: "FK_Cities_Regions_IdRegion",
+                        column: x => x.IdRegion,
+                        principalTable: "Regions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeliveryAddresses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StreetName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    StreetNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    StreetNameOptional = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    IdCity = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeliveryAddresses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeliveryAddresses_Cities_CityId",
+                        column: x => x.CityId,
+                        principalTable: "Cities",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_DeliveryAddresses_Cities_IdCity",
+                        column: x => x.IdCity,
+                        principalTable: "Cities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -312,30 +307,41 @@ namespace API.Migrations
                         principalTable: "DeliveryAddresses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Orders_Payments_IdPayment",
+                        column: x => x.IdPayment,
+                        principalTable: "Payments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
+                name: "OrderItems",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StripeSessionId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    PaymentIntentId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    Currency = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IdOrder = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    IdOrder = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdProduct = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.PrimaryKey("PK_OrderItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Payments_Orders_IdOrder",
+                        name: "FK_OrderItems_Orders_IdOrder",
                         column: x => x.IdOrder,
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_Products_IdProduct",
+                        column: x => x.IdProduct,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -344,24 +350,14 @@ namespace API.Migrations
                 column: "IdRegion");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Credential_IdCustomer",
+                table: "Credential",
+                column: "IdCustomer");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Credential_IdRole",
                 table: "Credential",
                 column: "IdRole");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Customers_Id_IsCurrent",
-                table: "Customers",
-                columns: new[] { "Id", "IsCurrent" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Customers_Id_StartDate_EndDate",
-                table: "Customers",
-                columns: new[] { "Id", "StartDate", "EndDate" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Customers_IdCredentials",
-                table: "Customers",
-                column: "IdCredentials");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeliveryAddresses_CityId",
@@ -399,11 +395,6 @@ namespace API.Migrations
                 column: "IdPayment");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_IdOrder",
-                table: "Payments",
-                column: "IdOrder");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ProductImages_IdProduct",
                 table: "ProductImages",
                 column: "IdProduct");
@@ -432,50 +423,13 @@ namespace API.Migrations
                 name: "IX_ShoppingCarts_IdProduct",
                 table: "ShoppingCarts",
                 column: "IdProduct");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_OrderItems_Orders_IdOrder",
-                table: "OrderItems",
-                column: "IdOrder",
-                principalTable: "Orders",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Orders_Payments_IdPayment",
-                table: "Orders",
-                column: "IdPayment",
-                principalTable: "Payments",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Cities_Regions_IdRegion",
-                table: "Cities");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Credential_Roles_IdRole",
-                table: "Credential");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Customers_Credential_IdCredentials",
-                table: "Customers");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_DeliveryAddresses_Cities_CityId",
-                table: "DeliveryAddresses");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_DeliveryAddresses_Cities_IdCity",
-                table: "DeliveryAddresses");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Payments_Orders_IdOrder",
-                table: "Payments");
+            migrationBuilder.DropTable(
+                name: "Credential");
 
             migrationBuilder.DropTable(
                 name: "OrderItems");
@@ -487,28 +441,13 @@ namespace API.Migrations
                 name: "ShoppingCarts");
 
             migrationBuilder.DropTable(
-                name: "Products");
-
-            migrationBuilder.DropTable(
-                name: "Categories");
-
-            migrationBuilder.DropTable(
-                name: "Regions");
-
-            migrationBuilder.DropTable(
-                name: "Countries");
-
-            migrationBuilder.DropTable(
                 name: "Roles");
 
             migrationBuilder.DropTable(
-                name: "Credential");
-
-            migrationBuilder.DropTable(
-                name: "Cities");
-
-            migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "Customers");
@@ -518,6 +457,18 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "Cities");
+
+            migrationBuilder.DropTable(
+                name: "Regions");
+
+            migrationBuilder.DropTable(
+                name: "Countries");
         }
     }
 }
