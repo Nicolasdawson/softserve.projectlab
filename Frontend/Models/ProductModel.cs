@@ -4,7 +4,7 @@ public class ProductModel
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;
-    public Guid CategoryId { get; set; }
+    public string CategoryName { get; set; }
     public string Description { get; set; } = default!;
     public List<string> ImageUrls { get; set; } = new();
     

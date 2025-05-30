@@ -82,6 +82,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddScoped<IProductImageService, ProductImageService>();
 
+builder.Services.AddScoped<CategoryService>();
+
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 builder.Services.AddScoped<IPendingRegistrationService, PendingRegistrationService>();

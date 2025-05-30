@@ -24,14 +24,11 @@ public partial class ProductEdit
 
             if (responseHttp.Error)
             {
-                if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    NavigationManager.NavigateTo("/admin-products");
-                }
-                else
+                if (responseHttp.HttpResponseMessage.StatusCode != System.Net.HttpStatusCode.NotFound)
                 {
                     var messageError = await responseHttp.GetErrorMessageAsync();
                     Snackbar.Add(messageError!, Severity.Error);
+                    
                 }
             }
             else

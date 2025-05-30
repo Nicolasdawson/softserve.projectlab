@@ -1,0 +1,47 @@
+﻿@page "/shoppingcart-form"
+@using MudBlazor
+
+
+<MudPaper Style="width: 1000px">
+    <MudStepper ShowResetButton Linear="true" 
+    ActiveIndexChanged="NextStep">
+
+        <MudStep Title="Contact Details & Shipping Information">
+            Please enter your name, email, phone number and shipping address for delivery.
+        </MudStep>
+        <MudStep 
+        Title="Payment Method" 
+        SecondaryText="Credit card, PayPal, etc." 
+        Skippable="false">
+            Create an ad content
+        </MudStep>
+
+        @if (_index >= 2) // Only render this step when it’s the current or next one
+        {
+            <MudStep Title="Create Account" SecondaryText="Optional" Skippable="true">
+                <!-- Password field -->
+                <MudTextField Label="Password" @bind-Value="_password" />
+            </MudStep>
+        }
+
+        <MudStep Title="Review & Confirm">
+            Review your order details and confirm your purchase.
+        </MudStep>
+
+    </MudStepper>
+</MudPaper>
+
+
+@code {
+    private int _index = 0;
+    private string? _password;
+    
+    private void NextStep(int newStep)
+    {
+        _index=newStep;        
+    }
+
+
+
+
+}
