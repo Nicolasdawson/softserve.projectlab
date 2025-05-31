@@ -1,5 +1,95 @@
-﻿<h3>Register</h3>
+﻿@page "/register"
+@using System.ComponentModel.DataAnnotations
+
+@if (loading)
+{
+    <Frontend.Shared.Loading />
+}
+else
+{ 
+    <MudCard Class="p-2">
+        <MudItem xs="14" Class="ml-12 pr-8 rounded-3 pa-6" Style="@($"width:70%; color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten3};")">
+            
+            <MudText Typo="Typo.h5" Class="mb-4">
+                Registor
+            </MudText>
+
+            <MudText Typo="Typo.body2" Class="mb-8">
+                Please enter your information.
+            </MudText>
+
+            <EditForm Model="@model">
+                <DataAnnotationsValidator />
+
+                <MudCardContent>
+                    <MudItem xs="12" sm="6" md="4" lg="6">
+                        <MudTextField ShrinkLabel
+                                      @bind-Value="model.Email"
+                                      InputType="InputType.Email"
+                                      Label="Email"
+                                      Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                      For="@(() => model.Email)"
+                                      Variant="Variant.Text" />
+                    </MudItem>
+
+                    <MudGrid Spacing="3" Class="mt-2">
+                        <MudItem xs="6">
+                            <MudTextField ShrinkLabel
+                                          @bind-Value="model.FirstName"
+                                          InputType="InputType.Text"
+                                          Label="First Name"
+                                          Class="mb-4 mr-1"
+                                          Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                          For="@(() => model.FirstName)"
+                                          Variant="Variant.Text" />
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudTextField ShrinkLabel
+                                          @bind-Value="model.LastName"
+                                          InputType="InputType.Text"
+                                          Label="Last Name"
+                                          Class="mb-4"
+                                          Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                          For="@(() => model.LastName)"
+                                          Variant="Variant.Text" />
+                        </MudItem>
+                    </MudGrid>
+
+                    <MudItem Class="mt-2" xs="6" lg="6">
+                        <MudTextField ShrinkLabel
+                                      @bind-Value="model.phoneNumber"
+                                      InputType="InputType.Telephone"
+                                      Class="mb-4"
+                                      Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                      For="@(() => model.phoneNumber)"
+                                      Label="Telephone" />
+
+
+                    </MudItem>
+                </MudCardContent>
+            </EditForm>
+        </MudItem>
+    </MudCard>
+}
 
 @code {
+    CustomerDTO model = new CustomerDTO();
 
+    public class CustomerDTO
+    {
+
+        [Display(Name = "Email")]
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        public string Email { get; set; } = null!;
+
+        [Required]
+        public string FirstName { get; set; } = null!;
+
+        [Required]
+        public string LastName { get; set; } = null!;
+
+        [Required]
+        public string phoneNumber { get; set; } = null!;
+    }
 }

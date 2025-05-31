@@ -18,6 +18,7 @@ namespace API.implementations.Infrastructure.Data
             _configuration = configuration;
             _fileStorage = fileStorage;
         }
+
         public async Task SeedAsync()
         {
             _context.ClearDatabase(); // Borra los datos sin eliminar la base de datos
