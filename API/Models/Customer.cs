@@ -21,3 +21,4 @@ public class Customer
     public DateTime? EndDate { get; set; }
     public bool IsCurrent { get; set; }
 }
+

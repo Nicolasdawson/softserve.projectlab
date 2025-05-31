@@ -1,0 +1,164 @@
+﻿@page "/shoppingcart-form"
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+
+<MudGrid Class="pl-4">
+    <MudItem xs="14" Class="ml-12 pr-8 rounded-3" Style="@($"width:70%; color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten3};")">
+        <MudStepper
+            ShowResetButton Linear="true" 
+            ActiveIndexChanged="NextStep">
+
+            <!--------------------------------------------------------------------------------------------------------->
+            <!----Customer & Shipping Form----------------------------------------------------------------------------->
+            <!--------------------------------------------------------------------------------------------------------->
+            <MudStep Title="Contact Details & Shipping Information">
+                <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+                    <MudText Typo="Typo.subtitle2" Class="mb-4" >
+                        Contact
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mb-8">
+                        Please enter your contact information.
+                    </MudText>
+
+                    <MudItem xs="12" sm="6" md="4" lg="6">
+                        <MudTextField 
+                            ShrinkLabel 
+                            @bind-Value="model.Email" 
+                            InputType="InputType.Email"
+                            Label="Email" 
+                            Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                            For="@(() => model.Email)"
+                            Variant="Variant.Text" />
+                    </MudItem>
+
+  
+                    <MudGrid Spacing="3" Class="mt-2">
+                        <MudItem xs="6">
+                            <MudTextField 
+                                ShrinkLabel
+                                @bind-Value="model.FirstName"
+                                InputType="InputType.Text"
+                                Label="First Name"
+                                Class="mb-4 mr-1"
+                                Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                For="@(() => model.FirstName)"
+                                Variant="Variant.Text" />
+                        </MudItem>
+                        <MudItem xs="6" >
+                            <MudTextField ShrinkLabel
+                                @bind-Value="model.LastName"
+                                InputType="InputType.Text"
+                                Label="Last Name"
+                                Class="mb-4"
+                                Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                For="@(() => model.LastName)"
+                                Variant="Variant.Text" />
+                        </MudItem>
+                    </MudGrid>
+                    
+                    <MudItem Class="mt-2" xs="6"  lg="6">
+                        <MudTextField 
+                            ShrinkLabel
+                            @bind-Value="model.phoneNumber"
+                            InputType="InputType.Telephone"
+                            Class="mb-4"
+                            Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                            For="@(() => model.phoneNumber)"
+                            Label="Telephone" />
+
+
+                    </MudItem>
+
+                    <MudText Typo="Typo.subtitle2" Class="mb-4 mt-8">
+                        Shipping
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mb-8">
+                        Please enter your delivery address.
+                    </MudText>
+                    <MudItem Class="mt-2" xs="6" lg="6">
+
+                    </MudItem>
+                </EditForm>
+
+
+            </MudStep>
+
+            <!--------------------------------------------------------------------------------------------------------->
+            <!----Payment Form----------------------------------------------------------------------------------------->
+            <!--------------------------------------------------------------------------------------------------------->
+            <MudStep 
+            Title="Payment Method" 
+            SecondaryText="Credit card, PayPal, etc." 
+            Skippable="false">
+                Create an ad content
+            </MudStep>
+
+            <!--------------------------------------------------------------------------------------------------------->
+            <!---OPTIONAL: Register Form-------------------------------------------------------------------------------->
+            <!--------------------------------------------------------------------------------------------------------->
+            @if (_index >= 2) // Only render this step when it’s the current or next one
+            {
+                <MudStep Title="Create Account" SecondaryText="Optional" Skippable="true">
+                    <!-- Password field -->
+                    <MudTextField Label="Password" @bind-Value="_password" />
+                </MudStep>
+            }
+
+            <!--------------------------------------------------------------------------------------------------------->
+            <!----Review & proceed to pay------------------------------------------------------------------------------>
+            <!--------------------------------------------------------------------------------------------------------->
+            <MudStep Title="Review & Confirm">
+                Review your order details and confirm your purchase.
+            </MudStep>
+
+        </MudStepper>
+    </MudItem>
+    <MudItem xs="12" sm="5">
+
+    </MudItem>
+</MudGrid>
+
+
+@code {
+    private int _index = 0;
+    private string? _password;
+
+    CustomerDTO model = new CustomerDTO();
+    bool success;
+
+    private void NextStep(int newStep)
+    {
+        _index=newStep;        
+    }
+
+    private void OnValidSubmit(EditContext context)
+    {
+        success = true;
+        StateHasChanged();
+    }
+    
+    string _value = "my default value";
+    void HandleClick()
+    {
+        Console.WriteLine("hi");
+    }
+
+    public class CustomerDTO 
+    {
+ 
+        [Display(Name = "Email")]
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        public string Email { get; set; } = null!;
+
+        [Required]
+        public string FirstName { get; set; } = null!;
+        
+        [Required]
+        public string LastName { get; set; } = null!;
+
+        [Required]
+        public string phoneNumber { get; set; } = null!;
+    }
+}

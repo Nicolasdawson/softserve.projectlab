@@ -31,12 +31,12 @@
     .mud-container {
         padding-left: 0 !important;
         padding-right: 0 !important;
-        margin-left: initial !important;
+        /* margin-left: initial !important; Esto provoca que no haya margen al costado izquierdo de la tabla*/
         height: 190%;
     }
 
     .mud-container-maxwidth-lg {
-        max-width: 100% !important;
+        /*max-width: 100% !important; Esto provoca que no haya margen al costado derecho de la tabla*/
     }
 
 </style>
@@ -54,8 +54,8 @@
 <Header />
 <MudLayout>
     <MudMainContent>
-
-        <MudContainer>
+        <!-- Add Breadcrumbs here -->
+        <MudContainer MaxWidth="MaxWidth.Large" Style="margin-top: 3rem;">
             @Body
         </MudContainer>
     </MudMainContent>

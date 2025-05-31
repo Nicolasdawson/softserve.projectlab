@@ -5,13 +5,12 @@ using API.DTO;
 
 namespace API.Services;
 
-    /// <summary>
-    /// Service for managing products.
-    /// </summary>
-    public class ProductService
-    {
-        private readonly AppDbContext _context; 
-        private readonly IStockReservationService  _stockReservationService; 
+/// <summary>
+/// Service for managing products.
+/// </summary>
+public class ProductService : IProductService
+{
+    private readonly AppDbContext _context; 
 
         /// <summary>
         /// Initializes a new instance of the ProductService class.
@@ -22,6 +21,14 @@ namespace API.Services;
             _context = context;
             _stockReservationService = stockReservationService;
         }
+    /// <summary>
+    /// Initializes a new instance of the ProductService class.
+    /// </summary>
+    /// <param name="context">The application database context.</param>
+    public ProductService(AppDbContext context) 
+    {
+        _context = context;
+    }
 
         /// <summary>
         /// Creates a new product.
@@ -36,6 +43,17 @@ namespace API.Services;
                 await _context.SaveChangesAsync();
                 await _stockReservationService.SetStockAsync(product.Id, product.Stock);
 
+    /// <summary>
+    /// Creates a new product.
+    /// </summary>
+    /// <param name="product">The product to create.</param>
+    /// <returns>The created product.</returns>
+    public async Task<Product> CreateProductAsync(Product product)
+    {
+        try
+        {                                
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
 
             }
             catch (Exception ex)
@@ -46,68 +64,86 @@ namespace API.Services;
             Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}");
             return await Task.FromResult(product);
         }
-
-        /// <summary>
-        /// Retrieves all products.
-        /// </summary>
-        /// <returns>A collection of all products.</returns>
-        public async Task<IEnumerable<ProductWithImagesDTO>> GetAllProductsPaged(int pageNumber, int pageSize)
-        {
-            try
-            {
-                var products = await _context.Products
-                    .Include(p => p.Images)
-                    .OrderBy(p => p.Id)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(p => new ProductWithImagesDTO
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        Description = p.Description,
-                        Price = p.Price,
-                        Stock = p.Stock,
-                        ImageUrls = p.Images.Select(img => img.ImageUrl).ToList()
-                    })
-                    .ToListAsync();
-
-                Console.WriteLine($"Cantidad de productos en memoria: {products.Count}");
-
-                return products; // No es necesario usar Task.FromResult
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al obtener los productos: {ex.Message}");
-                return new List<ProductWithImagesDTO>(); // Retornar una lista vac�a en caso de error
-            }
         }
-
-        /// <summary>
-        /// Retrieves a product by its ID.
-        /// </summary>
-        /// <param name="id">The ID of the product.</param>
-        /// <returns>The product if found; otherwise, null.</returns>
-        public async Task<Product?> GetProductByIdAsync(Guid id)
+        catch (Exception ex) 
         {
-            return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            throw new ApplicationException("An error happen during createProductAsync.", ex);
         }
+        // Log para verificar si se agrega
+        Console.WriteLine($"Producto creado: {product.Name} con ID {product.Id}");
+        return await Task.FromResult(product);
+    }
 
-        /// <summary>
-        /// Deletes a product by its ID.
-        /// </summary>
-        /// <param name="id">The ID of the product to delete.</param>
-        /// <returns>True if the product was deleted; otherwise, false.</returns>
-        public async Task<bool> DeleteProduct(Guid id)
-        {
-            var product = await GetProductByIdAsync(id);
-            if (product != null)
+    /// <summary>
+    /// Retrieves all products.
+    /// </summary>
+    /// <returns>A collection of all products.</returns>
+    public async Task<IEnumerable<ProductWithImagesDTO>> GetAllProductsPaged(int pageNumber, int pageSize)
+    {
+        return await _context.Products
+            .Include(p => p.Images)
+            .Include(p => p.Category)
+            .OrderBy(p => p.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => new ProductWithImagesDTO
             {
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            return false;
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Stock = p.Stock,
+                ImageUrls = p.Images.Select(img => img.ImageUrl).ToList(),
+                CategoryName = p.Category!.Name
+            })
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Retrieves a product by its ID, including image URLs.
+    /// </summary>
+    /// <param name="id">The ID of the product.</param>
+    /// <returns>The product with image URLs if found; otherwise, null.</returns>
+    public async Task<ProductDetailWithImages?> GetProductDetailById(Guid id)
+    {
+        return await _context.Products
+            .Include(p => p.Images)
+            .Include(p => p.Category)
+            .Where(p => p.Id == id)
+            .Select(p => new ProductDetailWithImages
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Weight = p.Weight,
+                Height = p.Height,
+                Width = p.Width,
+                Length = p.Length,
+                Stock = p.Stock,
+                categoryName = p.Category!.Name,
+                ImageUrls = p.Images.Select(img => img.ImageUrl).ToList()
+            })
+            .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Deletes a product by its ID.
+    /// </summary>
+    /// <param name="id">The ID of the product to delete.</param>
+    /// <returns>True if the product was deleted; otherwise, false.</returns>
+    public async Task<bool> DeleteProduct(Guid id)
+    {
+        /*
+        Product product = await GetProductById(id);
+        if (product != null)
+        {
+            _context.Products.Remove(product);
+            return true;
         }
+         */
+        return false;
+    }
 
     /// <summary>
     /// Updates an existing product.
@@ -115,9 +151,10 @@ namespace API.Services;
     /// <param name="id">The ID of the product to update.</param>
     /// <param name="updatedProduct">The updated product information.</param>
     /// <returns>True if the product was updated; otherwise, false.</returns>
-    /*public bool UpdateProduct(Guid id, Product updatedProduct)
+    public async Task<bool> UpdateProduct(Guid id, Product updatedProduct)
     {
-        var existingProduct = GetProductById(id);
+        /*
+        var existingProduct = await GetProductById(id);
         if (existingProduct != null)
         {
             existingProduct.Name = updatedProduct.Name;
@@ -125,45 +162,36 @@ namespace API.Services;
             existingProduct.Description = updatedProduct.Description;
             //existingProduct.ImageUrl = updatedProduct.ImageUrl;
             existingProduct.Price = updatedProduct.Price;
-            existingProduct.Stock = updatedProduct.Stock;
             return true;
         }
+         */
         return false;
-    }*/
-        
-    public async Task<bool> UpdateProductAsync(Guid id, Product updatedProduct)
-    {
-        var existingProduct = await _context.Products.FindAsync(id);
-        if (existingProduct == null)
-            return false;
-
-        bool stockChanged = existingProduct.Stock != updatedProduct.Stock;
-
-        existingProduct.Name = updatedProduct.Name;
-        existingProduct.Description = updatedProduct.Description;
-        existingProduct.Price = updatedProduct.Price;
-        existingProduct.Stock = updatedProduct.Stock;
-        existingProduct.IdCategory = updatedProduct.IdCategory;
-
-        await _context.SaveChangesAsync();
-
-        if (stockChanged)
-        {
-            await _stockReservationService.SetStockAsync(existingProduct.Id, updatedProduct.Stock);
-        }
-
-        return true;
     }
 
+    /// <summary>
+    /// Retrieves products by category.
+    /// </summary>
+    /// <param name="category">The category ID.</param>
+    /// <returns>A collection of products in the specified category.</returns>
+    public IEnumerable<Product> GetProductsByCategory(Guid category)
+    {
+        var products = _context.Products.Where(p => p.IdCategory == category);
+        return products;
+    }
 
-        /// <summary>
-        /// Retrieves products by category.
-        /// </summary>
-        /// <param name="category">The category ID.</param>
-        /// <returns>A collection of products in the specified category.</returns>
-        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(Guid category)
+    public async Task<ActionResponseDTO<int>> GetTotalRecordsAsync(PaginationDTO pagination)
+    {
+        var queryable = _context.Products.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(pagination.Filter))
         {
-            return await _context.Products.Where(p => p.IdCategory == category).ToListAsync();
+            queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
         }
 
+        double count = await queryable.CountAsync();
+        return new ActionResponseDTO<int>
+        {
+            WasSuccess = true,
+            Result = (int)count
+        };
     }

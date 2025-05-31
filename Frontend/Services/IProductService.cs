@@ -1,6 +1,9 @@
-﻿namespace Frontend.Services;
+﻿using Frontend.DTO;
+
+namespace Frontend.Services;
 
 public interface IProductService
 {
-    Task<GetProductsResponse> GetProducts();
+    Task<ProductModel[]?> GetProducts(int pageNumber, int pageSize);
+    Task<ProductDetailDTO> GetById(Guid id);
 }

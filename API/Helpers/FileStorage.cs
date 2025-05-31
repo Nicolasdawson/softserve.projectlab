@@ -42,7 +42,7 @@ public class FileStorage : IFileStorage
     public async Task<string> SaveLocalFileAsync(IFormFile image)
     {
         var folder = Path.Combine(Directory.GetCurrentDirectory(), "Images", "Products");
-
+        Console.WriteLine(folder);
         string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
         var filePath = Path.Combine(folder, fileName);        
         using (var stream = new FileStream(filePath, FileMode.Create))

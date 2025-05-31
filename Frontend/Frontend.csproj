@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -7,15 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.6.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.16" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.16" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.11" PrivateAssets="all" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.3" />
+        <PackageReference Include="Microsoft.JSInterop" Version="8.0.16" />
         <PackageReference Include="MudBlazor" Version="8.3.0" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.10.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\" />
-	  <Folder Include="Services\" />
+	  <Folder Include="Pages\NormalUserPages\" />
 	  <Folder Include="wwwroot\images\banner\" />
     </ItemGroup>
 

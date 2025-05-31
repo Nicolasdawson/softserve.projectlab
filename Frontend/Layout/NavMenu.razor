@@ -50,3 +50,24 @@
     <MudNavLink Href="/about"  Match="NavLinkMatch.Prefix">Other</MudNavLink>
 </MudNavMenu>
 -->
+
+<MudNavMenu>
+    <MudPaper Width="250px" Class="py-3" Elevation="0">
+        <MudDrawerHeader>            
+            <MudText Typo="Typo.h6" Class="px-4">My Vivint admin panel</MudText>
+        </MudDrawerHeader>
+        <MudNavMenu>
+            <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Welcome</MudText>
+            <MudDivider Class="my-2" />
+            <MudNavLink 
+                Href="/admin-panel" 
+                Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink 
+                Href="/admin-products" 
+                Icon="@Icons.Material.Filled.Store">Products</MudNavLink>
+            <MudNavLink 
+                Href="/billing"
+                Icon="@Icons.Material.Filled.ChecklistRtl">Orders</MudNavLink>
+        </MudNavMenu>
+    </MudPaper>
+</MudNavMenu>

@@ -1,8 +1,8 @@
 ﻿using System.Reflection.Emit;
+
+using API.Services;
 using API.Helpers;
 using API.Models;
-using API.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.implementations.Infrastructure.Data
 {
@@ -29,6 +29,7 @@ namespace API.implementations.Infrastructure.Data
             await CheckLocalImagesAsync();
             //await CheckCountriesAsync();
             //await CheckRegionsAsync();
+            //await CheckRolesAsync();
 
             //await CheckImagesAsync();
             /*
@@ -136,6 +137,29 @@ namespace API.implementations.Infrastructure.Data
              */
         }
 
+        private async Task CheckRolesAsync()
+        {
+            //Verify if the roles already exists
+            if (!_context.Roles.Any()) 
+            {
+                var role1 = new Role
+                {
+                    Name = UserType.Admin.ToString(),
+                };
+                var role2 = new Role
+                {
+                    Name = UserType.Normal.ToString(),
+                };
+                var role3 = new Role
+                {
+                    Name = UserType.Vip.ToString(),
+                };
+
+                await _context.Roles.AddRangeAsync(role1, role2, role3);
+                _context.SaveChanges();
+            }
+        }
+
         private async Task CheckCategoriesAsync()
         {
             // Verifica si ya existen categorías para evitar duplicados
@@ -185,8 +209,8 @@ namespace API.implementations.Infrastructure.Data
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                _context.Categories.AddRange(category1, category2, category3, category4, category5, category6);
-                _context.SaveChanges(); // Guardar las categorías
+                await _context.Categories.AddRangeAsync(category1, category2, category3, category4, category5, category6);
+                await _context.SaveChangesAsync(); // Save in DB
             }
         }
 
@@ -199,10 +223,10 @@ namespace API.implementations.Infrastructure.Data
             var smartcontrolCategory = categories.FirstOrDefault(c => c.Name == "Smart control");
 
             // Verifica si ya existen Productos para evitar duplicados
-            if (!_context.Products.Any())
+            if (!_context.Products.Any() || !_context.Categories.Any())
             {
                 // Adding products
-                _context.Products.AddRange(
+                await _context.Products.AddRangeAsync(
                     new Product
                     {
                         Id = Guid.NewGuid(),
@@ -214,7 +238,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = cameraCategory.Id,
+                        IdCategory = cameraCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -229,7 +253,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 20m,
                         Length = 25m,
                         Stock = 100,
-                        IdCategory = cameraCategory.Id,
+                        IdCategory = cameraCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -244,7 +268,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 20m,
                         Length = 25m,
                         Stock = 100,
-                        IdCategory = cameraCategory.Id,
+                        IdCategory = cameraCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -289,7 +313,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 20m,
                         Length = 25m,
                         Stock = 100,
-                        IdCategory = sensorCategory.Id,
+                        IdCategory = sensorCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -304,7 +328,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = sensorCategory.Id,
+                        IdCategory = sensorCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -319,7 +343,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = sensorCategory.Id,
+                        IdCategory = sensorCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -334,7 +358,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = alarmCategory.Id,
+                        IdCategory = alarmCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -349,7 +373,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 15m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = alarmCategory.Id,
+                        IdCategory = alarmCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -364,7 +388,7 @@ namespace API.implementations.Infrastructure.Data
                         Width = 8.1m,
                         Length = 20m,
                         Stock = 50,
-                        IdCategory = smartcontrolCategory.Id,
+                        IdCategory = smartcontrolCategory!.Id,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -582,5 +606,6 @@ namespace API.implementations.Infrastructure.Data
                 await _context.Database.ExecuteSqlRawAsync(countriesSqlScript);
             }
         }
+        
     }
 }

@@ -8,5 +8,6 @@
         public decimal Price { get; set; }        
         public int Stock { get; set; }
         public List<string> ImageUrls { get; set; } = new();
+        public string CategoryName { get; set; } = default!;
     }
 }

@@ -1,99 +1,166 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-
-using API.Abstractions;
-using Ardalis.Specification;
+﻿using API.Abstractions;
+using API.Helpers;
 using Ardalis.Specification.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using API.DTO;
 using API.implementations.Infrastructure.Data;
 
-namespace API.implementations.Infrastructure
+namespace API.implementations.Infrastructure;
+
+public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
 {
-    internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
+    internal AppDbContext _context;
+    internal DbSet<TEntity> _entity;
+
+    public Repository(AppDbContext context)
     {
-        internal AppDbContext context;
-        internal DbSet<TEntity> dbSet;
+        _context = context;
+        _entity = context.Set<TEntity>();
+    }
 
-        public Repository(AppDbContext context)
+    public virtual async Task<ActionResponseDTO<TEntity>> AddAsync(TEntity entity)
+    {
+        _context.Add(entity);
+        try
         {
-            this.context = context;
-            this.dbSet = context.Set<TEntity>();
-        }
-
-        public IEnumerable<TEntity> GetAll()
-        {
-            return dbSet.ToList();
-        }
-
-        public TEntity? GetById(int id)
-        {
-            return dbSet.Find(id);
-        }
-
-        public void Insert(TEntity entity)
-        {
-            dbSet.Add(entity);
-        }
-
-        public void Delete(int id)
-        {
-            TEntity? entity = dbSet.Find(id);
-            if (entity != null) Delete(entity);
-        }
-
-        public void Delete(TEntity entity)
-        {
-            if (context.Entry(entity).State == EntityState.Detached)
+            await _context.SaveChangesAsync();
+            return new ActionResponseDTO<TEntity>
             {
-                dbSet.Attach(entity);
-            }
-            dbSet.Remove(entity);
+                WasSuccess = true,
+                Result = entity
+            };
         }
-
-        public void Update(TEntity entity)
+        catch (DbUpdateException)
         {
-            dbSet.Attach(entity);
-            context.Entry(entity).State = EntityState.Modified;
+            return DbUpdateExceptionActionResponse();
         }
-
-        public IEnumerable<TEntity> GetListBySpec(ISpecification<TEntity> specification)
+        catch (Exception exception)
         {
-            return ApplySpecification(specification).ToList();
+            return ExceptionActionResponse(exception);
         }
+    }
 
-        public TEntity? GetFirstBySpec(ISpecification<TEntity> specification)
+    public virtual async Task<ActionResponseDTO<TEntity>> DeleteAsync(int id)
+    {
+        var row = await _entity.FindAsync(id);
+        if (row == null)
         {
-            return ApplySpecification(specification).FirstOrDefault();
-        }
-
-        private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
-        {
-            var evaluator = new SpecificationEvaluator();
-            return evaluator.GetQuery(dbSet, specification);
-        }
-
-        public void Save()
-        {
-            context.SaveChanges();
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private bool disposed = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
+            return new ActionResponseDTO<TEntity>
             {
-                if (disposing)
-                {
-                    context.Dispose();
-                }
-            }
-            this.disposed = true;
+                WasSuccess = false,
+                Message = "ERR001"
+            };
         }
+
+        _entity.Remove(row);
+        try
+        {
+            await _context.SaveChangesAsync();
+            return new ActionResponseDTO<TEntity>
+            {
+                WasSuccess = true,
+            };
+        }
+        catch
+        {
+            return new ActionResponseDTO<TEntity>
+            {
+                WasSuccess = false,
+                Message = "ERR002"
+            };
+        }
+    }
+
+
+    public virtual async Task<ActionResponseDTO<TEntity>> GetAsync(int id)
+    {
+        var row = await _entity.FindAsync(id);
+        if (row == null)
+        {
+            return new ActionResponseDTO<TEntity>
+            {
+                WasSuccess = false,
+                Message = "ERR001"
+            };
+        }
+        return new ActionResponseDTO<TEntity>
+        {
+            WasSuccess = true,
+            Result = row
+        };
+    }
+
+    public virtual async Task<ActionResponseDTO<IEnumerable<TEntity>>> GetAsync()
+    {
+        return new ActionResponseDTO<IEnumerable<TEntity>>
+        {
+            WasSuccess = true,
+            Result = await _entity.ToListAsync()
+        };
+    }
+
+    public virtual async Task<ActionResponseDTO<TEntity>> UpdateAsync(TEntity entity)
+    {
+        _context.Update(entity);
+        try
+        {
+            await _context.SaveChangesAsync();
+            return new ActionResponseDTO<TEntity>
+            {
+                WasSuccess = true,
+                Result = entity
+            };
+        }
+        catch (DbUpdateException)
+        {
+            return DbUpdateExceptionActionResponse();
+        }
+        catch (Exception exception)
+        {
+            return ExceptionActionResponse(exception);
+        }
+    }
+
+    public virtual async Task<ActionResponseDTO<IEnumerable<TEntity>>> GetAsync(PaginationDTO pagination)
+    {
+        var queryable = _entity.AsQueryable();
+
+        return new ActionResponseDTO<IEnumerable<TEntity>>
+        {
+            WasSuccess = true,
+            Result = await queryable
+                .Paginate(pagination)
+                .ToListAsync()
+        };
+    }
+    
+    public virtual async Task<ActionResponseDTO<int>> GetTotalRecordsAsync()
+    {
+        var queryable = _entity.AsQueryable();
+        double count = await queryable.CountAsync();
+        return new ActionResponseDTO<int>
+        {
+            WasSuccess = true,
+            Result = (int)count
+        };
+    }
+    
+    private ActionResponseDTO<TEntity> ExceptionActionResponse(Exception exception)
+    {
+        return new ActionResponseDTO<TEntity>
+        {
+            WasSuccess = false,
+            Message = exception.Message
+        };
+    }
+
+    private ActionResponseDTO<TEntity> DbUpdateExceptionActionResponse()
+    {
+        return new ActionResponseDTO<TEntity>
+        {
+            WasSuccess = false,
+            Message = "ERR003"
+        };
     }
 }
 

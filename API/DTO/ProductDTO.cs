@@ -16,6 +16,6 @@ namespace API.DTO
         // ForeignKey: Idcategory
         public Guid IdCategory { get; set; }
 
-        public List<IFormFile> Images { get; set; }
+        public List<IFormFile>? Images { get; set; }
     }
 }

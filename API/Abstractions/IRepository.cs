@@ -1,19 +1,21 @@
-﻿using Ardalis.Specification;
+﻿using API.DTO;
+using Ardalis.Specification;
 
-namespace API.Abstractions
+namespace API.Abstractions;
+
+public interface IRepository<T> where T : class
 {
-    public interface IRepository<TEntity> : IDisposable where TEntity : class, IEntity
-    {
-        IEnumerable<TEntity> GetAll();
-        TEntity? GetById(int id);
-        void Insert(TEntity entity);
-        void Update(TEntity entity);
-        void Delete(int id);
-        void Delete(TEntity entity);
+    Task<ActionResponseDTO<T>> GetAsync(int id);
 
-        IEnumerable<TEntity> GetListBySpec(ISpecification<TEntity> specification);
-        TEntity? GetFirstBySpec(ISpecification<TEntity> specification);
+    Task<ActionResponseDTO<IEnumerable<T>>> GetAsync();
 
-        void Save();
-    }
+    Task<ActionResponseDTO<T>> AddAsync(T entity);
+
+    Task<ActionResponseDTO<T>> DeleteAsync(int id);
+
+    Task<ActionResponseDTO<T>> UpdateAsync(T entity);
+
+    Task<ActionResponseDTO<IEnumerable<T>>> GetAsync(PaginationDTO pagination);
+
+    Task<ActionResponseDTO<int>> GetTotalRecordsAsync();
 }

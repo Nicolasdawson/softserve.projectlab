@@ -8,6 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.FileProviders;
 using StackExchange.Redis;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using API.implementations.Infrastructure;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
+using API.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +21,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddTransient<SeedDb>();//Se registra SeedDb como servicio transitorio para poder usarse
 builder.Services.AddScoped<IFileStorage, FileStorage>();
-
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<TokenHelper>();
 
 
 // Configurar CORS
@@ -40,8 +47,18 @@ builder.Services.AddControllersWithViews(); // Aquí es donde permitimos vistas 
 // Agrega servicios de Razor Pages
 builder.Services.AddRazorPages();
 
+
 // Add Swagger
-builder.Services.AddSwaggerGen();  // Este es el servicio que habilita Swagger en tu API
+// Defining the authorization scheme
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Description = "Standard Authorization header using the Bearer scheme (\"bearer {token}\")",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
 
 // Add service ProductService
 builder.Services.AddScoped<ProductService>();
@@ -71,10 +88,33 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 //builder.Services.AddScoped<PaymentService>();
 
 builder.Services.AddScoped<IPaymentService, StripePaymentService>();
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
 
-builder.Services.AddScoped<StripePaymentService>();
+//Defining the authentication Scheme
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value!)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
 
-builder.Services.AddScoped<EmailService>();
+    });
+
+// Add service 
+
+builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+builder.Services.AddScoped<IProductService, ProductService>();
+
+builder.Services.AddScoped<IProductImageService, ProductImageService>();
+
+builder.Services.AddScoped<CategoryService>();
 
 builder.Services.AddScoped<ShoppingCartService>();
 
@@ -84,23 +124,47 @@ builder.Services.AddScoped<DeliveryAddressService>();
 
 builder.Services.AddScoped<CountryService>();
 
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
-// Configuración de Swagger
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddScoped<IPendingRegistrationService, PendingRegistrationService>();
+
+builder.Services.AddScoped<ICredentialService, CredentialService>();
+
+builder.Services.AddScoped<RoleServices>();
+
+// Conexión con Azure blob DB Azure
+builder.Services.AddAzureClients(clientBuilder =>
 {
-    // Aquí puedes agregar cualquier configuración extra para Swagger si lo necesitas
+    clientBuilder.AddBlobServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:blob"]!, preferMsi: true);
+    clientBuilder.AddQueueServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:queue"]!, preferMsi: true);
 });
+
+builder.Services.AddScoped<PaymentService>();
+
+builder.Services.AddScoped<StripePaymentService>();
+
+builder.Services.AddScoped<EmailService>();
+
 
 Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 var app = builder.Build();
 SeedData(app);
 
-void SeedData(WebApplication app)
+/*void SeedData(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
     var service = scope.ServiceProvider.GetRequiredService<SeedDb>();
     service.SeedAsync().Wait();
+}*/
+
+
+void SeedData(WebApplication App)
+{
+    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+    using var scope = scopedFactory!.CreateScope();
+    var service = scope.ServiceProvider.GetService<SeedDb>();
+    service!.SeedAsync().Wait();
 }
 
 /*
@@ -222,6 +286,12 @@ app.UseDirectoryBrowser(new DirectoryBrowserOptions
 
 // Usar la pol�tica de CORS
 app.UseCors("AllowAnyOrigin");
+
+// Enabling Authentication capabilities
+app.UseAuthentication();
+
+// Enabling Authorization capabilities
+app.UseAuthorization();
 
 // Configurar los controladores
 app.MapControllers();

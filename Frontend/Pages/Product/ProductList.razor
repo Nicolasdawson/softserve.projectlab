@@ -1,8 +1,9 @@
 ﻿@page "/products"
 
 @using Frontend.Services
-@inject ProductService ProductService
-
+@inject IProductService ProductService
+@inject CartService CartService
+@inject Frontend.Shared.CartState CartState
 <style>
     /*
     .mud-card {
@@ -28,6 +29,67 @@
     .mud-elevation-1 {
         box-shadow: var(--mud-elevation-0);
     }
+
+    .media-img {
+        transition: transform .2s;
+    }
+
+    .media-img:hover {
+        transform: scale(1.04);
+        cursor: pointer;
+    }
+
+    .hero {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 4rem 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, #dbeafe, #f0fdf4);
+        min-height: 100vh;
+    }
+
+        .hero h1,
+        .hero p,
+        .hero button {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s ease-out forwards;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            animation-delay: 0.3s;
+        }
+
+        .hero p {
+            max-width: 600px;
+            font-size: 1.1rem;
+            color: #334155;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            animation-delay: 0.6s;
+        }
+
+        .hero button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            animation-delay: 0.9s;
+        }
+
+            .hero button:hover {
+                background-color: #2563eb;
+            }
 </style>
 <script>
         window.scrollToTop = () => {
@@ -35,7 +97,9 @@
     };
 </script>
 <h1 name="top"></h1>
-<MudPaper Class="d-flex flex-row flex-grow-1" >
+@inject NavigationManager NavManager
+
+<MudPaper Class="d-flex flex-row flex-grow-1 pl-5" >
     <MudPaper Style="margin-bottom: 10px;">
         <MudText Style="padding-left:5px; padding-bottom: 15px;margin-top: 20px;" Typo="Typo.h3">Catalog </MudText>
     </MudPaper>
@@ -53,43 +117,69 @@
                     <MudSelectItem T="int" Value="@size">@size</MudSelectItem>
                 }
             </MudSelect>
+        </div>
+        <MudPagination Color="Color.Primary"
+                       Class="mt-4"
+                       Count="@(numberOfPages)"
+                       Selected="currentPage"
+                       SelectedChanged="OnPageChanged" />
 
-        </div>
-        <div class="pagination-controls" style="margin-top: 20px; display: flex; justify-content: center;">
-            <MudButton OnClick="@PreviousPage" Disabled="@((currentPage == 1))">Previous</MudButton>
-            <MudText style="margin-top: 5px;" Class="mx-2" Typo="Typo.body1">Page @currentPage</MudText>
-            <MudButton OnClick="@NextPage" Disabled="@(currentPage == 2)">Next</MudButton>
-        </div>
+        <!--
+            <div class="pagination-controls" style="margin-top: 20px; display: flex; justify-content: center;">
+                <MudButton OnClick="@PreviousPage" Disabled="@((currentPage == 1))">Previous</MudButton>
+                <MudText style="margin-top: 5px;" Class="mx-2" Typo="Typo.body1">Page @currentPage</MudText>
+                <MudButton OnClick="@NextPage" Disabled="@(currentPage == 2)">Next</MudButton>
+            </div>
+        -->
     
     </MudPaper>
 </MudPaper>
 
+<MudDivider DividerType="DividerType.Middle" Class="my-6" />
 @if (products != null && products.Length > 0)
 {
-    <MudPaper Class="flex-row">
+
+    <MudPaper Class="flex-row-reverse pl-4">
         @foreach (var product in products)
         {
 
-            <MudCard Elevation="4" Outlined="true" Class="d-inline-flex   " MaxWidth="400px" Style="width: calc(33.33% - 13.33px); margin-left: 15px; margin-bottom: 60px;">
-                <MudCardMedia Image="@product.ImageUrls[0]" Height="400" />
+            <MudCard Elevation="4" 
+                Outlined="true" 
+                Class="d-inline-flex mr-5"
+                Height="478px"
+                MaxWidth="270px"
+                MaxHeight="478px"
+                Style="width: calc(33.33% - 13.33px); margin-left: 15px; margin-bottom: 60px;">
+                <MudCardMedia @onclick='() => NavManager.NavigateTo($"/product/{product.Id}")'  Class="media-img" Image="@product.ImageUrls[0]" Height="300" />
                 <MudCardContent>
-                    <MudText Typo="Typo.body1"><b>@product.Name</b></MudText>
+                    <MudText @onclick='() => NavManager.NavigateTo($"/product/{product.Id}")' Typo="Typo.body2"><b>@product.Name</b></MudText>
                     <MudText Typo="Typo.h5">S @product.Price</MudText>
                     <MudText Typo="Typo.body2"><strong>Stock </strong>: @product.Stock</MudText>
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton Variant="Variant.Outlined" Color="Color.Primary">
-                        <MudText Typo="Typo.button">Add to cart</MudText>
+                        <MudText Typo="Typo.button" @onclick="() => AddToCart(product)">Add to cart</MudText>
                     </MudButton>
                 </MudCardActions>
             </MudCard>
         }
     </MudPaper>
+    <div class="pagination-controls" style="margin-top: 20px; display: flex; justify-content: center;">
+        <MudPagination Class="mb-8 mt-4" Color="Color.Primary"
+                   Count="@(numberOfPages)"
+                   Selected="currentPage"
+                   SelectedChanged="OnPageChanged" />
 
+    </div>
+    <!--
      <div class="pagination-controls" style="margin-top: 20px; display: flex; justify-content: center;">
         <MudButton OnClick="@PreviousPage" Disabled="@((currentPage == 1))">Previous</MudButton>
         <MudText style="margin-top: 5px;" Class="mx-2" Typo="Typo.body1">Page @currentPage</MudText>
         <MudButton OnClick="@NextPage" Disabled="@(currentPage == 4)">Next</MudButton>
     </div>
+    -->
+} else {
+    <Frontend.Shared.Loading />
 }
+
 

@@ -8,8 +8,10 @@ namespace API.implementations.Infrastructure.Data;
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        public DbSet<Credential> Credentials { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<PendingRegistration> PendingRegistrations { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
@@ -36,18 +38,23 @@ namespace API.implementations.Infrastructure.Data;
 
             modelBuilder.Entity<DeliveryAddress>().HasQueryFilter(d => !d.IsDeleted);
 
-           modelBuilder.Entity<Credential>(entity =>
+          
+            //Entity User configuration
+            modelBuilder.Entity<Credential>(entity =>
             {
                 
-                entity.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
-                entity.Property(u => u.PasswordSalt).HasMaxLength(255).IsRequired();
+                entity.Property(c => c.PasswordHash).HasMaxLength(255).IsRequired();
+                entity.Property(c => c.PasswordSalt).HasMaxLength(255).IsRequired();
 
                 entity.Property(c => c.RefreshToken).HasDefaultValue(string.Empty);
                 entity.Property(c => c.TokenCreated).HasColumnType("datetime2(7)");
                 entity.Property(c => c.TokenExpires).HasColumnType("datetime2(7)");
 
-                //Defining the Foreign key relationship
-                entity.HasOne(u => u.Role)
+                //Defining the Foreign key relationship for Role
+                /*
+                 */
+
+                entity.HasOne(c => c.Role)
                 .WithMany(r => r.credentials)
                 .HasForeignKey(u => u.IdRole)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -57,19 +64,19 @@ namespace API.implementations.Infrastructure.Data;
                 .WithMany().HasForeignKey(c => c.IdCustomer)
                 .OnDelete(DeleteBehavior.Restrict);
             });
-            
+
             //Entity Role configuration
-            modelBuilder.Entity<Role>(entity => 
-            { 
-                entity.Property(r => r.Name)
-                .IsRequired()
-                .HasMaxLength(50);
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Roles");
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.Name).HasMaxLength(50).IsRequired();
             });
 
             //Entity Customer configuration
             modelBuilder.Entity<Customer>(entity =>
             {
-                 entity.ToTable("Customers");
+                entity.ToTable("Customers");
                 entity.HasKey(c => c.Id);
                 entity.Property(u => u.Email).HasMaxLength(50).IsRequired();
                 entity.Property(c => c.FirstName).HasMaxLength(100).IsRequired();
@@ -89,36 +96,15 @@ namespace API.implementations.Infrastructure.Data;
             {
                 entity.ToTable("Products"); // Table Name in the DB
 
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .IsUnicode();
-
-                entity.Property(e => e.Description)
-                    .IsRequired()
-                    .HasColumnType("nvarchar(MAX)")
-                    .IsUnicode();
-                
-                entity.Property(P => P.Price)
-                    .HasPrecision(18, 2);
-
-                entity.Property(e => e.Weight)
-                    .HasPrecision(10, 2);
-
-                entity.Property(e => e.Height)
-                    .HasPrecision(10, 2);
-
-                entity.Property(e => e.Width)
-                    .HasPrecision(10, 2);
-
-                entity.Property(e => e.Length)
-                    .HasPrecision(10, 2);
-
-                entity.Property(e => e.Stock)
-                    .IsRequired();
-                
-                entity.Property(p => p.CreatedAt)
-                    .HasDefaultValueSql("GETDATE()");
+                entity.Property(e => e.Name).HasMaxLength(200).IsUnicode().IsRequired();
+                entity.Property(e => e.Description).HasColumnType("nvarchar(MAX)").IsUnicode().IsRequired();
+                entity.Property(P => P.Price).HasPrecision(18, 2);
+                entity.Property(e => e.Weight).HasPrecision(10, 2);
+                entity.Property(e => e.Height).HasPrecision(10, 2);
+                entity.Property(e => e.Width).HasPrecision(10, 2);
+                entity.Property(e => e.Length).HasPrecision(10, 2);
+                entity.Property(e => e.Stock).IsRequired();                
+                entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETDATE()");
 
                 entity.HasOne(e => e.Category)              // Relation with Category
                     .WithMany(c => c.Products)              // One Category has many Products
@@ -189,23 +175,15 @@ namespace API.implementations.Infrastructure.Data;
             {
                 entity.ToTable("Orders");
 
-                entity.Property(o => o.OrderNumber)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(o => o.Status)
-                    .IsRequired()
-                    .HasMaxLength(20);
-
-                entity.Property(o => o.TotalPrice)
-                    .IsRequired()
-                    .HasColumnType("decimal(10,2)");
+                entity.Property(o => o.OrderNumber).HasMaxLength(50).IsRequired();
+                entity.Property(o => o.Status).HasMaxLength(20).IsRequired();
+                entity.Property(o => o.TotalPrice).HasColumnType("decimal(10,2)").IsRequired();
 
                 // Relaciones
                 entity.HasOne(o => o.Customer)
                     .WithMany()
                     .HasForeignKey(o => o.IdCustomer)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict);          
                 
                 entity.HasOne(o => o.DeliveryAddress)
                     .WithMany()
@@ -332,14 +310,32 @@ namespace API.implementations.Infrastructure.Data;
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            modelBuilder.Entity<PendingRegistration>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+
+                entity.Property(p => p.Email).HasMaxLength(50).IsRequired();
+                entity.Property(p => p.FirstName).HasMaxLength(100).IsRequired();
+                entity.Property(p => p.LastName).HasMaxLength(100).IsRequired();
+                entity.Property(p => p.PhoneNumber).HasMaxLength(20).IsRequired();
+                entity.Property(p => p.PasswordHash).IsRequired();
+                entity.Property(p => p.PasswordSalt).IsRequired();
+
+                entity.Property(p => p.IdCustomer).IsRequired(false); 
+
+                entity.Property(p => p.VerificationToken).IsRequired();
+                entity.Property(p => p.Expiration).IsRequired();
+            });
         }
 
         public void ClearDatabase()
         {
-            //Products.RemoveRange(Products);
-            //Categories.RemoveRange(Categories);
+            Products.RemoveRange(Products);
+            Categories.RemoveRange(Categories);
             //Countries.RemoveRange(Countries);
             //Regions.RemoveRange(Regions);
+            //Roles.RemoveRange(Roles);
+            //ProductImages.RemoveRange(ProductImages);
             SaveChanges();
         }
     }
