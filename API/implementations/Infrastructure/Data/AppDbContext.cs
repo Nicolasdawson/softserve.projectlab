@@ -336,8 +336,8 @@ namespace API.implementations.Infrastructure.Data;
 
         public void ClearDatabase()
         {
-            Products.RemoveRange(Products);
-            Categories.RemoveRange(Categories);
+            //Products.RemoveRange(Products);
+            //Categories.RemoveRange(Categories);
             //Countries.RemoveRange(Countries);
             //Regions.RemoveRange(Regions);
             SaveChanges();
