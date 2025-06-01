@@ -38,7 +38,6 @@ public partial class ProductDetail
     }
     private void ChangeImage(string newImage)
     {
-        Console.WriteLine(newImage);
         SelectedImage = newImage;
     }
 

@@ -1,0 +1,24 @@
+﻿@page "/accounts/ConfirmEmail"
+
+@using MudBlazor
+@inject NavigationManager Navigation
+
+<style>
+    .dialog-background {
+        background: #0288D1; /* Color verde con 80% de opacidad */
+        color: var(--mud-palette-white);
+    }
+</style>
+<MudCard Class="ml-12 p-2 mud-card-animated" Elevation="4">
+    <MudCard Elevation="3" Class="blur dialog-background pl-6 pt-4 pb-4">
+        <MudText Typo="Typo.h5" Class="ml-4 mud-text-animated">
+            Confirm Email
+        </MudText>
+    </MudCard>
+    <MudItem xs="14" Class="pr-6 rounded-3 pa-8 mud-text-animated">
+        <MudText>
+            Your email has been confirmed. Thank you for verifying your account!
+        </MudText>
+    </MudItem>
+    
+</MudCard>

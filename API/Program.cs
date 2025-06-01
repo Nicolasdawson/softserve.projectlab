@@ -133,6 +133,8 @@ builder.Services.AddScoped<ICredentialService, CredentialService>();
 
 builder.Services.AddScoped<RoleServices>();
 
+builder.Services.AddScoped<CountryService>();
+
 // Conexión con Azure blob DB Azure
 builder.Services.AddAzureClients(clientBuilder =>
 {

@@ -2,8 +2,8 @@
 using API.Models;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace API.implementations.Infrastructure.Data;
-
+namespace API.implementations.Infrastructure.Data
+{
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
@@ -36,11 +36,8 @@ namespace API.implementations.Infrastructure.Data;
             //modelBuilder.SeedProducts(); // Para insertar datos
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<DeliveryAddress>().HasQueryFilter(d => !d.IsDeleted);
-            
-          
             //Entity User configuration
-        modelBuilder.Entity<Credential>(entity =>
+            modelBuilder.Entity<Credential>(entity =>
             {
                 
                 entity.Property(c => c.PasswordHash).HasMaxLength(255).IsRequired();
@@ -88,7 +85,6 @@ namespace API.implementations.Infrastructure.Data;
                 entity.Property(c => c.EndDate).HasColumnType("datetime2(7)"); // EndDate can be null
                 //entity.HasIndex(c => new { c.Id, c.IsCurrent });
                 //entity.HasIndex(c => new { c.Id, c.StartDate, c.EndDate });
-
             });
             
             //Entity Product configuration
@@ -103,7 +99,7 @@ namespace API.implementations.Infrastructure.Data;
                 entity.Property(e => e.Height).HasPrecision(10, 2);
                 entity.Property(e => e.Width).HasPrecision(10, 2);
                 entity.Property(e => e.Length).HasPrecision(10, 2);
-                entity.Property(e => e.Stock).IsRequired();
+                entity.Property(e => e.Stock).IsRequired();                
                 entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETDATE()");
 
                 entity.HasOne(e => e.Category)              // Relation with Category
@@ -113,15 +109,13 @@ namespace API.implementations.Infrastructure.Data;
                     .IsRequired(false);
 
                 entity.HasMany(e => e.Images)               // Relation with Images
-                    .WithOne(pi => pi.Product)
+                    .WithOne(pi => pi.Product)              
                     .HasForeignKey(pi => pi.IdProduct)      // ForeignKey
                     .OnDelete(DeleteBehavior.Cascade);
-                    
             });
-            modelBuilder.Entity<Product>().HasQueryFilter(p => p.IsActive);
 
             //Entity Category configuration
-        modelBuilder.Entity<Category>(entity =>
+            modelBuilder.Entity<Category>(entity =>
             {
                 entity.ToTable("Categories"); // Table Name in the DB
 
@@ -131,6 +125,7 @@ namespace API.implementations.Infrastructure.Data;
                     .IsUnicode(); // `nvarchar` es Unicode en SQL Server
             });
 
+            //Entity ShoppingCart configuration
             modelBuilder.Entity<ShoppingCart>(entity =>
             {
                 entity.ToTable("ShoppingCarts");
@@ -139,21 +134,19 @@ namespace API.implementations.Infrastructure.Data;
                     .IsRequired();
 
                 entity.Property(s => s.CreatedAt)
-                    .HasDefaultValueSql("GETDATE()");
+                .HasDefaultValueSql("GETDATE()");
 
-                // Relación con Product
                 entity.HasOne(sc => sc.Product)
                     .WithMany()
                     .HasForeignKey(sc => sc.IdProduct)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict); // Se puede cambiar a 'Cascade' si prefieres la eliminación en cascada
 
-                // Relación con Customer
-                entity.HasOne(sc => sc.Customer)
+                entity.HasOne(sc => sc.Order)
                     .WithMany()
-                    .HasForeignKey(sc => sc.IdCustomer)
-                    .OnDelete(DeleteBehavior.Cascade); // o Restrict, según tu necesidad
-            });
+                    .HasForeignKey(sc => sc.IdOrder)
+                    .OnDelete(DeleteBehavior.Restrict); // Se puede cambiar a 'Cascade' si prefieres la eliminación en cascada
 
+            });
 
             //Entity ProductImage configuration
             modelBuilder.Entity<ProductImage>(entity =>
@@ -282,36 +275,6 @@ namespace API.implementations.Infrastructure.Data;
                     .OnDelete(DeleteBehavior.Cascade); // Define la acción de eliminación en cascada
             });
 
-            modelBuilder.Entity<OrderItem>(entity =>
-            {
-                entity.ToTable("OrderItems");
-
-                entity.HasKey(oi => oi.Id);
-
-                entity.Property(oi => oi.Quantity)
-                    .IsRequired();
-
-                entity.Property(oi => oi.Price)
-                    .IsRequired()
-                    .HasPrecision(10, 2); 
-
-                entity.Property(oi => oi.CreatedAt)
-                    .HasDefaultValueSql("GETDATE()");
-
-                entity.Property(oi => oi.UpdatedAt)
-                    .HasDefaultValueSql("GETDATE()");
-
-                entity.HasOne(oi => oi.Order)
-                    .WithMany(o => o.OrderItems)
-                    .HasForeignKey(oi => oi.IdOrder)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(oi => oi.Product)
-                    .WithMany()
-                    .HasForeignKey(oi => oi.IdProduct)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
-
             modelBuilder.Entity<PendingRegistration>(entity =>
             {
                 entity.HasKey(p => p.Id);
@@ -334,10 +297,11 @@ namespace API.implementations.Infrastructure.Data;
         {
             Products.RemoveRange(Products);
             Categories.RemoveRange(Categories);
-            //Countries.RemoveRange(Countries);
-           //Regions.RemoveRange(Regions);
+            Countries.RemoveRange(Countries);
+            Regions.RemoveRange(Regions);
             //Roles.RemoveRange(Roles);
             //ProductImages.RemoveRange(ProductImages);
             SaveChanges();
         }
     }
+}

@@ -1,0 +1,26 @@
+﻿@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+@code {
+
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            // Está autenticado, pero no tiene permisos
+            Snackbar.Add("You are not authorized", Severity.Error);
+            Navigation.NavigateTo("/user-home");
+        }
+        else
+        {
+            Snackbar.Add("Please login first", Severity.Error);
+            // No está autenticado
+            Navigation.NavigateTo("/login", true);
+        }
+    }
+}

@@ -1,4 +1,4 @@
-using API.Models;
+﻿using API.Models;
 using API.DTO;
 using Microsoft.EntityFrameworkCore;
 using API.implementations.Infrastructure.Data;
@@ -24,7 +24,7 @@ public class CountryService
     public async Task<IEnumerable<RegionDto>> GetRegionsByCountryIdAsync(Guid countryId)
     {
         return await _context.Regions
-            .Where(r => r.IdCountry  == countryId)
+            .Where(r => r.IdCountry == countryId)
             .Select(r => new RegionDto { Id = r.Id, Name = r.Name })
             .ToListAsync();
     }
