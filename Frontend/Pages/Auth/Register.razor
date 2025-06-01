@@ -1,0 +1,206 @@
+﻿@page "/register"
+@using System.ComponentModel.DataAnnotations
+@using Frontend.DTO
+@inject NavigationManager Navigation
+
+<style>
+    .dialog-background-title {
+    background: rgb(from var(--mud-palette-dark-lighten) r g b / 80%);
+    color: var(--mud-palette-white);
+    }
+
+    .dialog-background-succeed {
+        background: rgb(76, 175, 80, 0.8); /* Color verde con 80% de opacidad */
+        color: var(--mud-palette-white);
+    }
+
+    .blur {
+    backdrop-filter: blur(10px);
+    }
+
+</style>
+
+@if (loading)
+{
+    <Frontend.Shared.Loading />
+}
+else
+{
+    @if (!isSucceedRegister) 
+    {
+        <MudCard Class="ml-12 p-2" Elevation="4" Style="@($"width:70%; color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten3};")">
+            <MudCard Elevation="3" Class="blur dialog-background-title pl-6 pt-4 pb-4">
+                <MudText Typo="Typo.h5" Class="ml-4">
+                    Register
+                </MudText>
+            </MudCard>
+            <MudItem xs="14" Class="pr-6 rounded-3 pa-8">
+                <MudText Typo="Typo.body2" Class="mb-2 ml-4">
+                    Please fill the form to create an account.
+                </MudText>
+
+                <EditForm Model="@model">
+                    <DataAnnotationsValidator />
+
+                    <MudCardContent>
+                        <MudItem xs="12" sm="6" md="4" lg="6" Class="mb-4">
+                            <MudTextField ShrinkLabel
+                                          @bind-Value="model.Email"
+                                          InputType="InputType.Email"
+                                          Label="Email"
+                                          Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                          For="@(() => model.Email)"
+                                          Variant="Variant.Text" />
+                        </MudItem>
+
+                        <MudGrid Spacing="3" Class="mt-2 mb-4">
+                            <MudItem xs="6">
+                                <MudTextField ShrinkLabel
+                                              @bind-Value="model.FirstName"
+                                              InputType="InputType.Text"
+                                              Label="First Name"
+                                              Class="mb-4"
+                                              Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                              For="@(() => model.FirstName)"
+                                              Variant="Variant.Text" />
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudTextField ShrinkLabel
+                                              @bind-Value="model.LastName"
+                                              InputType="InputType.Text"
+                                              Label="Last Name"
+                                              Class="mb-4 ml-2"
+                                              Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                              For="@(() => model.LastName)"
+                                              Variant="Variant.Text" />
+                            </MudItem>
+                        </MudGrid>
+
+                        <MudItem xs="6" lg="6">
+                            <MudTextField ShrinkLabel
+                                          T="string"
+                                          @bind-Value="model.phoneNumber"
+                                          InputType="InputType.Telephone"
+                                          HelperText="@telephoneHelpertext"
+                                          HelperTextOnFocus="true"
+                                          Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                          For="@(() => model.phoneNumber)"
+                                          Label="Telephone" />
+
+
+                        </MudItem>
+
+                        <MudGrid Spacing="3">
+                            <MudItem xs="6">
+                                <MudTextField ShrinkLabel
+                                              @bind-Value="model.Password"
+                                              HelperText="@passwordHelpertext"
+                                              Label="Password"
+                                              Class="mb-4"
+                                              Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                              For="@(() => model.Password)"
+                                              Variant="Variant.Text"
+                                              InputType="@PasswordInput"
+                                              Adornment="Adornment.End"
+                                              AdornmentIcon="@PasswordInputIcon"
+                                              OnAdornmentClick="ButtonTestclick"
+                                              AdornmentAriaLabel="Show Password" />
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudTextField ShrinkLabel
+                                              T="string"
+                                              @bind-Value="model.PasswordConfirm"
+                                              InputType="InputType.Password"
+                                              Class="mb-4 ml-2"
+                                              Label="Please confirm your Password"
+                                              Error="Touched && isPasswordError"
+                                              ErrorText="Passwords do not match!"
+                                              @onblur="OnPasswordBlur"
+                                              Style="@($"color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten5};")"
+                                              For="@(() => model.PasswordConfirm)"
+                                              Variant="Variant.Text" />
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                    <MudStack Class="m-2" Row="true">
+                        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.ArrowBack"
+                                   Color="Color.Info"
+                                   OnClick="ReturnAction" Class="ms-8">
+                            Return
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Check" Color="Color.Primary" OnClick="CreateUserAsync">
+                            Register
+                        </MudButton>
+                    </MudStack>
+                </EditForm>
+            </MudItem>
+        </MudCard>
+    } else 
+    {
+        <MudCard Class="ml-12 p-2 mud-card-animated" Elevation="4">
+            <MudCard Elevation="3" Class="blur dialog-background-succeed pl-6 pt-4 pb-4">
+                <MudText Typo="Typo.h5" Class="ml-4 mud-text-animated">
+                    Successful Registration
+                </MudText>
+            </MudCard>
+            <MudItem xs="14" Class="pr-6 rounded-3 pa-8 mud-text-animated">
+                <MudText>
+                    We have received your registration request. Please check your email to confirm your account.
+                </MudText>
+            </MudItem>
+            <MudItem Class="pl-8 pb-3 mt-4 mb-2">
+                <MudButton StartIcon="@Icons.Material.Filled.ArrowBack"
+                           Variant="Variant.Outlined"
+                           OnClick='() => Navigation.NavigateTo("/products")'
+                           Color="Color.Primary">Continue Shopping</MudButton>
+
+            </MudItem>
+        </MudCard>
+    }
+    
+}
+
+@code {
+    private string telephoneHelpertext { get; }
+        = "Enter your number with the country code and without symbols or spaces ( e.g. 999999999)";
+    private string passwordHelpertext { get; }
+    = "Your password must be longer than 6 characters.";
+
+    private bool Touched { get; set; } = false;
+    private bool isPasswordError = false;
+
+    private void OnPasswordBlur()
+    {
+        Touched = true; // Set touched to true when the field loses focus
+        if (model.Password != model.PasswordConfirm)
+        {
+            isPasswordError = true;  // Set error state
+        }
+        else
+        {
+            isPasswordError = false;
+        }
+    }
+
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    void ButtonTestclick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+}
+
+

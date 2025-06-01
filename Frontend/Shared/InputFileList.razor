@@ -1,0 +1,63 @@
+﻿<div class="mb-3">
+    <label class="form-label">@Label</label>
+    <div class="input-group">
+        <input type="text"
+        class="form-control"
+        placeholder="@Placeholder"
+        readonly="readonly"
+        value="@_fileNames" />
+        <label style="position: relative; cursor: pointer;" class="input-group-btn">
+            <MudButton Style="cursor:pointer;" Variant="Variant.Filled" Color="Color.Primary">
+                @ButtonText
+            </MudButton>
+            <InputFile OnChange="OnChange"
+                       accept="@Accept"
+                       multiple="@AllowMultiple"
+                       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" />
+        </label>
+        <!--
+            <label class="input-group-btn" style="cursor:pointer;">
+                <span class="btn btn-primary">
+                    @ButtonText
+                    <InputFile OnChange="OnChange"
+                                class="d-none"
+                                accept="@Accept"
+                                multiple="@AllowMultiple" />                            
+                </span>
+
+
+            </label>      
+            <MudButton Variant="Variant.Filled" Color="Color.Primary">
+            </MudButton>
+        -->
+
+    </div>
+        
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <MudText Typo="Typo.caption" Color="Color.Error">@_errorMessage</MudText>
+    }
+</div>
+<!--
+@code {
+    private string _inputFileId = "inputfile-" + Guid.NewGuid();
+    private InputFile? _inputFile;
+
+    private async Task OpenFileDialog()
+    {
+        // Simulate a click on the hidden input file element
+        await JS.InvokeVoidAsync("document.getElementById('myInput').click()")
+            .AsTask()
+            .ContinueWith(task =>
+            {
+                if (!task.IsFaulted)
+                {
+                    JS.InvokeVoidAsync("document.getElementById('" + _inputFileId + "').click()");
+                }
+            });
+    }
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+}
+-->

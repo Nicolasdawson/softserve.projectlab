@@ -1,16 +1,66 @@
-﻿@inherits LayoutComponentBase
+﻿@using Frontend.Layout;
+
+@inherits LayoutComponentBase
+<!--
 <div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+<div class="sidebar">
+<NavMenu/>
 </div>
+
+<main>
+<div class="top-row px-4">
+<a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+</div>
+
+<article class="content px-4">
+@Body
+</article>
+</main>
+</div>
+-->
+<style>
+    .mud-layout {
+        min-width : 400px;
+
+    }
+    .mud-main-content {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        height: 372px;
+    }
+    .mud-container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        /* margin-left: initial !important; Esto provoca que no haya margen al costado izquierdo de la tabla*/
+        height: 190%;
+    }
+
+    .mud-container-maxwidth-lg {
+        /*max-width: 100% !important; Esto provoca que no haya margen al costado derecho de la tabla*/
+    }
+
+</style>
+
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
+<Header />
+<MudLayout>
+    <MudMainContent>
+        <!-- Add Breadcrumbs here -->
+        <MudContainer MaxWidth="MaxWidth.Large" Style="margin-top: 3rem;">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+
+}

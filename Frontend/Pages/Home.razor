@@ -1,7 +1,128 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
+<style>
+    .img-zoom {
+        width: 100%; /* Hace la imagen más grande que el contenedor */
+        height: 100%; /* Aumenta su altura también */
+        object-fit: cover; /* Mantiene la proporción y recorta lo que sobresalga */
+        position: absolute; /* Permite que la imagen se expanda sin afectar otros elementos */
+        top: 65%; /* Mueve la imagen hacia abajo */
+        left: 50%; /* Mueve la imagen hacia la derecha */
+        transform: translate(-50%, -50%); /* Centra la imagen dentro del contenedor */
+    }
+
+    .img-zoom2 {
+        width: 100%; /* Hace la imagen más grande que el contenedor */
+        height: 100%; /* Aumenta su altura también */
+        object-fit: cover; /* Mantiene la proporción y recorta lo que sobresalga */
+        position: absolute; /* Permite que la imagen se expanda sin afectar otros elementos */
+        top: 95%; /* Mueve la imagen hacia abajo */
+        left: 50%; /* Mueve la imagen hacia la derecha */
+        transform: translate(-50%, -50%); /* Centra la imagen dentro del contenedor */
+    }
+
+    .carousel-link {
+        /*
+        position: absolute;
+        bottom: 20px;
+        right: 30px;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap; // Evita que el texto se quiebre 
+        overflow: hidden;        
+        z-index: 1000; // Asegura que esté encima de la imagen pero no de otros overlays
+        */
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10;
+
+    }
+
+    .carousel-link:hover {
+        background-color: rgba(59, 165, 60, 0.8);
+        color: rgba(59, 165, 60, 0.8);
+    }
+
+    .button-overlay-container {
+        position: absolute;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 9999;
+        pointer-events: auto;
+    }
+
+    .carousel-link {
+        pointer-events: auto;
+        white-space: nowrap;
+    }
+
+
+</style>
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<AuthorizeView>
+    <Authorized>
+        <p>Estas autenticado y autorizado</p>
+    </Authorized>
+    <NotAuthorized>
+        <MudCarousel Class="fade-up fade-delay-1 mud-width-full mud-height-full"
+                     Style="margin-left: initial !important;max-width: 100% !important;"
+                     Height="700"
+                     ShowArrows="@arrows"
+                     ShowBullets="@bullets"
+                     EnableSwipeGesture="@enableSwipeGesture"
+                     AutoCycle="@autocycle"
+                     TData="object">
+            <MudCarouselItem Transition="transition">
 
-Welcome to your new app.
+                <div class="d-flex justify-content-center align-items-center overflow-hidden" style="height:100%; width:100%; position:relative;">
+                    <MudImage Fluid="true" Src="images/banner/banner1.PNG" Alt="Swedish Farm House" Class="rounded-lg img-zoom" />
+                    <MudButton Style="cursor: pointer;"
+                               Variant="Variant.Outlined"
+                               Color="Color.Dark"
+                               @onclick="@(() => Navigation.NavigateTo("/products"))"
+                               Class="mt-2 carousel-link">
+                        Explore our products →
+                    </MudButton>
+                </div>
+            </MudCarouselItem>
+            <MudCarouselItem Transition="transition">
+                <div class="d-flex justify-content-center align-items-center overflow-hidden" style="height:100%; width:100%; position:relative;">
+                    <MudImage Fluid="true" Src="images/banner/banner2.PNG" Alt="Swedish Farm House" Class="rounded-lg img-zoom2" />
+
+                </div>
+            </MudCarouselItem>
+            <MudCarouselItem Transition="transition">
+                <div class="d-flex justify-content-center align-items-center overflow-hidden" style="height:100%; width:100%; position:relative;">
+                    <MudImage Fluid="true" Src="images/banner/banner3.PNG" Alt="Swedish Farm House" Class="rounded-lg img-zoom" />
+                    <MudButton Style="cursor: pointer;"
+                               Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               @onclick="@(() => Navigation.NavigateTo("/products"))"
+                               Class="mt-2 carousel-link">
+                        Explore our products →
+                    </MudButton>
+                </div>
+            </MudCarouselItem>
+        </MudCarousel>
+
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+
+    
+}

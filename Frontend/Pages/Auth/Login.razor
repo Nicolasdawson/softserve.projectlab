@@ -1,0 +1,43 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+
+@using Frontend.DTO
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Forms
+
+<EditForm Model="userDTO" OnValidSubmit="LoginAsync">
+    <DataAnnotationsValidator />
+    <MudPaper Elevation="4" Class="pa-6 mx-auto mt-12" MaxWidth="400px">
+        <MudText Typo="Typo.h5" Class="mb-4">Login</MudText>
+
+        <MudTextField 
+            @bind-Value="@userDTO.Email" 
+            Label="Email" 
+            InputType="InputType.Email" 
+            For="@(() => userDTO.Email)" />
+        <ValidationMessage For="@(() => userDTO.Email)" />
+
+        <MudTextField 
+            @bind-Value="@userDTO.Password" 
+            Label="Password" 
+            InputType="InputType.Password" 
+            For="@(() => userDTO.Password)" />
+        <ValidationMessage For="@(() => userDTO.Password)" />
+
+        <MudButton OnClick="LoginAsync" Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" FullWidth="true">
+            Login
+        </MudButton>
+
+        <MudStack Spacing="2" AlignItems="AlignItems.Center" Justify="Justify.Center" Class="mt-4">
+            <MudLink Href="/register" Underline="Underline.Always" Color="Color.Info">Not registered yet?</MudLink>
+            <!--
+                <MudLink Href="/register" Underline="Underline.Always" Color="Color.Secondary">Forgot your password?</MudLink>
+                <MudLink Href="/register" Underline="Underline.Always" Color="Color.Warning">Resend activation email</MudLink>
+            -->
+        </MudStack>
+    </MudPaper>
+</EditForm>
+<!--
+<MudButton OnClick="LoginAsync" Color="Color.Secondary">FORCE Login</MudButton>
+-->

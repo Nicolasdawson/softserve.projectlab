@@ -1,44 +1,303 @@
+﻿using Microsoft.AspNetCore.Builder;
+
+using API.Services;
+using API.Helpers;
+using API.implementations.Infrastructure.Data;
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.FileProviders;
+using StackExchange.Redis;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using API.implementations.Infrastructure;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
+using API.Abstractions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Configurar Entity Framework con SQL Server
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddTransient<SeedDb>();//Se registra SeedDb como servicio transitorio para poder usarse
+builder.Services.AddScoped<IFileStorage, FileStorage>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<TokenHelper>();
+
+
+// Configurar CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOrigin", policy =>
+    {
+        // Permitir cualquier origen que tenga 'localhost' en la URL
+        policy.AllowAnyOrigin()  // Permite cualquier puerto de localhost
+              .AllowAnyMethod()  // Permite cualquier m�todo HTTP (GET, POST, etc.)
+              .AllowAnyHeader();  // Permite cualquier encabezado
+    });
+});
+
+
+// Agregar servicios para controllers
+//builder.Services.AddControllers();
+
+// Agregar servicios para controllers y vistas
+builder.Services.AddControllersWithViews(); // Aquí es donde permitimos vistas (Razor)
+
+// Agrega servicios de Razor Pages
+builder.Services.AddRazorPages();
+
+
+// Add Swagger
+// Defining the authorization scheme
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Description = "Standard Authorization header using the Bearer scheme (\"bearer {token}\")",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
+
+// Add service ProductService
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ProductImageService>();
+// Add service for redis to keep the reservation of stock
+//builder.Services.AddScoped<StockReservationService>();
+builder.Services.AddScoped<IStockReservationService, StockReservationService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentService>();
+
+
+// Conexión con Azure blob DB Azure
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:blob"]!, preferMsi: true);
+    clientBuilder.AddQueueServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:queue"]!, preferMsi: true);
+});
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(
+    builder.Configuration.GetConnectionString("RedisConnection")));
+
+builder.Services.AddControllers().AddJsonOptions(x =>
+{
+    x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
+
+
+//builder.Services.AddScoped<PaymentService>();
+
+builder.Services.AddScoped<IPaymentService, StripePaymentService>();
+
+//Defining the authentication Scheme
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value!)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
+
+    });
+
+// Add service 
+
+builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+builder.Services.AddScoped<IProductService, ProductService>();
+
+builder.Services.AddScoped<IProductImageService, ProductImageService>();
+
+builder.Services.AddScoped<CategoryService>();
+
+builder.Services.AddScoped<ShoppingCartService>();
+
+builder.Services.AddScoped<OrderService>();
+
+builder.Services.AddScoped<DeliveryAddressService>();
+
+builder.Services.AddScoped<CountryService>();
+
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+builder.Services.AddScoped<IPendingRegistrationService, PendingRegistrationService>();
+
+builder.Services.AddScoped<ICredentialService, CredentialService>();
+
+builder.Services.AddScoped<RoleServices>();
+
+builder.Services.AddScoped<CountryService>();
+
+// Conexión con Azure blob DB Azure
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:blob"]!, preferMsi: true);
+    clientBuilder.AddQueueServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:queue"]!, preferMsi: true);
+});
+
+builder.Services.AddScoped<PaymentService>();
+
+builder.Services.AddScoped<StripePaymentService>();
+
+builder.Services.AddScoped<EmailService>();
+
+
+Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 var app = builder.Build();
+SeedData(app);
 
-// Configure the HTTP request pipeline.
+/*void SeedData(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var service = scope.ServiceProvider.GetRequiredService<SeedDb>();
+    service.SeedAsync().Wait();
+}*/
+
+
+void SeedData(WebApplication App)
+{
+    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+    using var scope = scopedFactory!.CreateScope();
+    var service = scope.ServiceProvider.GetService<SeedDb>();
+    service!.SeedAsync().Wait();
+}
+
+/*
+ 
+// Aplicar las migraciones autom�ticamente al iniciar la aplicaci�n
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.ClearDatabase(); // Borra los datos sin eliminar la base de datos
+
+    // Verifica si ya existen categorías para evitar duplicados
+    if (!dbContext.Categories.Any())
+    {
+        // Agregar categorías
+        var category1 = new Category
+        {
+            Id = Guid.NewGuid(),
+            Name = "Cámaras de Seguridad",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        var category2 = new Category
+        {
+            Id = Guid.NewGuid(),
+            Name = "Alarmas",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        var category3 = new Category
+        {
+            Id = Guid.NewGuid(),
+            Name = "Sensores",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        dbContext.Categories.AddRange(category1, category2, category3);
+        dbContext.SaveChanges(); // Guardar las categorías
+
+        // Agregar productos
+        dbContext.Products.AddRange(
+            new Product
+            {
+                Id = Guid.NewGuid(),
+                Name = "Cámara de Seguridad IP 1080p",
+                Description = "Cámara de seguridad de alta definición con visión nocturna y grabación en 1080p.",
+                Price = 120.99m,
+                Weight = 0.5m,
+                Height = 10m,
+                Width = 15m,
+                Length = 20m,
+                Stock = 50,
+                IdCategory = category1.Id,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            },
+            new Product
+            {
+                Id = Guid.NewGuid(),
+                Name = "Alarma Inalámbrica 4 Zonas",
+                Description = "Sistema de alarma inalámbrico con 4 zonas.",
+                Price = 150.50m,
+                Weight = 1.2m,
+                Height = 8m,
+                Width = 20m,
+                Length = 25m,
+                Stock = 100,
+                IdCategory = category2.Id,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            }
+        );
+    }
+    dbContext.SaveChanges(); // Guardar los productos
+        
+                                 //
+                                 //dbContext.Database.Migrate(); // Aplica las migraciones si es necesario
+                                 //dbContext.Database.EnsureCreated();// Si quieres asegurarte de que se creen las tablas antes de poblar datos
+        
+     
+                                 //dbContext.Database.EnsureDeleted(); // Elimina la base de datos
+                                 //dbContext.Database.EnsureCreated();  // Esto crear� las tablas si no existen
+        
+}
+*/
+
+// Habilitar el uso de Swagger en la API
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger();  // Habilita el middleware Swagger
+    app.UseSwaggerUI();  // Habilita la UI de Swagger
 }
 
-app.UseHttpsRedirection();
+app.UseStaticFiles(new StaticFileOptions { 
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Images\\Products")),
+    RequestPath= "/Images"
+});
 
-var summaries = new[]
+/*
+builder.Services.AddDirectoryBrowser();
+
+var fileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Images\\Products"));
+var requestPath = "/MyImages";
+
+// Enable displaying browser links.
+app.UseStaticFiles(new StaticFileOptions
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    FileProvider = fileProvider,
+    RequestPath = requestPath
+});
 
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
+app.UseDirectoryBrowser(new DirectoryBrowserOptions
+{
+    FileProvider = fileProvider,
+    RequestPath = requestPath
+});
+*/
+
+// Usar la pol�tica de CORS
+app.UseCors("AllowAnyOrigin");
+
+// Enabling Authentication capabilities
+app.UseAuthentication();
+
+// Enabling Authorization capabilities
+app.UseAuthorization();
+
+// Configurar los controladores
+app.MapControllers();
+app.MapDefaultControllerRoute();  // Configurar la ruta predeterminada para las vistas
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

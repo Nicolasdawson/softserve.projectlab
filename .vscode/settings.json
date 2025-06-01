@@ -1,0 +1,5 @@
+{
+  "coverage-gutters.xmlPath": "UnitTests/TestResults/**/coverage.cobertura.xml",
+  "coverage-gutters.showLineCoverage": true,
+  "coverage-gutters.coverageFileNames": ["coverage.cobertura.xml"]
+}
