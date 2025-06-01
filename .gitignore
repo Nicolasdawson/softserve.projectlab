@@ -14,7 +14,8 @@
 
 archivo_prueba.txt
 # Configuración sensible
-
+**/appsettings.json
+/API/appsettings.json
 
 
 # AWS User-specific
