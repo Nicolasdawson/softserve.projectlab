@@ -2,7 +2,7 @@
 
 namespace Frontend.Pages.AdminPages;
 
-[Authorize(Roles ="Normal")]
+[Authorize(Roles ="Admin")]
 public partial class AdminIndex
 {
     private bool loading;

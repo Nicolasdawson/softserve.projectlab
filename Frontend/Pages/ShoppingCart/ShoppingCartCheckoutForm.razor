@@ -1,6 +1,7 @@
 ﻿@page "/shoppingcart-form"
 @using MudBlazor
 @using System.ComponentModel.DataAnnotations
+@using Frontend.DTO;
 
 <MudGrid Class="pl-4">
     <MudItem xs="14" Class="ml-12 pr-8 rounded-3" Style="@($"width:70%; color:{Colors.Shades.Black}; background:{Colors.Gray.Lighten3};")">
@@ -76,9 +77,41 @@
                     <MudText Typo="Typo.body2" Class="mb-8">
                         Please enter your delivery address.
                     </MudText>
-                    <MudItem Class="mt-2" xs="6" lg="6">
 
-                    </MudItem>
+                    <MudGrid Spacing="3" Class="mt-2">
+                        <MudItem Class="mt-2" xs="6" lg="6">
+                            <MudAutocomplete T="CountryDTO" 
+                                Label="Country"
+                                Placeholder="Select a Country"
+                                SearchFunc="SearchCountries"
+                                Value="selectedCountry"
+                                ValueChanged="CountryChanged"
+                                ToStringFunc="@(e=> e==null?null : $"{e.Name}")">
+                            <ItemTemplate Context="itemContext">
+                                @itemContext.Name
+                            </ItemTemplate>
+                            </MudAutocomplete>
+                        </MudItem>
+
+                         <MudItem Class="mt-2" xs="6" lg="6">
+                            <MudAutocomplete 
+                                T="RegionDTO"
+                                Label="Region"
+                                Placeholder="Select a Region/State"
+                                SearchFunc="SearchRegions"
+                                Value="selectedRegion"
+                                ValueChanged="RegionChanged"
+                                MinCharacters="0"
+                                DebounceInterval="200"
+                                ToStringFunc="@(e=> e==null?null : $"{e.Name}")">
+
+                                <ItemTemplate Context="itemContext">
+                                    @itemContext.Name
+                                </ItemTemplate>
+                            </MudAutocomplete>
+                         </MudItem>
+
+                    </MudGrid>
                 </EditForm>
 
 

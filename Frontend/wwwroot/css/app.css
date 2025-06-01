@@ -107,3 +107,25 @@ code {
         width: 100%;
     }
 }
+
+@keyframes fadeInSlide {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Aplica la animación al MudCard */
+.mud-card-animated {
+    animation: fadeInSlide 0.8s ease-out;
+}
+
+/* Aseguramos que el contenido se deslice y aparezca */
+.mud-text-animated {
+    animation: fadeInSlide 0.7s ease-out;
+}

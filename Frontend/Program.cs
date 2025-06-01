@@ -17,10 +17,10 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var urlProd = "";
-var urlLocal = "https://localhost:7153";
+var urlLocal = "https://localhost:50309";
 //Register Services
 builder.Services.AddSingleton<CartState>();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri( urlLocal /*builder.HostEnvironment.BaseAddress*/) });
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<IRepository, Repository>();

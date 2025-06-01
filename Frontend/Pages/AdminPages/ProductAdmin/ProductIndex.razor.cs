@@ -3,10 +3,11 @@ using Frontend.Repositories;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Frontend.Pages.AdminPages.ProductAdmin;
 
-
+[Authorize(Roles = "Admin")]
 public partial class ProductIndex
 {
     private List<ProductModel>? Products { get; set; }
