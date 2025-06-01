@@ -60,6 +60,9 @@ builder.Services.AddSwaggerGen(options =>
         Type = SecuritySchemeType.ApiKey
     });
 
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
+
 // Add service ProductService
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductImageService>();
@@ -88,8 +91,6 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 //builder.Services.AddScoped<PaymentService>();
 
 builder.Services.AddScoped<IPaymentService, StripePaymentService>();
-    options.OperationFilter<SecurityRequirementsOperationFilter>();
-});
 
 //Defining the authentication Scheme
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

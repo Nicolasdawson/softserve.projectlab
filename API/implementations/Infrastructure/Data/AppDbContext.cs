@@ -37,10 +37,10 @@ namespace API.implementations.Infrastructure.Data;
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<DeliveryAddress>().HasQueryFilter(d => !d.IsDeleted);
-
+            
           
             //Entity User configuration
-            modelBuilder.Entity<Credential>(entity =>
+        modelBuilder.Entity<Credential>(entity =>
             {
                 
                 entity.Property(c => c.PasswordHash).HasMaxLength(255).IsRequired();
@@ -103,7 +103,7 @@ namespace API.implementations.Infrastructure.Data;
                 entity.Property(e => e.Height).HasPrecision(10, 2);
                 entity.Property(e => e.Width).HasPrecision(10, 2);
                 entity.Property(e => e.Length).HasPrecision(10, 2);
-                entity.Property(e => e.Stock).IsRequired();                
+                entity.Property(e => e.Stock).IsRequired();
                 entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETDATE()");
 
                 entity.HasOne(e => e.Category)              // Relation with Category
@@ -113,13 +113,15 @@ namespace API.implementations.Infrastructure.Data;
                     .IsRequired(false);
 
                 entity.HasMany(e => e.Images)               // Relation with Images
-                    .WithOne(pi => pi.Product)              
+                    .WithOne(pi => pi.Product)
                     .HasForeignKey(pi => pi.IdProduct)      // ForeignKey
                     .OnDelete(DeleteBehavior.Cascade);
+                    
             });
+            modelBuilder.Entity<Product>().HasQueryFilter(p => p.IsActive);
 
             //Entity Category configuration
-            modelBuilder.Entity<Category>(entity =>
+        modelBuilder.Entity<Category>(entity =>
             {
                 entity.ToTable("Categories"); // Table Name in the DB
 
@@ -333,7 +335,7 @@ namespace API.implementations.Infrastructure.Data;
             Products.RemoveRange(Products);
             Categories.RemoveRange(Categories);
             //Countries.RemoveRange(Countries);
-            //Regions.RemoveRange(Regions);
+           //Regions.RemoveRange(Regions);
             //Roles.RemoveRange(Roles);
             //ProductImages.RemoveRange(ProductImages);
             SaveChanges();

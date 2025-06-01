@@ -57,7 +57,7 @@ public class GenericController<TEntity> : Controller where TEntity : class
         return BadRequest(action.Message);
     }
 
-    [HttpDelete("{id}")]
+    /*[HttpDelete("{id}")]
     public virtual async Task<IActionResult> DeleteAsync(int id)
     {
         var action = await _genericService.DeleteAsync(id);
@@ -66,7 +66,7 @@ public class GenericController<TEntity> : Controller where TEntity : class
             return NoContent();
         }
         return BadRequest(action.Message);
-    }
+    }*/
 
     [HttpGet("paginated")]
     public virtual async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)

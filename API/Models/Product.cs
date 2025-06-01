@@ -14,9 +14,10 @@ namespace API.Models;
         public decimal Width { get; set; }
         public decimal Length { get; set; }
         public int Stock { get; set; }
+        public bool IsActive { get; set; } = true;
     
         // ForeignKey: Idcategory
-        public Guid IdCategory { get; set; }
+    public Guid IdCategory { get; set; }
 
 
         //Navigation Properties

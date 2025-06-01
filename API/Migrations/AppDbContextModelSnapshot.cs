@@ -427,6 +427,9 @@ namespace API.Migrations
                     b.Property<Guid>("IdCategory")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<decimal>("Length")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
@@ -440,9 +443,6 @@ namespace API.Migrations
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid?>("ProdId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Stock")
                         .HasColumnType("int");
@@ -461,8 +461,6 @@ namespace API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IdCategory");
-
-                    b.HasIndex("ProdId");
 
                     b.ToTable("Products", (string)null);
                 });
@@ -673,13 +671,7 @@ namespace API.Migrations
                         .HasForeignKey("IdCategory")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("API.Models.Product", "Prod")
-                        .WithMany()
-                        .HasForeignKey("ProdId");
-
                     b.Navigation("Category");
-
-                    b.Navigation("Prod");
                 });
 
             modelBuilder.Entity("API.Models.ProductImage", b =>

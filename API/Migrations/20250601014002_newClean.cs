@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class RemoveCircularDependencie : Migration
+    public partial class newClean : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -77,6 +77,26 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PendingRegistrations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    IdCustomer = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    VerificationToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Expiration = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PendingRegistrations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -103,8 +123,8 @@ namespace API.Migrations
                     Width = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
                     Length = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
                     Stock = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     IdCategory = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProdId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -117,11 +137,6 @@ namespace API.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Products_Products_ProdId",
-                        column: x => x.ProdId,
-                        principalTable: "Products",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -146,7 +161,7 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Credential",
+                name: "Credentials",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -162,15 +177,15 @@ namespace API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Credential", x => x.Id);
+                    table.PrimaryKey("PK_Credentials", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Credential_Customers_IdCustomer",
+                        name: "FK_Credentials_Customers_IdCustomer",
                         column: x => x.IdCustomer,
                         principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Credential_Roles_IdRole",
+                        name: "FK_Credentials_Roles_IdRole",
                         column: x => x.IdRole,
                         principalTable: "Roles",
                         principalColumn: "Id",
@@ -350,13 +365,13 @@ namespace API.Migrations
                 column: "IdRegion");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Credential_IdCustomer",
-                table: "Credential",
+                name: "IX_Credentials_IdCustomer",
+                table: "Credentials",
                 column: "IdCustomer");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Credential_IdRole",
-                table: "Credential",
+                name: "IX_Credentials_IdRole",
+                table: "Credentials",
                 column: "IdRole");
 
             migrationBuilder.CreateIndex(
@@ -405,11 +420,6 @@ namespace API.Migrations
                 column: "IdCategory");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_ProdId",
-                table: "Products",
-                column: "ProdId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Regions_IdCountry",
                 table: "Regions",
                 column: "IdCountry");
@@ -429,10 +439,13 @@ namespace API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Credential");
+                name: "Credentials");
 
             migrationBuilder.DropTable(
                 name: "OrderItems");
+
+            migrationBuilder.DropTable(
+                name: "PendingRegistrations");
 
             migrationBuilder.DropTable(
                 name: "ProductImages");
